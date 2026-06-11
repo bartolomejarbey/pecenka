@@ -1,0 +1,9 @@
+node_modules
+.next
+out
+.env*.local
+.DS_Store
+tsconfig.tsbuildinfo
+npm-debug.log*
+screenshots
+.playwright-mcp
