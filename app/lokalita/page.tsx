@@ -8,7 +8,7 @@ import { LOCATION } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Lokalita",
   description:
-    "Sedmý les leží na Vysočině, na samotě u zatopeného žulového lomu. Přesné souřadnice posíláme s potvrzenou rezervací — hodinu a půl z Prahy i Brna.",
+    "Sedmý les leží na severu středních Čech, na samotě u zatopeného žulového lomu. Přesné souřadnice posíláme s potvrzenou rezervací — z Prahy do hodiny autem.",
 };
 
 /** Kompasová růžice — dekorace mapy, sever žhne ember. */
@@ -50,7 +50,7 @@ export default function LokalitaPage() {
         kicker="Lokalita"
         title="Kde přesně? To je"
         accent="tajemství."
-        lead={`${LOCATION.secretNote} Prozradíme jen tolik: Vysočina, žulový lom a kolem dokola les.`}
+        lead={`${LOCATION.secretNote} Prozradíme jen tolik: sever středních Čech, žulový lom a kolem dokola les.`}
       />
 
       {/* ===== Kapitola I · Mapa ===== */}
@@ -83,7 +83,7 @@ export default function LokalitaPage() {
               <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
                 <LogoMark className="h-7 w-auto text-sage" />
                 <p className="font-display mt-6 text-2xl text-linen md:text-3xl">
-                  49.?° N, 15.?° E
+                  50.?° N, 14.?° E
                 </p>
                 <p className="mt-3 max-w-xs text-sm leading-relaxed text-sage">
                   Souřadnice dostanete s potvrzenou rezervací.

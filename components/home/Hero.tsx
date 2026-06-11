@@ -30,7 +30,7 @@ const TRUST = [
   "Celoroční provoz",
   "Sauna a koupací sud",
   "Pes vítán",
-  "Do 90 minut z Prahy i Brna",
+  "Do hodiny z Prahy",
 ];
 
 export default function Hero() {

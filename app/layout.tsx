@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     "Dva černé tiny housy na samotě u zatopeného lomu. Ticho, les, sauna, koupací sud a nebe plné hvězd. Za sedmero horami, hodinu od civilizace.",
   keywords: [
     "tiny house pronájem",
-    "tiny house Vysočina",
+    "tiny house střední Čechy",
     "ubytování u lomu",
     "glamping",
     "chata na samotě",
@@ -67,7 +67,7 @@ const jsonLd = {
       priceRange: "3 490 Kč – 4 790 Kč / noc",
       address: {
         "@type": "PostalAddress",
-        addressRegion: "Kraj Vysočina",
+        addressRegion: "Středočeský kraj",
         addressCountry: "CZ",
       },
       amenityFeature: [

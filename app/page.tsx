@@ -13,7 +13,7 @@ import Practical from "@/components/home/Practical";
 export const metadata: Metadata = {
   title: { absolute: "Sedmý les — dva tiny housy u zatopeného lomu" },
   description:
-    "Dva černé tiny housy na samotě u zatopeného žulového lomu. Ticho, tma a hvězdy, sauna i koupací sud. Celoroční provoz, 90 minut z Prahy i Brna.",
+    "Dva černé tiny housy na samotě u zatopeného žulového lomu na severu středních Čech. Ticho, tma a hvězdy, sauna i koupací sud. Celoroční provoz, do hodiny z Prahy.",
 };
 
 const MARQUEE_ITEMS = ["ticho", "mlha nad lomem", "žula", "hvězdy", "oheň", "les", "voda"];

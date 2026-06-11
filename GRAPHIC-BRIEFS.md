@@ -9,7 +9,7 @@ Tento dokument obsahuje přesná zadání pro budoucí fotografie webu sedmyles.
 
 **Značková paleta:** night `#0c110f` · bark `#131a16` · pine `#1c2620` · moss `#4a5e51` · sage `#9db3a2` · mist `#ebe7db` · linen `#f3efe5` · **ember `#d9914e`** (jediný teplý akcent — světlo z okna za soumraku).
 **Typografie webu:** Fraunces (display serif) · Hanken Grotesk (text).
-**Vizuální svět:** Scandinavian noir — černé opálené dřevo (shou sugi ban), žulový lom se zatopenou hladinou, mlha, les na Vysočině, filmové zrno, ticho. **Jediný zdroj teplého světla v záběru je vždy ember/amber** (okno, kamna, oheň, lucerna) — všechno ostatní je chladné, tlumené, zeleno-šedé.
+**Vizuální svět:** Scandinavian noir — černé opálené dřevo (shou sugi ban), žulový lom se zatopenou hladinou, mlha, les na severu středních Čech, filmové zrno, ticho. **Jediný zdroj teplého světla v záběru je vždy ember/amber** (okno, kamna, oheň, lucerna) — všechno ostatní je chladné, tlumené, zeleno-šedé.
 
 **Společný styl pro VŠECHNY snímky (vlož na konec každého promptu):**
 

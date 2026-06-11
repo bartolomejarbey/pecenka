@@ -12,7 +12,7 @@ export const SITE = {
   url: "https://sedmyles.cz",
   email: "ahoj@sedmyles.cz",
   phone: "+420 777 000 777", // PLACEHOLDER — doplnit skutečné číslo
-  region: "Kraj Vysočina", // PLACEHOLDER — upřesnit po dodání lokace
+  region: "Sever středních Čech", // upřesní se po dodání přesné lokace
   claim: "Za sedmero horami. Hodinu od civilizace.",
   instagram: "https://instagram.com/sedmyles.cz",
 };
@@ -253,7 +253,7 @@ export const REVIEWS = [
 export const FAQ_ITEMS = [
   {
     q: "Kde přesně Sedmý les je?",
-    a: "Na Vysočině, na samotě u zatopeného žulového lomu. Přesné souřadnice posíláme s potvrzenou rezervací — soukromí našich hostů chráníme i takhle. Z Prahy to máte zhruba hodinu a půl, z Brna hodinu a čtvrt autem.",
+    a: "Na severu středních Čech, na samotě u zatopeného žulového lomu. Přesné souřadnice posíláme s potvrzenou rezervací — soukromí našich hostů chráníme i takhle. Z Prahy to máte do hodiny autem.",
   },
   {
     q: "Jak probíhá check-in?",
@@ -304,12 +304,12 @@ export const FAQ_ITEMS = [
 /* ===== Lokalita ===== */
 
 export const LOCATION = {
-  region: "Vysočina",
+  region: "Sever středních Čech",
   secretNote:
     "Přesnou polohu prozradíme až s potvrzenou rezervací. Sedmý les se nehledá — Sedmý les se najde.",
   distances: [
-    { place: "Praha", time: "≈ 1 h 30 min autem" },
-    { place: "Brno", time: "≈ 1 h 15 min autem" },
+    { place: "Praha", time: "≈ 45 min autem" },
+    { place: "Liberec", time: "≈ 1 h autem" },
     { place: "Nejbližší obchod", time: "9 km" },
     { place: "Nejbližší hospoda", time: "6 km (a stojí za to)" },
     { place: "Vlaková zastávka", time: "7 km, vyzvedneme vás" },
@@ -321,7 +321,7 @@ export const LOCATION = {
     },
     {
       title: "Vyhlídka na sedmero hor",
-      desc: "Půl hodiny pěšky na žulové skalisko, ze kterého je vidět sedm kopců za sebou. Odtud jméno.",
+      desc: "Půl hodiny pěšky na skalisko, ze kterého je vidět sedm kopců Českého středohoří za sebou. Odtud jméno.",
     },
     {
       title: "Hospoda U Dvou lip",

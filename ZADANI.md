@@ -5,9 +5,9 @@
 ## Klient & produkt
 
 **sedmyles.cz** — pronájem dvou designových tiny housů na samotě u zatopeného
-žulového lomu (Vysočina, přesná lokace se doplní). Celoroční provoz.
-Cílovka: páry 25–45 z Prahy a Brna, co chtějí na 2–4 noci vypnout;
-sekundárně malé rodiny a sólo útěky.
+žulového lomu (sever středních Čech, přesná lokace se doplní). Celoroční provoz.
+Cílovka: páry 25–45 z Prahy a okolí (do hodiny autem), co chtějí na 2–4 noci
+vypnout; sekundárně malé rodiny a sólo útěky.
 
 ## Pozicování
 
