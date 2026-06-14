@@ -15,7 +15,7 @@ Dále jen „my“ nebo „provozovatel“. Vy, kdo k nám jedete, jste v textu 
 
 ## 2. Co tyto podmínky upravují
 
-Tyto obchodní podmínky upravují krátkodobé ubytování v rekreačních objektech **Žula** a **Mech** u zatopeného žulového lomu (dále jen „domky“) a související služby — saunu, koupací sud, snídaňové koše a další doplňky podle aktuálního ceníku na webu sedmyles.cz.
+Tyto obchodní podmínky upravují krátkodobé ubytování v rekreačních objektech **Achát** a **Mech** u zatopeného břidlicového lomu (dále jen „domky“) a související služby — snídaňové koše a další doplňky podle aktuálního ceníku na webu sedmyles.cz.
 
 Smlouva o ubytování vzniká okamžikem, kdy potvrdíme vaši rezervaci (viz článek 3). Uzavírá se na dobu určitou — na dobu pobytu — a řídí se českým právem, zejména občanským zákoníkem.
 
@@ -67,12 +67,11 @@ Storno je účinné okamžikem doručení e-mailu na [ahoj@sedmyles.cz](mailto:a
 
 Pravidel máme málo, ale platí:
 
-- **Kapacita:** v každém domku mohou být ubytovány **maximálně 4 osoby** (včetně dětí). Návštěvy neubytovaných osob jen po předchozí domluvě.
+- **Kapacita:** v každém domku mohou být ubytovány **maximálně 2 osoby**; při pronájmu obou domků (Achát i Mech) **maximálně 4 osoby** (včetně dětí). Návštěvy neubytovaných osob jen po předchozí domluvě.
 - **Pes:** rádi přivítáme **jednoho psa na domek**, po předchozí dohodě a za poplatek dle ceníku. Po loukách prosíme na vodítku — kvůli srnkám.
-- **Kouření:** uvnitř domků a sauny je **přísně zakázáno**. Venku prosíme nedopalky do popelníku na terase.
-- **Oheň:** rozdělávejte jej výhradně **v ohništi a v kamnech**. V lese a na louce nikdy; při vyhlášeném zákazu rozdělávání ohňů ani v ohništi.
+- **Kouření:** uvnitř domků je **přísně zakázáno**. Venku prosíme nedopalky do popelníku na terase.
+- **Oheň:** rozdělávejte jej výhradně **v ohništi** na terase. V lese nikdy; při vyhlášeném zákazu rozdělávání ohňů ani v ohništi.
 - **Koupání v lomu** je **na vlastní odpovědnost**. Lom není hlídané koupaliště, voda je hluboká a studená. Děti u vody mějte vždy pod dohledem.
-- **Sauna a koupací sud** používejte podle instrukcí v domku a na vlastní odpovědnost; nejsou vhodné pro malé děti bez dozoru.
 - **Noční klid** se tu od 22:00 dodržuje tak nějak sám — jste na samotě. Prosíme jen, abyste jej dopřáli lesu i případným sousedům ve druhém domku.
 
 Při hrubém porušení pravidel (zejména kouření uvnitř, překročení kapacity, otevřený oheň mimo ohniště) můžeme pobyt ukončit bez náhrady a účtovat smluvní pokutu až 3 000 Kč.

@@ -5,31 +5,31 @@ import Reveal from "@/components/Reveal";
 import { ArrowIcon, Kicker } from "@/components/ui";
 
 /* Fotky místa — záměrně ne hero fotka domku (tu už návštěvník viděl).
-   Popisky jsou pravdivé k tomu, co je na snímku; druhý domek
-   se ukazuje jako „soused“, což podtrhuje příběh dvou domků. */
+   Popisky jsou pravdivé k tomu, co je na snímku: interiér a okolí lomu,
+   ke kterému to máte od terasy jen pár kroků. */
 const PLACE_PHOTOS: Record<House["slug"], { src: string; alt: string; caption: string }[]> = {
-  zula: [
+  achat: [
     {
-      src: "/foto/tiny1.jpg",
-      alt: "Černý domek mezi stromy za soumraku, okna svítí teplým světlem",
-      caption: "Večer v Sedmém lese — okna, která topí.",
+      src: "/foto/interier-obyvak.jpg",
+      alt: "Interiér domku — obývací část s velkým oknem do lesa, petrolejová zeleň a překližka",
+      caption: "Celá jedna stěna je okno — les si pustíte rovnou dovnitř.",
     },
     {
-      src: "/foto/tiny2.jpg",
-      alt: "Domek Mech na kraji louky při západu slunce",
-      caption: "Louka u souseda Mechu, večer celá ve zlatě.",
+      src: "/foto/lom-rano.jpg",
+      alt: "Zatopený břidlicový lom za svítání, nad hladinou ranní mlha",
+      caption: "Zatopený lom pár kroků od domku, ráno celý v mlze.",
     },
   ],
   mech: [
     {
-      src: "/foto/tiny1.jpg",
-      alt: "Černý domek mezi stromy za soumraku, okna svítí teplým světlem",
-      caption: "Večer v Sedmém lese — okna, která topí.",
+      src: "/foto/interier-kuchyne.jpg",
+      alt: "Detail kuchyňské linky v domku — překližka, černé prvky a spací patro nad ní",
+      caption: "Plně vybavená kuchyňka, nad ní spací patro pod 3,5m stropem.",
     },
     {
-      src: "/foto/tiny3.jpg",
-      alt: "Domek Žula na skále nad zatopeným lomem s ranní mlhou",
-      caption: "Sousedka Žula na hraně lomu — pět minut pěšky.",
+      src: "/foto/koupani-lom.jpg",
+      alt: "Dřevěné molo na křišťálově čistém zatopeném lomu, letní den",
+      caption: "Křišťálová voda lomu — od terasy je to jen pár kroků.",
     },
   ],
 };

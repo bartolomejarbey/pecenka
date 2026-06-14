@@ -24,8 +24,8 @@ export default function Evening() {
         {/* Vrstva s fotkou je vyšší než sekce — paralaxa má kam jet */}
         <motion.div style={{ y }} className="absolute inset-x-0 -top-[15%] h-[130%]">
           <Image
-            src="/foto/tiny1.jpg"
-            alt="Rozsvícené okno tiny housu v lese za soumraku"
+            src="/foto/ohniste-vecer.jpg"
+            alt="Ohniště na dřevěné terase před černým domkem za večera"
             fill
             sizes="100vw"
             className="object-cover"
@@ -45,8 +45,8 @@ export default function Evening() {
               className="font-display mt-8 text-3xl font-light italic text-linen md:text-5xl"
               style={{ lineHeight: 1.2 }}
             >
-              „Večer zatopíte v kamnech, nalijete víno a svět se zmenší na
-              jedno teplé okno uprostřed lesa.“
+              „Večer nalijete víno, rozsvítí se jediné okno uprostřed lesa a
+              svět se zmenší na pár tichých metrů čtverečních.“
             </p>
           </blockquote>
         </Reveal>

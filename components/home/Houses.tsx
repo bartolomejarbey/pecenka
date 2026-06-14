@@ -4,7 +4,7 @@ import HouseCard from "@/components/HouseCard";
 import { ArrowIcon, Kicker } from "@/components/ui";
 import { HOUSES } from "@/lib/content";
 
-/** Kapitola II — Žula a Mech. */
+/** Kapitola II — Achát a Mech. */
 export default function Houses() {
   return (
     <section id="domky" className="grain relative overflow-hidden bg-night py-24 md:py-32">
@@ -16,9 +16,9 @@ export default function Houses() {
           Dva domky. <span className="accent-italic">Každý jiná pohádka.</span>
         </Reveal>
         <Reveal i={2} as="p" className="mt-7 max-w-xl text-[16px] leading-relaxed text-sage">
-          Žula stojí na hraně skály a má finskou saunu s oknem na hladinu. Mech
-          leží na kraji louky a večer pod jeho koupacím sudem praská dřevo.
-          Stejné ticho, dvě různé kapitoly.
+          Achát má prosklenou stěnu tři krát tři metry s výhledem rovnou do
+          lesa. Mech má navíc dřevěnou žaluziovou clonu, za kterou zmizíte světu
+          z očí. Oba jsou pro dva — a dají se spojit v jeden celek pro čtyři.
         </Reveal>
 
         <div className="mt-14 grid gap-8 md:grid-cols-2">

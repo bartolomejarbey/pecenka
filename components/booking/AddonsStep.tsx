@@ -1,24 +1,12 @@
 "use client";
 
 import { ADDONS } from "@/lib/content";
-import { formatPrice, type HouseSlug } from "@/lib/booking";
+import { formatPrice } from "@/lib/booking";
 import { daysLabel } from "./format";
 
 /** Jednotky, u kterých dává smysl množství — zbytek je zapnuto/vypnuto. */
 const QTY_UNITS = new Set(["za den", "za lahev", "za balík"]);
 const MAX_QTY = 5;
-
-/** Host už domek vybral — sauna/sud se ukazuje podle něj, ne obecně. */
-const SAUNA_BY_HOUSE: Record<HouseSlug, { name: string; desc: string }> = {
-  zula: {
-    name: "Finská sauna",
-    desc: "Vytopíme ji před vaším příjezdem a nachystáme dřevo na každý den pobytu.",
-  },
-  mech: {
-    name: "Koupací sud",
-    desc: "Vytopíme ho před vaším příjezdem a nachystáme dřevo na každý den pobytu.",
-  },
-};
 
 function StepperButton({
   onClick,
@@ -51,14 +39,12 @@ export default function AddonsStep({
   addons,
   onQtyChange,
   nights,
-  house,
 }: {
   guests: number;
   onGuestsChange: (n: number) => void;
   addons: Record<string, number>;
   onQtyChange: (id: string, qty: number) => void;
   nights: number;
-  house: HouseSlug | null;
 }) {
   return (
     <div className="space-y-8">
@@ -66,7 +52,9 @@ export default function AddonsStep({
       <div className="flex flex-col gap-5 rounded-2xl border border-linen/10 bg-bark/40 p-5 sm:flex-row sm:items-center sm:justify-between md:p-6">
         <div>
           <p className="font-semibold text-linen">Počet hostů</p>
-          <p className="mt-1 text-sm text-sage">Každý domek je pro 2 + 2 osoby.</p>
+          <p className="mt-1 text-sm text-sage">
+            Domek je pro dva. Chcete být čtyři? Vezměte oba domky — napište nám.
+          </p>
         </div>
         <div className="flex items-center gap-4" role="group" aria-label="Počet hostů">
           <StepperButton
@@ -84,7 +72,7 @@ export default function AddonsStep({
           </span>
           <StepperButton
             onClick={() => onGuestsChange(guests + 1)}
-            disabled={guests >= 4}
+            disabled={guests >= 2}
             label="Přidat hosta"
           >
             +
@@ -101,8 +89,6 @@ export default function AddonsStep({
             const active = qty > 0;
             const isQty = QTY_UNITS.has(addon.unit);
             const perDay = addon.unit === "za den";
-            const display =
-              addon.id === "sauna" && house ? SAUNA_BY_HOUSE[house] : addon;
             return (
               <li
                 key={addon.id}
@@ -111,8 +97,8 @@ export default function AddonsStep({
                 }`}
               >
                 <div className="max-w-md">
-                  <p className="font-semibold text-linen">{display.name}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-sage">{display.desc}</p>
+                  <p className="font-semibold text-linen">{addon.name}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-sage">{addon.desc}</p>
                 </div>
                 <div className="flex shrink-0 items-center justify-between gap-6 sm:justify-end">
                   <p className="text-[15px] text-linen">

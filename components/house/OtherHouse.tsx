@@ -34,7 +34,7 @@ export default function OtherHouse({ house }: { house: House }) {
               <h2 className="font-display text-3xl text-linen md:text-4xl">{house.name}</h2>
               <p className="max-w-xl text-[15px] leading-relaxed text-sage">{house.story}</p>
               <span className="mt-3 flex items-center gap-2 text-sm font-semibold text-ember transition-transform duration-300 group-hover:translate-x-1">
-                Prohlédnout {house.slug === "zula" ? "Žulu" : "Mech"} <ArrowIcon />
+                Prohlédnout {house.name} <ArrowIcon />
               </span>
             </div>
           </Link>

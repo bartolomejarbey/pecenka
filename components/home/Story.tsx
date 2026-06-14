@@ -28,10 +28,10 @@ export default function Story() {
 
             <div className="mt-12 grid max-w-3xl gap-8 md:grid-cols-2">
               <Reveal i={2} as="p" className="text-[15.5px] leading-relaxed text-sage">
-                Sedmý les je samota u zatopeného žulového lomu na severu
-                středních Čech. Dva domky, hladina mezi skalami a kolem dokola
-                jen les. Žádní sousedé, žádná silnice, žádné světlo kromě toho
-                vašeho.
+                Sedmý les je samota u zatopeného břidlicového lomu nad Jílovým
+                u Držkova, na okraji Českého ráje. Dva domky, hladina mezi
+                skalami a kolem dokola jen les. Žádní sousedé, žádná silnice,
+                žádné světlo kromě toho vašeho.
               </Reveal>
               <Reveal i={3} as="p" className="text-[15.5px] leading-relaxed text-sage">
                 Postavili jsme to tu pro jediné: abyste mohli na pár nocí

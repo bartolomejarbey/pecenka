@@ -2,7 +2,13 @@
  * SEDMÝ LES — jediný zdroj pravdy pro obsah webu.
  * Veškeré texty, ceny a údaje o domcích se berou odsud.
  *
- * POZN.: Recenze, telefon a některé údaje jsou ilustrační placeholdery
+ * REALITA: dva černé kubické tiny housy (každý 15 m² = 10 m² přízemí + 5 m²
+ * spací patro, výška 3,5 m), které lze pronajmout zvlášť nebo architektonicky
+ * spojit v jeden celek 30 m². Stojí na samotě u zatopeného břidlicového lomu
+ * v Jílovém u Držkova (Liberecký kraj, okraj Českého ráje).
+ *
+ * POZN.: Sauna a koupací sud se teprve PŘIPRAVUJÍ — všude o nich píšeme
+ * v budoucím čase. Recenze, telefon a IČO jsou ilustrační placeholdery
  * k nahrazení před spuštěním — viz README.md.
  */
 
@@ -12,15 +18,16 @@ export const SITE = {
   url: "https://sedmyles.cz",
   email: "ahoj@sedmyles.cz",
   phone: "+420 777 000 777", // PLACEHOLDER — doplnit skutečné číslo
-  region: "Sever středních Čech", // upřesní se po dodání přesné lokace
-  claim: "Za sedmero horami. Hodinu od civilizace.",
+  region: "Liberecký kraj", // Jílové u Držkova, okraj Českého ráje
+  village: "Jílové u Držkova",
+  claim: "Za sedmero horami. Na dohled Českého ráje.",
   instagram: "https://instagram.com/sedmyles.cz",
 };
 
 /* ===== Domky ===== */
 
 export type House = {
-  slug: "zula" | "mech";
+  slug: "achat" | "mech";
   name: string;
   tagline: string;
   story: string;
@@ -37,103 +44,126 @@ export type House = {
 
 export const HOUSES: House[] = [
   {
-    slug: "zula",
-    name: "Žula",
-    tagline: "Domek nad zatopeným lomem",
+    slug: "achat",
+    name: "Achát",
+    tagline: "Domek s oknem do lesa",
     story:
-      "Stojí na hraně skály, pár kroků od vody. Ráno se z hladiny lomu zvedá mlha a celé okno je najednou jedna velká obrazovka, na které neběží nic — a právě proto se od ní nedá odtrhnout.",
-    photo: "/foto/tiny3.jpg",
-    photoAlt: "Tiny house Žula na skále nad zatopeným lomem, ranní mlha nad hladinou",
-    photoSecondary: "/foto/tiny1.jpg",
-    capacity: "2 + 2 osoby",
-    beds: "Manželská postel 180 cm + rozkládací pohovka",
-    area: "26 m² + terasa 14 m²",
+      "Celou jednu stěnu tvoří sklo tři krát tři metry. Sedíte uvnitř, venku se hýbe les a vám stačí jen koukat. Černý kubus se schová mezi stromy, ale to okno dovnitř pustí celý kraj — ráno mlhu nad lomem, večer poslední světlo mezi smrky.",
+    photo: "/foto/domek-vecer.jpg",
+    photoAlt: "Černý kubický tiny house Achát za soumraku, teplé světlo z velkého okna",
+    photoSecondary: "/foto/interier-obyvak.jpg",
+    capacity: "2 osoby",
+    beds: "Dvojlůžko na spacím patře",
+    area: "15 m² (10 m² obývací + 5 m² patro)",
     signature: {
-      title: "Finská sauna na hraně skály",
-      desc: "Soukromá venkovní sauna s oknem na hladinu lomu. Vyhřejete ji na 90 °C, pak tři kroky a šup do vody. Celý rok, i v lednu.",
+      title: "Okno tři krát tři metry",
+      desc: "Velkoformátové trojsklo přes celou stěnu s elektricky ovládanou venkovní žaluzií. Ve dne galerie lesa, večer ho zatáhnete a svět zůstane venku.",
     },
     amenities: [
-      "Panoramatické okno s výhledem na lom",
-      "Finská sauna s výhledem (pro 2–3 osoby)",
-      "Kamna na dřevo + podlahové topení",
-      "Plně vybavená kuchyňka",
-      "Koupelna s dešťovou sprchou a horkou vodou",
-      "Krytá terasa s křesly",
-      "Ohniště s grilovacím roštem",
+      "Prosklená stěna 3 × 3 m (trojsklo) s el. venkovní žaluzií",
+      "Spací patro pod 3,5m stropem",
+      "Plně vybavená kuchyňská linka",
+      "Koupelna se sprchou a WC",
+      "Klimatizace a tepelné čerpadlo (teplo i chlazení)",
+      "Kompletní zateplení, celoroční provoz",
+      "Vinylová podlaha, březová překližka, LED lišty",
       "Wi-Fi (a vypínač, kterým ji zhasnete)",
-      "Kávovar na espresso a výběrová káva",
-      "Povlečení, ručníky a župany v ceně",
+      "Espresso kávovar a výběrová káva",
+      "Povlečení, ručníky a útulné deky v ceně",
     ],
     detail: [
       {
-        title: "Pro koho je Žula",
-        text: "Pro dva, kteří chtějí být hlavně spolu — a pro otužilce, fotografy mlhy a všechny, kdo věří, že nejlepší wellness je horká sauna a studený lom.",
+        title: "Pro koho je Achát",
+        text: "Pro dva, kteří chtějí hlavně klid a výhled. Pro fotografy mlhy, čtenáře a všechny, kdo dokážou půl dne prokoukat do lesa a nenudit se.",
       },
       {
-        title: "Jak to u ní vypadá",
-        text: "Černé dřevo, sklo a žula. Domek je posazený tak, abyste z postele viděli vodu a ze sauny západ slunce. Nejbližší soused: výr velký, asi 400 metrů vzdušnou čarou.",
+        title: "Jak vypadá uvnitř",
+        text: "Petrolejová zeleň, bílá a březová překližka. Černé ocelové schůdky vedou na spací patro, ze kterého je to oknem pořád ven do korun stromů. Malý, ale vzdušný — strop má tři a půl metru.",
       },
     ],
   },
   {
     slug: "mech",
     name: "Mech",
-    tagline: "Domek na kraji louky",
+    tagline: "Domek se žaluziovou stěnou",
     story:
-      "Sedí na okraji lesa, kde končí stromy a začíná louka. Večer se terasa koupe v posledním slunci, v noci nad ní visí Mléčná dráha. Mech je domek pro ty, kdo si chtějí číst, koukat do ohně a nikam nespěchat.",
-    photo: "/foto/tiny2.jpg",
-    photoAlt: "Tiny house Mech na louce při západu slunce, dřevěná terasa s lehátky",
-    photoSecondary: "/foto/tiny1.jpg",
-    capacity: "2 + 2 osoby",
-    beds: "Manželská postel 180 cm + spací patro pro 2",
-    area: "24 m² + terasa 18 m²",
+      "Mech je o kousek víc schovaný. Jednu stěnu kryje dřevěná žaluziová clona — přes den jí prosvítá slunce do pruhů, večer za ní zmizíte světu z očí. Stejně černý kubus, stejné ticho, jen o trochu víc soukromí.",
+    photo: "/foto/domek-den.jpg",
+    photoAlt: "Černý kubický tiny house Mech s dřevěnou žaluziovou stěnou na kraji lesa",
+    photoSecondary: "/foto/interier-patro.jpg",
+    capacity: "2 osoby",
+    beds: "Dvojlůžko na spacím patře",
+    area: "15 m² (10 m² obývací + 5 m² patro)",
     signature: {
-      title: "Koupací sud pod hvězdami",
-      desc: "Dřevem vytápěný koupací sud na kraji terasy. Voda 38 °C, nad hlavou hvězdy, v ruce hrnek svařáku. Topíme my, vy jen lezete dovnitř.",
+      title: "Stínicí žaluziová stěna",
+      desc: "Velká venkovní žaluzie přes celou stěnu. Naladíte si přesně tolik světla a soukromí, kolik chcete — od plného slunce po úplné zašití.",
     },
     amenities: [
-      "Prosklená stěna na jihozápad — západy slunce",
-      "Koupací sud vytápěný dřevem (pro 2 osoby)",
-      "Kamna na dřevo + podlahové topení",
-      "Plně vybavená kuchyňka",
-      "Koupelna s dešťovou sprchou a horkou vodou",
-      "Velká terasa s lehátky a houpací sítí",
-      "Ohniště s grilovacím roštem",
+      "Prosklená stěna 3 × 2 m (trojsklo) s el. venkovní žaluzií",
+      "Dřevěná žaluziová clona přes celou stěnu",
+      "Spací patro pod 3,5m stropem",
+      "Plně vybavená kuchyňská linka",
+      "Koupelna se sprchou a WC",
+      "Klimatizace a tepelné čerpadlo (teplo i chlazení)",
+      "Kompletní zateplení, celoroční provoz",
+      "Vinylová podlaha, březová překližka, LED lišty",
       "Wi-Fi (a vypínač, kterým ji zhasnete)",
-      "Kávovar na espresso a výběrová káva",
-      "Povlečení, ručníky a župany v ceně",
+      "Povlečení, ručníky a útulné deky v ceně",
     ],
     detail: [
       {
         title: "Pro koho je Mech",
-        text: "Pro páry i malou rodinu — spací patro nad kuchyní děti milují. A pro každého, kdo chce ráno snídat bosý v trávě.",
+        text: "Pro ty, kdo chtějí být víc zalezlí. Žaluziová stěna dělá z terasy soukromý kout, do kterého není vidět — i když je půl metru od vody.",
       },
       {
-        title: "Jak to u něj vypadá",
-        text: "Opálené dřevo, len a vlna. Z terasy vidíte jen louku, les a oblohu. Světelný smog tu neexistuje — v noci je tma jako v pohádce, a přesně proto je vidět tolik hvězd.",
+        title: "Jak vypadá uvnitř",
+        text: "Skoro stejný jako Achát — petrolejová zeleň, překližka, spací patro, ocelové schůdky. Okno je o kus menší, zato má navíc tu žaluziovou clonu, která mění celou náladu domku.",
       },
     ],
   },
 ];
 
+/** Oba domky se dají architektonicky spojit v jeden obytný celek. */
+export const JOIN = {
+  title: "Dva domky, nebo jeden velký",
+  desc: "Achát a Mech stojí kousek od sebe a dají se propojit v jeden obytný celek o 30 m². Pronajměte si jeden domek pro dva, nebo oba najednou — pro rodinu nebo dvě dvojice, co chtějí být spolu, ale každý se svým koutem. O spojení obou domků nám napište, doladíme to podle vás.",
+};
+
+/** Vybavení, které se teprve chystá — píšeme o něm v budoucím čase. */
+export const PLANNED = {
+  title: "Co teprve přibude",
+  desc: "Sedmý les se pořád rodí. Na břeh lomu chystáme finskou saunu a dřevem vytápěný koupací sud — abyste se mohli prohřát a pak skočit rovnou do křišťálové vody. Otevřeme je během příští sezóny; ozveme se, jakmile budou hotové.",
+  items: [
+    {
+      title: "Finská sauna nad lomem",
+      desc: "Venkovní sauna s výhledem na hladinu. Vyhřát na 90 °C, pak tři kroky a šup do lomu — celý rok.",
+    },
+    {
+      title: "Koupací sud pod hvězdami",
+      desc: "Dřevem vytápěný sud na kraji terasy. Voda 38 °C, nad hlavou hvězdy, v ruce hrnek svařáku.",
+    },
+  ],
+};
+
 /* ===== Ceník ===== */
 
 export const PRICING = {
   currency: "Kč",
-  baseNight: 3490, // ne–čt
-  weekendNight: 4290, // noci z pátku a ze soboty
-  highSeasonExtra: 500, // 15. 6. – 15. 9. a 20. 12. – 2. 1.
+  baseNight: 2890, // ne–čt, za jeden domek
+  weekendNight: 3490, // noci z pátku a ze soboty
+  highSeasonExtra: 400, // 15. 6. – 15. 9. a 20. 12. – 2. 1.
   minNights: 2,
   weekDiscount: 0.1, // 7+ nocí
   deposit: 3000, // vratná kauce
   checkIn: "15:00 – 20:00",
   checkOut: "do 11:00",
   notes: [
-    "Minimální délka pobytu jsou 2 noci.",
-    "Při pobytu na 7 a více nocí sleva 10 %.",
+    "Cena je za jeden domek a noc, ať jste dva nebo přijedete sami.",
+    "Chcete oba domky (až 4 lidi) nebo je spojit v jeden? Napište nám.",
+    "Minimální délka pobytu jsou 2 noci. Při pobytu na 7 a více nocí sleva 10 %.",
     "Vratná kauce 3 000 Kč se vrací do 3 dnů po odjezdu.",
-    "V ceně: povlečení, ručníky, župany, káva, dřevo do kamen, závěrečný úklid.",
-    "Domky jsou celoroční — v zimě topí podlahovka i kamna.",
+    "V ceně: povlečení, ručníky, káva, dřevo do ohniště a závěrečný úklid.",
+    "Domky jsou celoroční — topí tepelné čerpadlo, v létě chladí klimatizace.",
   ],
 };
 
@@ -146,13 +176,6 @@ export type Addon = {
 };
 
 export const ADDONS: Addon[] = [
-  {
-    id: "sauna",
-    name: "Sauna / koupací sud",
-    desc: "Vytopíme před vaším příjezdem a každý den pobytu. Žula = sauna, Mech = sud.",
-    price: 900,
-    unit: "za pobyt",
-  },
   {
     id: "snidane",
     name: "Snídaňový koš",
@@ -170,7 +193,7 @@ export const ADDONS: Addon[] = [
   {
     id: "drevo",
     name: "Extra dřevo na ohniště",
-    desc: "Pořádná náruč bukového dřeva na celovečerní oheň. Dřevo do kamen je v ceně.",
+    desc: "Pořádná náruč bukového dřeva na celovečerní oheň. První dřevo dostanete v ceně.",
     price: 250,
     unit: "za balík",
   },
@@ -195,27 +218,27 @@ export const ADDONS: Addon[] = [
 export const EXPERIENCES = [
   {
     title: "Zatopený lom",
-    desc: "Křišťálová voda, žulové stěny a molo jen pro hosty. V létě na plavání, v zimě pro otužilce — rovnou ze sauny.",
+    desc: "Bývalý břidlicový lom přímo u domků, dnes jezírko s tak čistou vodou, že mu místní říkají České Chorvatsko. V létě na plavání a skoky ze skály, v zimě pro otužilce.",
   },
   {
-    title: "Ticho",
-    desc: "Žádná silnice, žádný soused, žádný hluk. Nejhlasitější věc tady je datel a praskání ohně.",
+    title: "Ticho a tmavá obloha",
+    desc: "Žádná hlavní silnice, žádný ruch. V noci skoro nulový světelný smog — za jasna je z terasy vidět Mléčná dráha pouhým okem.",
   },
   {
-    title: "Tma a hvězdy",
-    desc: "Nulový světelný smog. Za jasné noci je z terasy vidět Mléčná dráha pouhým okem.",
+    title: "Český ráj za rohem",
+    desc: "Skalní města, vyhlídky a hrady. Frýdštejn, Suché skály i Maloskalsko máte do dvaceti minut autem.",
   },
   {
-    title: "Les hned za dveřmi",
-    desc: "Houby, borůvky, srnky za rozbřesku. Lesní stezka kolem lomu měří 4 km a nepotká vás na ní nikdo.",
+    title: "Kozákov a acháty",
+    desc: "Vyhaslá sopka a nejvyšší vrch Českého ráje s rozhlednou. Po loukách kolem se dodnes hledají acháty, ametysty a křišťály.",
   },
   {
-    title: "Oheň",
-    desc: "Každý domek má vlastní ohniště, gril i kamna. Dřevo, sirky a špekáčková vidlice jsou nachystané.",
+    title: "Sklářský Železný Brod",
+    desc: "Pět kilometrů odsud leží skleněné městečko — hutě, ateliéry a muzeum skla. Ideální cíl, když přijde déšť.",
   },
   {
-    title: "Digitální detox",
-    desc: "Wi-Fi má vypínač a my vás vyzýváme ho použít. Místo zpráv — kniha, hvězdy a druhý člověk.",
+    title: "Brzy: sauna a sud",
+    desc: "Na břeh lomu chystáme finskou saunu a koupací sud. Otevřeme je příští sezónu — prohřát se a skočit do studené vody bude pak otázkou tří kroků.",
   },
 ];
 
@@ -224,26 +247,26 @@ export const EXPERIENCES = [
 export const REVIEWS = [
   {
     name: "Kateřina & Jakub",
-    house: "Žula",
-    text: "Ráno mlha nad lomem, večer sauna a hvězdy. Tři dny jsme neměli v ruce telefon a vůbec nám nechyběl. Nejlepší výročí, jaké jsme kdy měli.",
+    house: "Achát",
+    text: "To okno je něco neuvěřitelného. Celý víkend jsme prokoukali do lesa a vůbec se nenudili. Ráno mlha nad lomem, večer hvězdy. Nejlepší výročí, jaké jsme měli.",
     stars: 5,
   },
   {
     name: "Martin H.",
     house: "Mech",
-    text: "Jel jsem sám, dopsat diplomku. Místo toho jsem hlavně koukal do ohně a spal 10 hodin denně. Diplomku jsem dopsal doma, ale hlavu jsem si srovnal tady.",
+    text: "Jel jsem sám si srovnat hlavu. Místo telefonu jen oheň, kniha a žaluziová stěna, za kterou není vidět. Spal jsem deset hodin denně. Funguje to.",
     stars: 5,
   },
   {
     name: "Rodina Veselých",
-    house: "Mech",
-    text: "Děti spaly na patře a ráno je probudily srnky před oknem. Sud jsme topili každý večer. Už jsme zarezervovali Vánoce.",
+    house: "Achát + Mech",
+    text: "Vzali jsme oba domky a děti spaly na patře. Lom je úžasný — voda čistá jak ze žbrku. Ráno srnky před oknem. Hned jsme zamluvili i Vánoce.",
     stars: 5,
   },
   {
     name: "Tereza N.",
-    house: "Žula",
-    text: "Otužuju se třetím rokem a kombinace devadesátistupňové sauny a lomu v prosinci je absolutní top. Čistota, design, detaily — všechno na jedničku.",
+    house: "Achát",
+    text: "Otužuju se a lom v prosinci je sen. Domek malý, ale promyšlený do posledního detailu — klima, patro, čistota. Design na jedničku.",
     stars: 5,
   },
 ];
@@ -253,7 +276,19 @@ export const REVIEWS = [
 export const FAQ_ITEMS = [
   {
     q: "Kde přesně Sedmý les je?",
-    a: "Na severu středních Čech, na samotě u zatopeného žulového lomu. Přesné souřadnice posíláme s potvrzenou rezervací — soukromí našich hostů chráníme i takhle. Z Prahy to máte do hodiny autem.",
+    a: "Na samotě u zatopeného lomu nad Jílovým u Držkova, na okraji Českého ráje v Libereckém kraji. Přesné souřadnice posíláme s potvrzenou rezervací — soukromí hostů chráníme i takhle. Z Prahy to máte zhruba hodinu a půl, z Liberce a Jablonce přibližně půl hodiny.",
+  },
+  {
+    q: "Jak je to s domky — kolik jich je a pro kolik lidí?",
+    a: "Jsou dva: Achát a Mech. Každý je pro dva a má spací patro. Můžete si vzít jeden domek pro dvojici, nebo oba najednou — pak je vás až čtyři. Oba domky se dají i architektonicky spojit v jeden celek o 30 m²; o spojení nám napište.",
+  },
+  {
+    q: "Jak velký takový domek je?",
+    a: "Patnáct metrů čtverečních: deset dole jako obývák s kuchyní a koupelnou, pět nahoře jako spací patro. Strop má tři a půl metru, takže je uvnitř vzdušno. Jednu stěnu tvoří velké trojsklo s venkovní žaluzií.",
+  },
+  {
+    q: "Je tam sauna nebo koupací sud?",
+    a: "Zatím ne — ale chystáme je. Na břeh lomu přibude finská sauna a dřevem vytápěný koupací sud, otevřeme je během příští sezóny. Do té doby je tu na prohřátí i ochlazení samotný lom.",
   },
   {
     q: "Jak probíhá check-in?",
@@ -261,75 +296,75 @@ export const FAQ_ITEMS = [
   },
   {
     q: "Zvládneme to autem? A v zimě?",
-    a: "Ano, až k domku vede zpevněná cesta a každý domek má vlastní parkování. V zimě cestu protahujeme; stačí běžné zimní pneumatiky.",
+    a: "Ano, až k domkům vede zpevněná cesta a je u nich parkování. V zimě cestu udržujeme; stačí běžné zimní pneumatiky.",
   },
   {
     q: "Můžeme vzít děti?",
-    a: "Můžete. Mech má spací patro, které děti milují, a louku na lítání. Lom je hluboká voda bez mělčiny — menší děti u vody hlídejte, plotem oddělený není.",
+    a: "Můžete. Spací patro děti milují a kolem je spousta prostoru. Lom je ale hlubší voda bez mělčiny — menší děti u vody hlídejte, plotem oddělený není.",
   },
   {
     q: "Můžeme vzít psa?",
-    a: "Jednoho psa na domek rádi přivítáme (350 Kč za pobyt). Pelíšek, misky a pamlsky budou čekat. Po loukách prosíme na vodítku — kvůli srnkám.",
-  },
-  {
-    q: "Co sauna a koupací sud — jak to funguje?",
-    a: "Žula má finskou saunu, Mech dřevem vytápěný koupací sud. Když si je objednáte k pobytu (900 Kč), vytopíme je před příjezdem a nachystáme dřevo na další dny. Instrukce jsou v domku, je to snadné.",
+    a: "Jednoho psa na domek rádi přivítáme (350 Kč za pobyt). Pelíšek, misky a pamlsky budou čekat. Po okolí prosíme na vodítku — kvůli srnkám.",
   },
   {
     q: "Dá se v lomu koupat?",
-    a: "Dá, a je to zážitek. Voda je křišťálově čistá a i v létě svěží. Molo je jen pro hosty. Koupání je na vlastní odpovědnost — lom není hlídané koupaliště.",
+    a: "Dá, a je to zážitek. Bývalý břidlicový lom má křišťálově čistou vodu — místní mu neřeknou jinak než České Chorvatsko. Koupání je na vlastní odpovědnost, lom není hlídané koupaliště.",
   },
   {
     q: "Je v domku Wi-Fi a signál?",
     a: "Wi-Fi ano — a má vlastní vypínač, který doporučujeme použít. Mobilní signál je slabší, na zavolání to stačí, na pracovní porady ne. Považujte to za vlastnost, ne vadu.",
   },
   {
-    q: "Co když bude pršet?",
-    a: "Pak je to nejhezčí. Déšť na plechové střeše, kamna, kniha z naší knihovničky a výhled do mokrého lesa. V domku najdete deskovky, karty a dalekohled.",
-  },
-  {
-    q: "Jak je to s jídlem?",
-    a: "Kuchyňka je plně vybavená — vařit můžete cokoliv. Doporučujeme dovézt si zásoby (nejbližší obchod je 9 km). K tomu snídaňové koše, gril a ohniště. Káva a základní koření jsou v ceně.",
+    q: "Co se dá v okolí dělat?",
+    a: "Spousta. Český ráj se skalními městy, hrady Frýdštejn a Návarov, Suché skály, Maloskalsko, vyhlídková sopka Kozákov s acháty, Bozkovské dolomitové jeskyně a sklářský Železný Brod kousek odsud. A když prší, je nejhezčí zůstat u okna.",
   },
   {
     q: "Jak funguje rezervace a platba?",
-    a: "Vyberete termín v rezervačním formuláři, my do 24 hodin potvrdíme dostupnost a pošleme platební údaje. Záloha 50 % do 3 dnů, zbytek 14 dní před příjezdem. Pak už jen přijedete.",
+    a: "Vyberete termín v rezervačním formuláři, my do 24 hodin potvrdíme dostupnost a pošleme platební údaje. Záloha 50 % do 3 dnů, doplatek 14 dní před příjezdem. Pak už jen přijedete.",
   },
   {
     q: "Jaké jsou storno podmínky?",
-    a: "Při zrušení 30 a více dní před příjezdem vracíme 100 % uhrazených plateb, 14–29 dní před příjezdem 50 %. Při pozdějším stornu nabídneme náhradní termín do roka. Když zrušíme my (kalamita apod.), vracíme vše do koruny.",
+    a: "Při zrušení 30 a více dní před příjezdem vracíme 100 % uhrazených plateb, 14–29 dní 50 %. Při pozdějším stornu nabídneme náhradní termín do roka. Když zrušíme my (kalamita apod.), vracíme vše do koruny.",
   },
 ];
 
 /* ===== Lokalita ===== */
 
 export const LOCATION = {
-  region: "Sever středních Čech",
+  region: "Liberecký kraj",
   secretNote:
     "Přesnou polohu prozradíme až s potvrzenou rezervací. Sedmý les se nehledá — Sedmý les se najde.",
   distances: [
-    { place: "Praha", time: "≈ 45 min autem" },
-    { place: "Liberec", time: "≈ 1 h autem" },
-    { place: "Nejbližší obchod", time: "9 km" },
-    { place: "Nejbližší hospoda", time: "6 km (a stojí za to)" },
-    { place: "Vlaková zastávka", time: "7 km, vyzvedneme vás" },
+    { place: "Praha", time: "≈ 1 h 30 min autem" },
+    { place: "Liberec", time: "≈ 30 min autem" },
+    { place: "Jablonec nad Nisou", time: "≈ 25 min autem" },
+    { place: "Železný Brod", time: "≈ 10 min (5 km)" },
+    { place: "Vlak: Železný Brod", time: "5 km, vyzvedneme vás" },
   ],
   around: [
     {
-      title: "Stezka kolem lomu",
-      desc: "4 km lesní okruh po hraně lomu a zpět podél potoka. Ráno po ní chodí srnky, večer vy.",
+      title: "Zatopený lom",
+      desc: "Pár kroků od domků. Bývalý břidlicový lom s křišťálovou vodou — koupání, skoky ze skály, v zimě otužování.",
     },
     {
-      title: "Vyhlídka na sedmero hor",
-      desc: "Půl hodiny pěšky na skalisko, ze kterého je vidět sedm kopců Českého středohoří za sebou. Odtud jméno.",
+      title: "Český ráj",
+      desc: "Nejstarší chráněná krajina u nás a geopark UNESCO. Skalní města, vyhlídky a hrady začínají hned za kopcem.",
     },
     {
-      title: "Hospoda U Dvou lip",
-      desc: "6 km, vesnická klasika: točená dvanáctka, svíčková a pan hostinský, který ví všechno.",
+      title: "Frýdštejn a Suché skály",
+      desc: "Zřícenina hradu s kulatou věží a dramatický skalní hřeben nad Jizerou. Maloskalsko do dvaceti minut.",
     },
     {
-      title: "Farma za kopcem",
-      desc: "Vejce, sýry a mléko od sousedů. To, co vám ráno visí v snídaňovém koši, je odsud.",
+      title: "Kozákov",
+      desc: "Vyhaslá sopka, nejvyšší vrch Českého ráje s rozhlednou. Acháty a ametysty se tu hledají dodnes.",
+    },
+    {
+      title: "Železný Brod",
+      desc: "Skleněné městečko pět kilometrů odsud — sklářské ateliéry, hutě a muzeum skla.",
+    },
+    {
+      title: "Bozkovské jeskyně",
+      desc: "Největší jeskynní systém severních Čech s podzemním jezírkem, kousek po silnici.",
     },
   ],
 };
@@ -340,8 +375,8 @@ export const VOUCHER = {
   title: "Darujte ticho",
   desc: "Dárkový poukaz na pobyt v Sedmém lese. Elegantní PDF do hodiny v e-mailu, nebo vytištěný na bavlněném papíře poštou. Platnost 12 měsíců, termín si obdarovaný vybere sám.",
   variants: [
-    { name: "Dvě noci ve všední dny", price: 6980 },
-    { name: "Prodloužený víkend (pá–ne)", price: 8580 },
+    { name: "Dvě noci ve všední dny", price: 5780 },
+    { name: "Prodloužený víkend (pá–ne)", price: 6980 },
     { name: "Otevřený poukaz na částku", price: 0 },
   ],
 };

@@ -28,9 +28,9 @@ const FIREFLIES = [
 
 const TRUST = [
   "Celoroční provoz",
-  "Sauna a koupací sud",
+  "Sauna a sud připravujeme",
   "Pes vítán",
-  "Do hodiny z Prahy",
+  "Do 90 minut z Prahy",
 ];
 
 export default function Hero() {
@@ -44,8 +44,8 @@ export default function Hero() {
         transition={{ duration: 2.6, ease: EASE }}
       >
         <Image
-          src="/foto/tiny3.jpg"
-          alt="Černý tiny house Žula na skále nad zatopeným lomem, nad hladinou se drží mlha"
+          src="/foto/hero-lom-domky.jpg"
+          alt="Dva černé kubické tiny housy na dřevěné terase u zatopeného břidlicového lomu za zlatého večera"
           fill
           priority
           sizes="100vw"

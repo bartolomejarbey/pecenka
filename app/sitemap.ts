@@ -5,7 +5,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     "",
     "/domky",
-    "/domky/zula",
+    "/domky/achat",
     "/domky/mech",
     "/rezervace",
     "/lokalita",

@@ -9,7 +9,7 @@ import { SITE } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Galerie",
   description:
-    "Mlha nad lomem, první sníh, světlo z okna. Momenty ze Sedmého lesa — dva černé tiny housy na samotě u zatopeného žulového lomu.",
+    "Mlha nad lomem, první sníh, světlo z okna. Momenty ze Sedmého lesa — dva černé kubické tiny housy na samotě u zatopeného břidlicového lomu.",
 };
 
 type Photo = {
@@ -24,24 +24,62 @@ type Photo = {
 
 const PHOTOS: Photo[] = [
   {
-    src: "/foto/tiny3.jpg",
-    alt: "Tiny house Žula na skále nad zatopeným lomem, ranní mlha nad hladinou",
-    caption: "„Ráno, kdy se lom nadechl.“",
+    src: "/foto/hero-lom-domky.jpg",
+    alt: "Dva černé kubické domky na dřevěné terase u zatopeného lomu za zlaté hodiny",
+    caption: "„Dva domky nad lomem, zlatá hodina.“",
     aspect: "aspect-[16/9]",
     span: "md:col-span-2",
     sizes: "(max-width: 768px) 100vw, 1216px",
   },
   {
-    src: "/foto/tiny1.jpg",
-    alt: "Tiny house v lese za soumraku, teplé světlo z okna mezi žulovými balvany",
-    caption: "„Žula za soumraku — okno, které topí.“",
+    src: "/foto/domek-vecer.jpg",
+    alt: "Jeden černý kubický domek za soumraku, teplé světlo z velkého okna",
+    caption: "„Soumrak a okno, které topí.“",
     aspect: "aspect-[4/5]",
     sizes: "(max-width: 768px) 100vw, 596px",
   },
   {
-    src: "/foto/tiny2.jpg",
-    alt: "Tiny house Mech na louce při západu slunce, dřevěná terasa s lehátky",
-    caption: "„Mech a poslední slunce dne.“",
+    src: "/foto/interier-obyvak.jpg",
+    alt: "Interiér domku — petrolejová zeleň, březová překližka a ocelové schůdky na spací patro",
+    caption: "„Petrolejová zeleň a překližka.“",
+    aspect: "aspect-[4/3]",
+    offset: "md:mt-16",
+    sizes: "(max-width: 768px) 100vw, 596px",
+  },
+  {
+    src: "/foto/koupani-lom.jpg",
+    alt: "Dřevěné molo na křišťálově čistém zatopeném lomu v létě",
+    caption: "„České Chorvatsko, jen pro vás.“",
+    aspect: "aspect-[4/3]",
+    sizes: "(max-width: 768px) 100vw, 596px",
+  },
+  {
+    src: "/foto/interier-kuchyne.jpg",
+    alt: "Detail plně vybavené kuchyňské linky v tiny housu",
+    caption: "„Malá kuchyně, velká snídaně.“",
+    aspect: "aspect-[4/5]",
+    offset: "md:mt-16",
+    sizes: "(max-width: 768px) 100vw, 596px",
+  },
+  {
+    src: "/foto/zima-snih.jpg",
+    alt: "Černé kubické domky ve sněhu u lomu, teplá záře z oken",
+    caption: "„První sníh a teplo za sklem.“",
+    aspect: "aspect-[16/9]",
+    span: "md:col-span-2",
+    sizes: "(max-width: 768px) 100vw, 1216px",
+  },
+  {
+    src: "/foto/ohniste-vecer.jpg",
+    alt: "Ohniště na dřevěné terase za večera",
+    caption: "„Večer, oheň a nic víc.“",
+    aspect: "aspect-[4/3]",
+    sizes: "(max-width: 768px) 100vw, 596px",
+  },
+  {
+    src: "/foto/lom-letecky.jpg",
+    alt: "Letecký pohled na domky u tmavé hladiny zatopeného lomu",
+    caption: "„Lom z ptačí perspektivy.“",
     aspect: "aspect-[4/3]",
     offset: "md:mt-16",
     sizes: "(max-width: 768px) 100vw, 596px",

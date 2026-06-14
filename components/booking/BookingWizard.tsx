@@ -47,7 +47,7 @@ export default function BookingWizard() {
   const [step, setStep] = useState<Step>(1);
   const [house, setHouse] = useState<HouseSlug | null>(() => {
     const param = searchParams.get("domek");
-    return param === "zula" || param === "mech" ? param : null;
+    return param === "achat" || param === "mech" ? param : null;
   });
   const [range, setRange] = useState<Range>({ from: null, to: null });
   const [guests, setGuests] = useState(2);
@@ -234,7 +234,7 @@ export default function BookingWizard() {
               <div>
                 <StepHeading
                   title="Který domek to bude?"
-                  sub="Žula stojí nad zatopeným lomem a má finskou saunu. Mech sedí na kraji louky a hřeje koupacím sudem."
+                  sub="Achát má prosklenou stěnu přes celý les, Mech navíc dřevěnou žaluziovou clonu. Oba jsou pro dva — a dají se spojit v jeden velký."
                 />
                 <HouseStep selected={house} onSelect={setHouse} />
                 <div className="mt-10 flex justify-end">
@@ -299,15 +299,14 @@ export default function BookingWizard() {
               <div>
                 <StepHeading
                   title="Kolik vás bude — a co k tomu?"
-                  sub="Všechno je dobrovolné. Sauna i sud ale stojí za to — vytopíme je, než dorazíte."
+                  sub="Všechno je dobrovolné. Snídaňový koš na kliku, lahev moravského vína do lednice, dřevo do ohniště — nachystáme, než dorazíte."
                 />
                 <AddonsStep
                   guests={guests}
-                  onGuestsChange={(n) => setGuests(Math.max(1, Math.min(4, n)))}
+                  onGuestsChange={(n) => setGuests(Math.max(1, Math.min(2, n)))}
                   addons={addons}
                   onQtyChange={setAddonQty}
                   nights={breakdown?.nights ?? 0}
-                  house={house}
                 />
                 {breakdown && (
                   <p className="mt-8 inline-flex flex-wrap items-baseline gap-x-2.5 gap-y-1 rounded-2xl border border-ember/25 bg-ember/5 px-5 py-3.5 text-[15px] text-sage">

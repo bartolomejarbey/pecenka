@@ -29,7 +29,7 @@ export default function Reviews() {
                 </blockquote>
                 <figcaption className="mt-7 flex flex-wrap items-center gap-x-2 border-t border-linen/8 pt-5 text-sm">
                   <span className="font-semibold text-linen">{review.name}</span>
-                  <span className="text-sage">· domek {review.house}</span>
+                  <span className="text-sage">· {review.house}</span>
                 </figcaption>
               </figure>
             </Reveal>

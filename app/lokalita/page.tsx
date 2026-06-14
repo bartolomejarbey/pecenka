@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import PageHero from "@/components/PageHero";
 import CtaBanner from "@/components/CtaBanner";
 import Reveal from "@/components/Reveal";
@@ -8,7 +9,7 @@ import { LOCATION } from "@/lib/content";
 export const metadata: Metadata = {
   title: "Lokalita",
   description:
-    "Sedmý les leží na severu středních Čech, na samotě u zatopeného žulového lomu. Přesné souřadnice posíláme s potvrzenou rezervací — z Prahy do hodiny autem.",
+    "Sedmý les leží na samotě u zatopeného břidlicového lomu nad Jílovým u Držkova v Libereckém kraji, na okraji Českého ráje. Přesné souřadnice posíláme s potvrzenou rezervací — z Prahy zhruba hodinu a půl autem.",
 };
 
 /** Kompasová růžice — dekorace mapy, sever žhne ember. */
@@ -50,7 +51,7 @@ export default function LokalitaPage() {
         kicker="Lokalita"
         title="Kde přesně? To je"
         accent="tajemství."
-        lead={`${LOCATION.secretNote} Prozradíme jen tolik: sever středních Čech, žulový lom a kolem dokola les.`}
+        lead={`${LOCATION.secretNote} Prozradíme jen tolik: zatopený břidlicový lom nad Jílovým u Držkova, Liberecký kraj, na okraji Českého ráje — a kolem dokola les.`}
       />
 
       {/* ===== Kapitola I · Mapa ===== */}
@@ -83,13 +84,31 @@ export default function LokalitaPage() {
               <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
                 <LogoMark className="h-7 w-auto text-sage" />
                 <p className="font-display mt-6 text-2xl text-linen md:text-3xl">
-                  50.?° N, 14.?° E
+                  50.67° N, 15.30° E
                 </p>
                 <p className="mt-3 max-w-xs text-sm leading-relaxed text-sage">
                   Souřadnice dostanete s potvrzenou rezervací.
                 </p>
               </div>
             </div>
+          </Reveal>
+
+          <Reveal i={3} className="mt-6 md:mt-8">
+            <figure className="group">
+              <div className="photo-frame relative aspect-[16/9] overflow-hidden rounded-[34px] border border-linen/8">
+                <Image
+                  src="/foto/lom-letecky.jpg"
+                  alt="Letecký pohled na dva černé domky u tmavé hladiny zatopeného břidlicového lomu"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 1216px"
+                  className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+                />
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-night/60 to-transparent" />
+              </div>
+              <figcaption className="font-display mt-4 text-lg italic text-sage md:mt-5">
+                „Dva domky a celá hladina lomu jen pro vás.“
+              </figcaption>
+            </figure>
           </Reveal>
         </div>
       </section>

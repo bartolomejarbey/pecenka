@@ -8,7 +8,7 @@
 
 import { PRICING, ADDONS } from "./content";
 
-export type HouseSlug = "zula" | "mech";
+export type HouseSlug = "achat" | "mech";
 
 /* ===== Datum — pomocníci (pracujeme s lokálními dny, ne UTC) ===== */
 
@@ -76,7 +76,7 @@ function seededRandom(seed: number): () => number {
 /** Vrátí množinu obsazených dnů (klíče YYYY-MM-DD) pro daný domek,
  *  od dneška na `days` dní dopředu. Deterministické pro stabilní UI. */
 export function getBookedDays(house: HouseSlug, days = 240): Set<string> {
-  const rnd = seededRandom(house === "zula" ? 7331 : 1337);
+  const rnd = seededRandom(house === "achat" ? 7331 : 1337);
   const booked = new Set<string>();
   const today = startOfDay(new Date());
   let cursor = 4 + Math.floor(rnd() * 5); // prvních pár dní necháme volných

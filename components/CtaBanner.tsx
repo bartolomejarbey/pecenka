@@ -6,7 +6,7 @@ import { Button, Kicker } from "./ui";
 export default function CtaBanner({
   title = "Les už na vás čeká.",
   accent = "Ticho taky.",
-  text = "Vyberte si domek, zvolte termín a my se postaráme o zbytek. Vytopená sauna, nachystané dřevo a nebe plné hvězd.",
+  text = "Vyberte si domek, zvolte termín a my se postaráme o zbytek. Nachystané dřevo do ohniště, čistá voda lomu a nebe plné hvězd.",
 }: {
   title?: string;
   accent?: string;
@@ -16,7 +16,7 @@ export default function CtaBanner({
     <section className="relative overflow-hidden bg-night">
       <div className="photo-frame absolute inset-0">
         <Image
-          src="/foto/tiny2.jpg"
+          src="/foto/lom-rano.jpg"
           alt=""
           fill
           sizes="100vw"

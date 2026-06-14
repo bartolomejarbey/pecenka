@@ -10,7 +10,7 @@ import { formatPrice } from "@/lib/booking";
 export const metadata: Metadata = {
   title: "Ceník",
   description:
-    "Jedna cena za domek a noc, ať jste dva nebo čtyři. Ne–čt 3 490 Kč, pá+so 4 290 Kč. V ceně povlečení, dřevo do kamen, káva i závěrečný úklid.",
+    "Cena je za jeden domek a noc — ne–čt 2 890 Kč, pá+so 3 490 Kč. Chcete oba domky nebo je spojit v jeden? Napište nám. V ceně povlečení, dřevo do ohniště, káva i závěrečný úklid.",
 };
 
 const PRICE_BLOCKS = [
@@ -70,7 +70,7 @@ export default function CenikPage() {
         kicker="Ceník"
         title="Férové ceny,"
         accent="žádné hvězdičky."
-        lead="Jedna cena za domek a noc, ať jste dva nebo čtyři. V ceně povlečení, dřevo do kamen, káva i závěrečný úklid."
+        lead="Cena je za jeden domek a noc, ať jste dva, nebo přijedete sami. Chcete oba domky či je spojit v jeden? Napište nám. V ceně povlečení, dřevo do ohniště, káva i závěrečný úklid."
       />
 
       {/* ===== Kapitola I · Noci (světlá) ===== */}

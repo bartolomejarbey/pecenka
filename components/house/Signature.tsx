@@ -1,11 +1,9 @@
 import type { House } from "@/lib/content";
-import { ADDONS } from "@/lib/content";
-import { formatPrice } from "@/lib/booking";
 import Reveal from "@/components/Reveal";
 import { Kicker } from "@/components/ui";
 
-/** Stylizovaná pára ze sauny — tři vlnité tahy. */
-function SteamGlyph({ className }: { className?: string }) {
+/** Velké okno do lesa — rám s paprsky světla. */
+function WindowGlyph({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 120 120"
@@ -16,36 +14,40 @@ function SteamGlyph({ className }: { className?: string }) {
       className={className}
       aria-hidden="true"
     >
-      <path d="M32 106c-11-17 11-27 0-44s11-27 0-44" />
-      <path d="M60 112c-11-17 11-27 0-44s11-27 0-44" />
-      <path d="M88 106c-11-17 11-27 0-44s11-27 0-44" />
+      <rect x="30" y="24" width="60" height="72" rx="2" />
+      <path d="M60 24v72" opacity="0.6" />
+      <path d="M30 60h60" opacity="0.6" />
+      <path d="M96 18l16-8" opacity="0.4" />
+      <path d="M100 36l18-2" opacity="0.4" />
+      <path d="M96 54l16 4" opacity="0.4" />
     </svg>
   );
 }
 
-/** Kruhy na hladině — koupací sud pod hvězdami. */
-function RippleGlyph({ className }: { className?: string }) {
+/** Stínicí žaluziová stěna — vodorovné lamely. */
+function LouvreGlyph({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 120 120"
       fill="none"
       stroke="currentColor"
       strokeWidth="3"
+      strokeLinecap="round"
       className={className}
       aria-hidden="true"
     >
-      <circle cx="60" cy="60" r="12" />
-      <circle cx="60" cy="60" r="27" opacity="0.75" />
-      <circle cx="60" cy="60" r="42" opacity="0.5" />
-      <circle cx="60" cy="60" r="56" opacity="0.3" />
+      <path d="M24 30h72" />
+      <path d="M24 44h72" opacity="0.85" />
+      <path d="M24 58h72" opacity="0.7" />
+      <path d="M24 72h72" opacity="0.55" />
+      <path d="M24 86h72" opacity="0.4" />
     </svg>
   );
 }
 
-/** Kapitola II · Rituál — signature zážitek domku ve zvláštní kartě. */
+/** Kapitola II · Rituál — signature prvek domku ve zvláštní kartě. */
 export default function Signature({ house }: { house: House }) {
-  const ritualAddon = ADDONS.find((a) => a.id === "sauna");
-  const Glyph = house.slug === "zula" ? SteamGlyph : RippleGlyph;
+  const Glyph = house.slug === "achat" ? WindowGlyph : LouvreGlyph;
 
   return (
     <section className="grain relative overflow-hidden bg-bark py-24 md:py-32">
@@ -64,13 +66,6 @@ export default function Signature({ house }: { house: House }) {
                 {house.signature.title}
               </h2>
               <p className="mt-5 text-[16px] leading-relaxed text-sage">{house.signature.desc}</p>
-              {ritualAddon && (
-                <p className="mt-8 border-t border-linen/8 pt-5 text-sm text-sage/80">
-                  Vytopíme před vaším příjezdem i každý den pobytu —{" "}
-                  <span className="text-linen">{formatPrice(ritualAddon.price)}</span>{" "}
-                  {ritualAddon.unit}.
-                </p>
-              )}
             </div>
           </div>
         </Reveal>

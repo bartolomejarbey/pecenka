@@ -6,7 +6,7 @@ import LegalPage from "@/components/LegalPage";
 export const metadata: Metadata = {
   title: "Obchodní podmínky",
   description:
-    "Obchodní podmínky ubytování Sedmý les — rezervace, platby, storno podmínky, kauce a pravidla pobytu v domcích Žula a Mech.",
+    "Obchodní podmínky ubytování Sedmý les — rezervace, platby, storno podmínky, kauce a pravidla pobytu v domcích Achát a Mech.",
 };
 
 export default function ObchodniPodminkyPage() {

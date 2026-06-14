@@ -98,8 +98,6 @@ export default function Availability({
   houseName: string;
 }) {
   const [data, setData] = useState<CalendarData | null>(null);
-  // 4. pád pro CTA — „Rezervovat Žulu", ale „Rezervovat Mech".
-  const nameAccusative = slug === "zula" ? "Žulu" : houseName;
 
   useEffect(() => {
     const today = startOfDay(new Date());
@@ -172,7 +170,7 @@ export default function Availability({
 
         <Reveal i={2}>
           <div className="mt-10 flex flex-wrap items-center gap-6 border-t border-linen/8 pt-10">
-            <Button href={`/rezervace?domek=${slug}`}>Rezervovat {nameAccusative}</Button>
+            <Button href={`/rezervace?domek=${slug}`}>Rezervovat {houseName}</Button>
             <p className="text-sm text-sage">
               od{" "}
               <span className="font-display text-xl text-linen">

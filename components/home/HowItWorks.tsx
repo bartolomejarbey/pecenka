@@ -5,7 +5,7 @@ const STEPS = [
   {
     n: "01",
     title: "Vyberete domek a termín",
-    desc: "Žula, nebo Mech? Kalendář vám ukáže volné noci a cenu spočítá za vás. Rezervace je nezávazná poptávka.",
+    desc: "Achát, nebo Mech? Kalendář vám ukáže volné noci a cenu spočítá za vás. Rezervace je nezávazná poptávka.",
   },
   {
     n: "02",
@@ -15,7 +15,7 @@ const STEPS = [
   {
     n: "03",
     title: "Přijedete do ticha",
-    desc: "Vytopená sauna, nachystané dřevo, klíč ve schránce. Zbytek pohádky už píšete sami.",
+    desc: "Vytopený domek, nachystané dřevo do ohniště, klíč ve schránce. Zbytek pohádky už píšete sami.",
   },
 ];
 
