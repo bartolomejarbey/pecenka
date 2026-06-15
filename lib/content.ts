@@ -242,35 +242,6 @@ export const EXPERIENCES = [
   },
 ];
 
-/* ===== Recenze (ILUSTRAČNÍ — nahradit skutečnými) ===== */
-
-export const REVIEWS = [
-  {
-    name: "Kateřina & Jakub",
-    house: "Achát",
-    text: "To okno je něco neuvěřitelného. Celý víkend jsme prokoukali do lesa a vůbec se nenudili. Ráno mlha nad lomem, večer hvězdy. Nejlepší výročí, jaké jsme měli.",
-    stars: 5,
-  },
-  {
-    name: "Martin H.",
-    house: "Mech",
-    text: "Jel jsem sám si srovnat hlavu. Místo telefonu jen oheň, kniha a žaluziová stěna, za kterou není vidět. Spal jsem deset hodin denně. Funguje to.",
-    stars: 5,
-  },
-  {
-    name: "Rodina Veselých",
-    house: "Achát + Mech",
-    text: "Vzali jsme oba domky a děti spaly na patře. Lom je úžasný — voda čistá jak ze žbrku. Ráno srnky před oknem. Hned jsme zamluvili i Vánoce.",
-    stars: 5,
-  },
-  {
-    name: "Tereza N.",
-    house: "Achát",
-    text: "Otužuju se a lom v prosinci je sen. Domek malý, ale promyšlený do posledního detailu — klima, patro, čistota. Design na jedničku.",
-    stars: 5,
-  },
-];
-
 /* ===== FAQ ===== */
 
 export const FAQ_ITEMS = [

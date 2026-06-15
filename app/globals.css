@@ -89,6 +89,19 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 256px 256px;
 }
+/* Tichý les v pozadí — svislé čárky jako kmeny + drobné jehličnany.
+   Decentní, aby tmavá nebyla plochá. Na světlých sekcích skoro neviditelné.
+   (Sekce s .contours mají vlastní ::before, ten zůstává.) */
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' fill='none' stroke='%239db3a2' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M12 214V150 M34 214V118 M52 214V168 M78 214V96 M96 214V142 M120 214V78 M140 214V132 M162 214V108 M186 214V158 M206 214V92 M226 214V136'/%3E%3Cpath d='M54 62l6-9 6 9 M144 52l6-9 6 9 M196 44l5-8 5 8'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+}
 
 /* Vrstevnice — topografický motiv lomu */
 .contours {
