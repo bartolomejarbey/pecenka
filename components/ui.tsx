@@ -1,41 +1,29 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 /* ===== Logo ===== */
 
-/** Sedm stromů — šest tlumených, sedmý žhne. */
-export function LogoMark({ className = "h-6 w-auto" }: { className?: string }) {
-  const bars = [
-    { x: 2, h: 12 },
-    { x: 8, h: 17 },
-    { x: 14, h: 14 },
-    { x: 20, h: 21 },
-    { x: 26, h: 15 },
-    { x: 32, h: 18 },
-  ];
+/** Znak Sedmého lesa — rytinový emblém (hory, les, ember měsíc) na průhledném
+ *  pozadí. Světlá linka, určená na tmavé podklady. */
+export function LogoMark({ className = "h-9 w-auto" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 44 24" className={className} aria-hidden="true">
-      {bars.map((b) => (
-        <rect
-          key={b.x}
-          x={b.x}
-          y={24 - b.h}
-          width="2.4"
-          height={b.h}
-          rx="1.2"
-          fill="currentColor"
-          opacity="0.65"
-        />
-      ))}
-      <rect x={38} y={24 - 23} width="2.6" height={23} rx="1.3" fill="var(--color-ember)" />
-    </svg>
+    <Image
+      src="/znak-sedmyles.png"
+      alt=""
+      width={440}
+      height={440}
+      priority
+      className={className}
+      aria-hidden="true"
+    />
   );
 }
 
 export function Logo({ light = true }: { light?: boolean }) {
   return (
     <span className={`flex items-center gap-3 ${light ? "text-linen" : "text-night"}`}>
-      <LogoMark />
+      <LogoMark className="h-10 w-auto" />
       <span className="font-display text-[1.05rem] font-medium uppercase tracking-[0.18em]">
         Sedmý&nbsp;les
       </span>
