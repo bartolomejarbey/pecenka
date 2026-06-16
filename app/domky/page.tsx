@@ -1,17 +1,19 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import PageHero from "@/components/PageHero";
 import HouseCard from "@/components/HouseCard";
 import CtaBanner from "@/components/CtaBanner";
 import Reveal from "@/components/Reveal";
+import JsonLd from "@/components/JsonLd";
 import { Kicker } from "@/components/ui";
 import { HOUSES, JOIN, PLANNED } from "@/lib/content";
+import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Domky",
   description:
-    "Achát s oknem do lesa, Mech se žaluziovou stěnou. Dva černé kubické tiny housy pro dva, celoroční provoz, a když chcete, spojíte je v jeden celek na 30 m² u zatopeného lomu nad Jílovým u Držkova.",
-};
+    "Achát s oknem 3×3 m do lesa a Mech se žaluziovou stěnou — dva černé tiny housy pro dva u lomu na okraji Českého ráje. Spojíte je i v jeden.",
+  path: "/domky",
+});
 
 const achat = HOUSES.find((h) => h.slug === "achat")!;
 const mech = HOUSES.find((h) => h.slug === "mech")!;
@@ -27,6 +29,12 @@ const COMPARISON: { label: string; achat: string; mech: string }[] = [
 export default function DomkyPage() {
   return (
     <main>
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Domů", path: "/" },
+          { name: "Domky", path: "/domky" },
+        ])}
+      />
       <PageHero
         kicker="Dva domky"
         title="Každý jiná"

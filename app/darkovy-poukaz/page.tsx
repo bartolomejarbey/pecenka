@@ -1,16 +1,18 @@
-import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import CtaBanner from "@/components/CtaBanner";
 import Reveal from "@/components/Reveal";
+import JsonLd from "@/components/JsonLd";
 import { Button, Kicker } from "@/components/ui";
 import { SITE, VOUCHER } from "@/lib/content";
 import { formatPrice } from "@/lib/booking";
+import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Dárkový poukaz",
   description:
-    "Darujte ticho. Dárkový poukaz na pobyt v Sedmém lese — elegantní PDF do hodiny, nebo poštou na bavlněném papíře. Platnost 12 měsíců.",
-};
+    "Darujte pobyt v Sedmém lese. Dárkový poukaz s platností 12 měsíců, termín si obdarovaný vybere sám.",
+  path: "/darkovy-poukaz",
+});
 
 /** Index zvýrazněné varianty — prodloužený víkend. */
 const HIGHLIGHT = 1;
@@ -36,6 +38,12 @@ const STEPS = [
 export default function DarkovyPoukazPage() {
   return (
     <main>
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Domů", path: "/" },
+          { name: "Dárkový poukaz", path: "/darkovy-poukaz" },
+        ])}
+      />
       <PageHero kicker="Dárkový poukaz" title="Darujte" accent="ticho." lead={VOUCHER.desc} />
 
       {/* ===== Varianty ===== */}
@@ -117,7 +125,7 @@ export default function DarkovyPoukazPage() {
                 className="animate-ember mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-ember-deep"
                 aria-hidden="true"
               />
-              Poukaz lze použít na pobyt i na doplňky — saunu, snídaňové koše nebo lahev
+              Poukaz lze použít na pobyt i na doplňky — snídaňové koše, dřevo do ohniště nebo lahev
               moravského vína.
             </p>
           </Reveal>

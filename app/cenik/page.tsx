@@ -1,17 +1,19 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import CtaBanner from "@/components/CtaBanner";
 import Reveal from "@/components/Reveal";
+import JsonLd from "@/components/JsonLd";
 import { ArrowIcon, Kicker } from "@/components/ui";
 import { ADDONS, PRICING } from "@/lib/content";
 import { formatPrice } from "@/lib/booking";
+import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Ceník",
   description:
-    "Cena je za jeden domek a noc — ne–čt 2 890 Kč, pá+so 3 490 Kč. Chcete oba domky nebo je spojit v jeden? Napište nám. V ceně povlečení, dřevo do ohniště, káva i závěrečný úklid.",
-};
+    "Cena za jeden domek a noc: ne–čt 2 890 Kč, pá+so 3 490 Kč. V ceně povlečení, dřevo do ohniště, káva i úklid. Bez platby předem.",
+  path: "/cenik",
+});
 
 const PRICE_BLOCKS = [
   {
@@ -66,6 +68,12 @@ function CheckIcon() {
 export default function CenikPage() {
   return (
     <main>
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Domů", path: "/" },
+          { name: "Ceník", path: "/cenik" },
+        ])}
+      />
       <PageHero
         kicker="Ceník"
         title="Férové ceny,"
@@ -97,16 +105,14 @@ export default function CenikPage() {
             ))}
           </div>
 
-          <Reveal className="mt-12 md:mt-16">
-            <ul className="grid max-w-4xl gap-x-12 gap-y-4 md:grid-cols-2">
-              {PRICING.notes.map((note) => (
-                <li key={note} className="flex items-start gap-3">
-                  <CheckIcon />
-                  <span className="text-[15.5px] leading-relaxed text-night/70">{note}</span>
-                </li>
-              ))}
-            </ul>
-          </Reveal>
+          <ul className="mt-12 grid max-w-4xl gap-x-12 gap-y-4 md:mt-16 md:grid-cols-2">
+            {PRICING.notes.map((note, i) => (
+              <Reveal as="li" i={i} key={note} className="flex items-start gap-3">
+                <CheckIcon />
+                <span className="text-[15.5px] leading-relaxed text-night/70">{note}</span>
+              </Reveal>
+            ))}
+          </ul>
         </div>
       </section>
 

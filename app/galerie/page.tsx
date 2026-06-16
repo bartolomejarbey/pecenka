@@ -1,16 +1,19 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import PageHero from "@/components/PageHero";
 import CtaBanner from "@/components/CtaBanner";
 import Reveal from "@/components/Reveal";
+import JsonLd from "@/components/JsonLd";
 import { ArrowIcon } from "@/components/ui";
+import { pageMeta, breadcrumbLd } from "@/lib/seo";
 import { SITE } from "@/lib/content";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Galerie",
   description:
-    "Mlha nad lomem, první sníh, světlo z okna. Momenty ze Sedmého lesa — dva černé kubické tiny housy na samotě u zatopeného břidlicového lomu.",
-};
+    "Mlha nad lomem, černé domky ve zlatém večeru, interiéry a první sníh. Fotky ze Sedmého lesa u Jílového u Držkova.",
+  path: "/galerie",
+  ogImage: "/foto/hero-lom-domky.jpg",
+});
 
 type Photo = {
   src: string;
@@ -113,6 +116,12 @@ function GalleryFigure({ photo, i }: { photo: Photo; i: number }) {
 export default function GaleriePage() {
   return (
     <main>
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Domů", path: "/" },
+          { name: "Galerie", path: "/galerie" },
+        ])}
+      />
       <PageHero
         kicker="Galerie"
         title="Místo, které se"

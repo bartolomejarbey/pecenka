@@ -13,8 +13,8 @@ export default function CookieBanner() {
     if (!localStorage.getItem(KEY)) setVisible(true);
   }, []);
 
-  const decide = (value: "all" | "necessary") => {
-    localStorage.setItem(KEY, value);
+  const acknowledge = () => {
+    localStorage.setItem(KEY, "ack");
     setVisible(false);
   };
 
@@ -31,8 +31,8 @@ export default function CookieBanner() {
           aria-label="Nastavení cookies"
         >
           <p className="text-sm leading-relaxed text-sage">
-            I v lese máme pár cookies. Nutné pro chod webu a — jen pokud dovolíte —
-            anonymní statistiky návštěvnosti. Podrobnosti v{" "}
+            I v lese máme pár nezbytných cookies, aby web fungoval. Žádné sledovací
+            ani marketingové nepoužíváme. Víc v{" "}
             <Link href="/cookies" className="text-ember underline underline-offset-2">
               zásadách cookies
             </Link>
@@ -40,16 +40,10 @@ export default function CookieBanner() {
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <button
-              onClick={() => decide("all")}
+              onClick={acknowledge}
               className="rounded-full bg-ember px-5 py-2 text-sm font-semibold text-night transition-colors hover:bg-ember-soft"
             >
-              Přijmout vše
-            </button>
-            <button
-              onClick={() => decide("necessary")}
-              className="rounded-full border border-linen/20 px-5 py-2 text-sm font-semibold text-linen transition-colors hover:border-linen/50"
-            >
-              Jen nutné
+              Rozumím
             </button>
           </div>
         </motion.div>

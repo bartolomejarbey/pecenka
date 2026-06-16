@@ -1,9 +1,10 @@
+import Counter from "@/components/Counter";
 import Reveal from "@/components/Reveal";
 import { Kicker } from "@/components/ui";
 
-const STATS = [
-  { value: "0", label: "sousedů v dohledu" },
-  { value: "4 km", label: "lesní stezka kolem lomu" },
+const STATS: { value: number | string; suffix?: string; label: string }[] = [
+  { value: 0, label: "sousedů v dohledu" },
+  { value: 4, suffix: " km", label: "lesní stezka kolem lomu" },
   { value: "∞", label: "hvězd nad terasou" },
 ];
 
@@ -18,7 +19,7 @@ export default function Story() {
 
         <div className="mt-10 grid gap-14 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-8">
-            <Reveal i={1} as="p" className="font-display max-w-3xl text-3xl font-light text-linen md:text-5xl">
+            <Reveal i={1} as="h2" className="font-display max-w-3xl text-3xl font-light text-linen md:text-5xl">
               <span style={{ lineHeight: 1.18, display: "inline-block" }}>
                 Nejdřív přestanete slyšet auta. Pak notifikace. A pak —{" "}
                 <span className="accent-italic">poprvé po letech</span> — uslyšíte{" "}
@@ -47,9 +48,11 @@ export default function Story() {
               {STATS.map((s, i) => (
                 <Reveal key={s.label} i={i + 2}>
                   <div className="flex items-baseline gap-6 border-b border-linen/10 py-6">
-                    <span className="font-display min-w-[5rem] text-4xl font-light text-linen md:text-5xl">
-                      {s.value}
-                    </span>
+                    <Counter
+                      value={s.value}
+                      suffix={s.suffix}
+                      className="font-display min-w-[5rem] text-4xl font-light text-linen md:text-5xl"
+                    />
                     <span className="text-sm leading-snug text-sage">{s.label}</span>
                   </div>
                 </Reveal>

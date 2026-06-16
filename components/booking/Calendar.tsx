@@ -110,7 +110,7 @@ export default function Calendar({
         onClick={() => setOffset((o) => Math.max(0, o - 1))}
         disabled={offset === 0}
         aria-label="Předchozí měsíc"
-        className="absolute left-0 top-0 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-linen/15 text-linen transition-colors duration-300 hover:border-ember hover:text-ember disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-linen/15 disabled:hover:text-linen"
+        className="absolute left-0 top-0 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-linen/15 text-linen transition-colors duration-300 hover:border-ember hover:text-ember disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-linen/15 disabled:hover:text-linen"
       >
         <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4" aria-hidden="true">
           <path
@@ -127,7 +127,7 @@ export default function Calendar({
         onClick={() => setOffset((o) => Math.min(MAX_MONTH_OFFSET, o + 1))}
         disabled={offset >= MAX_MONTH_OFFSET}
         aria-label="Další měsíc"
-        className="absolute right-0 top-0 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-linen/15 text-linen transition-colors duration-300 hover:border-ember hover:text-ember disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-linen/15 disabled:hover:text-linen"
+        className="absolute right-0 top-0 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-linen/15 text-linen transition-colors duration-300 hover:border-ember hover:text-ember disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-linen/15 disabled:hover:text-linen"
       >
         <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4" aria-hidden="true">
           <path

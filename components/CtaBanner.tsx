@@ -1,6 +1,11 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "motion/react";
 import Reveal from "./Reveal";
 import { Button, Kicker } from "./ui";
+
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 /** Závěrečná výzva — používá se na konci většiny stránek. */
 export default function CtaBanner({
@@ -15,13 +20,21 @@ export default function CtaBanner({
   return (
     <section className="relative overflow-hidden bg-night">
       <div className="photo-frame absolute inset-0">
-        <Image
-          src="/foto/lom-rano.jpg"
-          alt=""
-          fill
-          sizes="100vw"
-          className="object-cover opacity-35"
-        />
+        <motion.div
+          className="absolute inset-0"
+          initial={{ scale: 1.08 }}
+          whileInView={{ scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 6, ease: EASE }}
+        >
+          <Image
+            src="/foto/lom-rano.jpg"
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover opacity-35"
+          />
+        </motion.div>
         <div className="absolute inset-0 bg-gradient-to-t from-night via-night/70 to-night/40" />
       </div>
       <div className="grain relative z-10 mx-auto max-w-7xl px-5 py-24 text-center md:px-8 md:py-36">

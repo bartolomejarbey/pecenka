@@ -1,5 +1,6 @@
 import type { House } from "@/lib/content";
 import Reveal from "@/components/Reveal";
+import AmenityIcon from "@/components/house/AmenityIcon";
 import { Kicker } from "@/components/ui";
 
 /** Kapitola III · Vybavení — světlá sekce s dvouřadým checklistem. */
@@ -23,12 +24,12 @@ export default function Amenities({ house }: { house: House }) {
             <Reveal
               key={item}
               as="li"
-              i={i % 2}
+              i={i}
               className="flex items-start gap-4 border-b border-night/10 pb-4"
             >
-              <span
-                className="mt-[7px] inline-block h-2 w-2 shrink-0 rotate-45 bg-ember-deep"
-                aria-hidden="true"
+              <AmenityIcon
+                name={item}
+                className="mt-px h-6 w-6 shrink-0 text-ember-deep"
               />
               <span className="text-[15.5px] leading-relaxed text-night/70">{item}</span>
             </Reveal>
@@ -37,8 +38,8 @@ export default function Amenities({ house }: { house: House }) {
 
         <Reveal i={2}>
           <p className="mt-10 max-w-xl text-sm leading-relaxed text-night/50">
-            V ceně každého pobytu: povlečení, ručníky, župany, výběrová káva, dřevo do kamen
-            a závěrečný úklid.
+            V ceně každého pobytu: povlečení, ručníky, útulné deky, výběrová káva, dřevo do
+            ohniště a závěrečný úklid.
           </p>
         </Reveal>
       </div>

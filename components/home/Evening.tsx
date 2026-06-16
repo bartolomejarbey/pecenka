@@ -2,18 +2,20 @@
 
 import { useRef } from "react";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import Reveal from "@/components/Reveal";
 import { Kicker } from "@/components/ui";
 
 /** Kapitola IV — celostránkové foto s paralaxou a citátem. */
 export default function Evening() {
   const ref = useRef<HTMLElement>(null);
+  const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
   });
-  const y = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
+  const rawY = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
+  const y = reduced ? "0%" : rawY;
 
   return (
     <section

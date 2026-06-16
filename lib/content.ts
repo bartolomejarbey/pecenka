@@ -37,6 +37,11 @@ export type House = {
   capacity: string;
   beds: string;
   area: string;
+  /** Číselné údaje pro statistický pás a meta. */
+  areaM2: number;
+  ceilingM: number;
+  /** Krátký popis pro SEO meta (~150 znaků). */
+  metaDescription: string;
   signature: { title: string; desc: string };
   amenities: string[];
   detail: { title: string; text: string }[];
@@ -55,6 +60,10 @@ export const HOUSES: House[] = [
     capacity: "2 osoby",
     beds: "Dvojlůžko na spacím patře",
     area: "15 m² (10 m² obývací + 5 m² patro)",
+    areaM2: 15,
+    ceilingM: 3.5,
+    metaDescription:
+      "Tiny house Achát u zatopeného lomu na okraji Českého ráje. Prosklená stěna 3 × 3 m, spací patro, klimatizace, pro dva. Od 2 890 Kč za noc.",
     signature: {
       title: "Okno tři krát tři metry",
       desc: "Velkoformátové trojsklo přes celou stěnu s elektricky ovládanou venkovní žaluzií. Ve dne galerie lesa, večer ho zatáhnete a svět zůstane venku.",
@@ -94,6 +103,10 @@ export const HOUSES: House[] = [
     capacity: "2 osoby",
     beds: "Dvojlůžko na spacím patře",
     area: "15 m² (10 m² obývací + 5 m² patro)",
+    areaM2: 15,
+    ceilingM: 3.5,
+    metaDescription:
+      "Tiny house Mech u zatopeného lomu na okraji Českého ráje. Dřevěná žaluziová stěna, velké okno, spací patro, pro dva. Od 2 890 Kč za noc.",
     signature: {
       title: "Stínicí žaluziová stěna",
       desc: "Velká venkovní žaluzie přes celou stěnu. Naladíte si přesně tolik světla a soukromí, kolik chcete — od plného slunce po úplné zašití.",
@@ -306,11 +319,11 @@ export const LOCATION = {
   secretNote:
     "Přesnou polohu prozradíme až s potvrzenou rezervací. Sedmý les se nehledá — Sedmý les se najde.",
   distances: [
-    { place: "Praha", time: "≈ 1 h 30 min autem" },
-    { place: "Liberec", time: "≈ 30 min autem" },
-    { place: "Jablonec nad Nisou", time: "≈ 25 min autem" },
-    { place: "Železný Brod", time: "≈ 10 min (5 km)" },
-    { place: "Vlak: Železný Brod", time: "5 km, vyzvedneme vás" },
+    { place: "Praha", time: "≈ 1 h 30 min autem", minutes: 90 },
+    { place: "Liberec", time: "≈ 30 min autem", minutes: 30 },
+    { place: "Jablonec nad Nisou", time: "≈ 25 min autem", minutes: 25 },
+    { place: "Železný Brod", time: "≈ 10 min (5 km)", minutes: 10 },
+    { place: "Vlak: Železný Brod", time: "5 km, vyzvedneme vás", minutes: 10 },
   ],
   around: [
     {
@@ -340,6 +353,27 @@ export const LOCATION = {
   ],
 };
 
+/* ===== Roční období ===== */
+
+export const SEASONS = [
+  {
+    name: "Jaro",
+    desc: "Ráno mlha nad lomem, les se probouzí a vody přibývá. Klid ještě před sezónou — a první teplé večery na terase.",
+  },
+  {
+    name: "Léto",
+    desc: "Koupání a skoky do křišťálové vody, dlouhé večery u ohně a Mléčná dráha nad hlavou. Klima udrží domek příjemný i v parnu.",
+  },
+  {
+    name: "Podzim",
+    desc: "Barvy lesa, déšť na plechové střeše a víno u ohniště. Nejtišší a nejbarevnější čas v roce.",
+  },
+  {
+    name: "Zima",
+    desc: "Tepelné čerpadlo hřeje, venku sníh a úplné ticho. Otužilci si lom užijí i v mrazu — sauna a koupací sud teprve přibudou.",
+  },
+];
+
 /* ===== Poukazy ===== */
 
 export const VOUCHER = {
@@ -359,6 +393,7 @@ export const NAV_LINKS = [
   { href: "/lokalita", label: "Lokalita" },
   { href: "/galerie", label: "Galerie" },
   { href: "/cenik", label: "Ceník" },
+  { href: "/o-nas", label: "O nás" },
   { href: "/faq", label: "Časté dotazy" },
   { href: "/kontakt", label: "Kontakt" },
 ];

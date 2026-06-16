@@ -17,7 +17,7 @@ export default function Practical() {
             <Reveal>
               <Kicker>Kapitola VII · Praktické minimum</Kicker>
             </Reveal>
-            <Reveal i={1} as="h3" className="font-display mt-6 text-3xl text-linen md:text-4xl">
+            <Reveal i={1} as="h2" className="font-display mt-6 text-3xl text-linen md:text-4xl">
               Na všechno jsme <span className="accent-italic">mysleli.</span>
             </Reveal>
             <Reveal i={2}>

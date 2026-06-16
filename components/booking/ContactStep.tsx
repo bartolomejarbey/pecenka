@@ -12,7 +12,7 @@ export type Contact = {
 };
 
 const INPUT_CLS =
-  "w-full rounded-2xl border border-linen/15 bg-bark px-5 py-3.5 text-[15px] text-linen placeholder:text-sage/40 outline-none transition-colors duration-300 focus:border-ember";
+  "w-full rounded-2xl border border-linen/15 bg-bark px-5 py-3.5 text-[15px] text-linen placeholder:text-sage/40 outline-none transition-colors duration-300 focus:border-ember focus:ring-2 focus:ring-ember";
 
 function Field({
   label,

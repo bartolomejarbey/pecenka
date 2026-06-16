@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui";
 
+export const metadata = {
+  title: "Stránka nenalezena",
+  robots: { index: false, follow: true },
+};
+
 export default function NotFound() {
   return (
     <main className="grain contours flex min-h-screen flex-col items-center justify-center bg-night px-6 text-center">

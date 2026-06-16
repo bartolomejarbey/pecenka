@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { HOUSES } from "@/lib/content";
+import { HOUSES, PRICING } from "@/lib/content";
+import { breadcrumbLd, houseLd, pageMeta } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
 import HouseHero from "@/components/house/HouseHero";
 import HouseStory from "@/components/house/HouseStory";
 import Signature from "@/components/house/Signature";
@@ -22,10 +24,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const house = HOUSES.find((h) => h.slug === slug);
   if (!house) return {};
-  return {
+  return pageMeta({
     title: `Domek ${house.name}`,
-    description: `${house.tagline}. ${house.story}`,
-  };
+    description: house.metaDescription,
+    path: `/domky/${house.slug}`,
+    ogImage: house.photo,
+  });
 }
 
 export default async function HouseDetailPage({ params }: Props) {
@@ -37,6 +41,23 @@ export default async function HouseDetailPage({ params }: Props) {
 
   return (
     <main>
+      <JsonLd
+        data={[
+          houseLd({
+            slug: house.slug,
+            name: house.name,
+            tagline: house.tagline,
+            area: house.area,
+            photo: house.photo,
+            basePrice: PRICING.baseNight,
+          }),
+          breadcrumbLd([
+            { name: "Domů", path: "/" },
+            { name: "Domky", path: "/domky" },
+            { name: house.name, path: `/domky/${house.slug}` },
+          ]),
+        ]}
+      />
       <HouseHero house={house} />
       <HouseStory house={house} />
       <Signature house={house} />

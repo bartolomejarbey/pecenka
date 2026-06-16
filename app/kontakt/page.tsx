@@ -1,15 +1,17 @@
-import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import CtaBanner from "@/components/CtaBanner";
 import ContactForm from "@/components/ContactForm";
 import Reveal from "@/components/Reveal";
+import JsonLd from "@/components/JsonLd";
 import { PRICING, SITE } from "@/lib/content";
+import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Kontakt",
   description:
-    "Napište nám na ahoj@sedmyles.cz — odpovídáme do pár hodin. Telefon, Instagram i časy příjezdu a odjezdu. Souřadnice posíláme s rezervací.",
-};
+    "Napište nebo zavolejte do Sedmého lesa. Na e-maily reagujeme do pár hodin. Souřadnice posíláme s potvrzenou rezervací.",
+  path: "/kontakt",
+});
 
 function ContactRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -23,11 +25,17 @@ function ContactRow({ label, children }: { label: string; children: React.ReactN
 export default function KontaktPage() {
   return (
     <main>
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Domů", path: "/" },
+          { name: "Kontakt", path: "/kontakt" },
+        ])}
+      />
       <PageHero
         kicker="Kontakt"
         title="Napište nám,"
         accent="rádi odpovíme."
-        lead="Na e-maily reagujeme do pár hodin, na telefon večer mezi topením v kamnech."
+        lead="Na e-maily reagujeme do pár hodin, na telefon nejlépe večer."
       />
 
       <section className="grain relative overflow-hidden bg-night pb-24 md:pb-32">

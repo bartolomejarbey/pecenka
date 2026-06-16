@@ -6,7 +6,7 @@ Provozovatelem ubytování Sedmý les a smluvní stranou je:
 IČO: 00000000
 Sídlo: [adresa sídla]
 Zapsán v živnostenském rejstříku.
-Nejsme plátci DPH. *(Upravte podle skutečnosti.)*
+Nejsme plátci DPH.
 
 E-mail: [ahoj@sedmyles.cz](mailto:ahoj@sedmyles.cz)
 Telefon: +420 777 000 777
@@ -28,7 +28,7 @@ Rezervace u nás funguje poptávkově. Krok za krokem:
 - **Záloha 50 %** z ceny pobytu je splatná **do 3 dnů** od potvrzení. Jejím uhrazením je rezervace závazná pro obě strany.
 - **Doplatek** zbývajících 50 % je splatný **nejpozději 14 dní před příjezdem**. U rezervací vytvořených méně než 14 dní před příjezdem platíte celou částku najednou.
 
-Pokud záloha nedorazí včas, rezervace bez dalšího zaniká a termín uvolníme dalším hostům. Ceny jsou uvedeny v Kč a platí ceník zveřejněný na webu v okamžiku potvrzení rezervace.
+Pokud záloha nedorazí včas, rezervace bez dalšího zaniká a termín uvolníme dalším hostům. Ceny jsou uvedeny v Kč a platí ceník zveřejněný na webu v okamžiku potvrzení rezervace. Provozovatel není plátcem DPH; uvedené ceny jsou konečné.
 
 ## 4. Kauce
 
@@ -54,7 +54,7 @@ Při odjezdu prosíme: umyté nádobí, vynesený koš, zavřená okna, zamčeno
 Život se někdy zamotá, počítáme s tím. Při zrušení rezervace z vaší strany platí:
 
 - **30 a více dní před příjezdem** — vracíme **100 % zálohy** (resp. všech uhrazených plateb).
-- **14 až 30 dní před příjezdem** — vracíme **50 %** uhrazených plateb.
+- **14 až 29 dní před příjezdem** — vracíme **50 %** uhrazených plateb.
 - **Méně než 14 dní před příjezdem** — platby nevracíme, ale nabídneme vám **náhradní termín do 12 měsíců** od původního data příjezdu. Vybíráte z volných termínů; případný cenový rozdíl se doúčtuje nebo vrátí.
 
 Zkrácení již zahájeného pobytu nezakládá nárok na vrácení ceny za nevyužité noci.

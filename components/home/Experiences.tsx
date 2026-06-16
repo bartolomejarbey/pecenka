@@ -18,7 +18,7 @@ export default function Experiences() {
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {EXPERIENCES.map((exp, i) => (
             <Reveal key={exp.title} i={i} className="h-full">
-              <article className="group h-full rounded-[28px] border border-night/10 p-7 transition-colors duration-300 hover:border-ember-deep/40 md:p-8">
+              <article className="group h-full rounded-[28px] border border-night/10 p-7 transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-ember-deep/40 md:p-8">
                 <span className="font-display text-base italic text-ember-deep">
                   {String(i + 1).padStart(2, "0")}
                 </span>

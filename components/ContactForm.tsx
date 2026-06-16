@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui";
 
 type Status = "idle" | "sending" | "sent" | "error";
@@ -125,6 +126,17 @@ export default function ContactForm() {
           {error}
         </p>
       )}
+
+      <p className="mt-4 text-sm text-sage/80">
+        Odesláním zprávy berete na vědomí{" "}
+        <Link
+          href="/ochrana-osobnich-udaju"
+          className="text-ember underline underline-offset-2"
+        >
+          zpracování osobních údajů
+        </Link>{" "}
+        za účelem vyřízení dotazu.
+      </p>
 
       <div className="mt-8">
         <Button type="submit" disabled={status === "sending"} className="w-full sm:w-auto">

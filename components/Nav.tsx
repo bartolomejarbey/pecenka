@@ -49,13 +49,14 @@ export default function Nav() {
           <Logo />
         </Link>
 
-        <nav className="hidden items-center gap-8 lg:flex" aria-label="Hlavní navigace">
+        <nav className="hidden items-center gap-6 lg:flex" aria-label="Hlavní navigace">
           {NAV_LINKS.map((l) => {
             const active = pathname === l.href || pathname.startsWith(l.href + "/");
             return (
               <Link
                 key={l.href}
                 href={l.href}
+                aria-current={active ? "page" : undefined}
                 className={`text-[14.5px] font-medium transition-colors duration-300 ${
                   active ? "text-ember" : "text-linen/75 hover:text-linen"
                 }`}
@@ -78,6 +79,7 @@ export default function Nav() {
           onClick={() => setOpen((o) => !o)}
           aria-label={open ? "Zavřít menu" : "Otevřít menu"}
           aria-expanded={open}
+          aria-controls="mobile-nav"
         >
           <span
             className={`h-[2px] w-6 rounded bg-linen transition-all duration-300 ${
@@ -100,6 +102,10 @@ export default function Nav() {
       <AnimatePresence>
         {open && (
           <motion.div
+            id="mobile-nav"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigace"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -119,6 +125,7 @@ export default function Nav() {
                   >
                     <Link
                       href={l.href}
+                      aria-current={active ? "page" : undefined}
                       className={`font-display block py-3 text-4xl font-light ${
                         active ? "text-ember" : "text-linen"
                       }`}

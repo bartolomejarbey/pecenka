@@ -4,22 +4,19 @@ I web o tichu a tmě potřebuje pár technických drobností, aby fungoval. Tady
 
 Cookies jsou malé textové soubory, které si webová stránka ukládá do vašeho prohlížeče. Některé jsou nezbytné, aby si web pamatoval základní věci (třeba že jste už odklikli cookie lištu), jiné slouží k měření návštěvnosti. Kromě cookies používáme i obdobné úložiště prohlížeče (localStorage) — pravidla pro něj platí stejná.
 
-## 2. Jaké kategorie používáme
+## 2. Jaké cookies používáme
 
 | Kategorie | K čemu slouží | Kdy se ukládá |
 | --- | --- | --- |
-| **Nutné (technické)** | Zajišťují základní chod webu — například si pamatují vaši volbu na cookie liště (klíč `sedmyles-cookies` v localStorage). Bez nich web nefunguje správně. | Vždy — souhlas se podle zákona nevyžaduje. |
-| **Analytické** | Anonymizované měření návštěvnosti: které stránky čtete, odkud přicházíte. Pomáhá nám dělat web lepší. | **Jen s vaším souhlasem** uděleným na cookie liště. |
-| **Marketingové** | Sledování pro cílenou reklamu napříč weby. | **Nepoužíváme.** Žádné reklamní ani sledovací cookies třetích stran tu nenajdete. |
+| **Nutné (technické)** | Zajišťují základní chod webu — například si pamatují, že jste už odklikli cookie lištu (klíč `sedmyles-cookies` v localStorage). Bez nich web nefunguje správně. | Vždy — souhlas se podle zákona nevyžaduje. |
 
-## 3. Jak udělit nebo odvolat souhlas
+Analytické ani marketingové cookies nepoužíváme — proto vám nezobrazujeme volby kategorií ani nepotřebujeme váš souhlas. Web neměří návštěvnost, nesleduje vás a nenačítá žádné reklamní ani sledovací skripty třetích stran.
 
-Při první návštěvě webu se vám zobrazí **cookie lišta**, na které si vyberete, zda analytické cookies povolíte, nebo ne. Web funguje plnohodnotně v obou případech.
+## 3. Správa souhlasu
 
-Rozmysleli jste si to? Volbu změníte snadno:
+Protože ukládáme jen nutné technické cookies, nepotřebujeme od vás souhlas a nezobrazujeme vám žádné nastavení kategorií. Tyto cookies jsou nezbytné pro chod webu a ukládají se jen po dobu nutnou.
 
-- **Smažte uloženou volbu** — v nastavení prohlížeče vymažte data webu sedmyles.cz, nebo v konzoli prohlížeče odstraňte z localStorage klíč `sedmyles-cookies`. Při příští návštěvě se lišta zobrazí znovu a můžete volit jinak.
-- **Smažte cookies v prohlížeči** — tím odstraníte i případné analytické cookies, které už byly uloženy.
+Pokud byste je přesto nechtěli, lze je smazat v nastavení prohlížeče (viz část 4). Mějte ale na paměti, že web pak nemusí fungovat správně.
 
 ## 4. Nastavení v prohlížeči
 

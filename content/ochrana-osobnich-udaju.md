@@ -1,4 +1,4 @@
-Vaše data nás zajímají jen do té míry, abychom vám mohli vytopit saunu a poslat souřadnice. Tady je černé na bílém, co o vás víme, proč a jak dlouho. Chceme to psát srozumitelně — žádné paragrafové bludiště.
+Vaše data nás zajímají jen do té míry, abychom vám mohli potvrdit rezervaci a poslat souřadnice k domku. Tady je černé na bílém, co o vás víme, proč a jak dlouho. Chceme to psát srozumitelně — žádné paragrafové bludiště.
 
 ## 1. Kdo je správce
 
@@ -21,6 +21,8 @@ Jen to, co nám sami dáte:
 - **Údaje z poptávky a rezervace** — vybraný domek, termín, počet hostů, zvolené doplňky, váš vzkaz a případné poznámky (např. že jedete se psem).
 - **Platební údaje** — číslo účtu, ze kterého přišla platba (kvůli vracení kauce a případných plateb).
 - **Komunikaci s vámi** — e-maily a zprávy, které si vyměníme.
+
+Při odeslání formuláře dočasně zpracováváme vaši IP adresu kvůli ochraně proti spamu (oprávněný zájem dle čl. 6 odst. 1 písm. f GDPR); trvale ji neukládáme.
 
 Nesledujeme vás, neprofilujeme vás a nenakupujeme o vás data odjinud. Co se děje s cookies, popisují samostatné [Zásady cookies](/cookies).
 

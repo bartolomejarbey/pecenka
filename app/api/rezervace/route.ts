@@ -9,6 +9,13 @@ import { createTransport } from "nodemailer";
  * Env: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, CONTACT_TO
  */
 
+/** České skloňování „noc" pro e-mail provozovateli (1 noc / 2–4 noci / 5+ nocí). */
+function nightsLabel(n: number): string {
+  if (n === 1) return "1 noc";
+  if (n >= 2 && n <= 4) return `${n} noci`;
+  return `${n} nocí`;
+}
+
 const hits = new Map<string, number[]>();
 
 function rateLimited(ip: string): boolean {
@@ -76,7 +83,7 @@ export async function POST(req: Request) {
     <div style="border:1px solid #e5e1d5;border-top:none;padding:28px 32px;border-radius:0 0 16px 16px">
       <table style="font-size:15px;line-height:1.6">
         <tr><td style="padding:4px 12px 4px 0;color:#666">Domek</td><td style="padding:4px 0"><strong>${data.house}</strong></td></tr>
-        <tr><td style="padding:4px 12px 4px 0;color:#666">Termín</td><td style="padding:4px 0"><strong>${data.from} → ${data.to}</strong> (${data.nights} nocí)</td></tr>
+        <tr><td style="padding:4px 12px 4px 0;color:#666">Termín</td><td style="padding:4px 0"><strong>${data.from} → ${data.to}</strong> (${nightsLabel(data.nights)})</td></tr>
         <tr><td style="padding:4px 12px 4px 0;color:#666">Hosté</td><td style="padding:4px 0">${data.guests}</td></tr>
         ${addonLines}
         <tr><td style="padding:12px 12px 4px 0;color:#666">Cena celkem</td><td style="padding:12px 0 4px"><strong style="color:#b06f33;font-size:17px">${Number(data.total).toLocaleString("cs-CZ")} Kč</strong></td></tr>

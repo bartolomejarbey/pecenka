@@ -25,7 +25,7 @@ function StepperButton({
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
-      className="flex h-9 w-9 items-center justify-center rounded-full border border-linen/15 text-base text-linen transition-colors duration-300 hover:border-ember hover:text-ember disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-linen/15 disabled:hover:text-linen"
+      className="flex h-11 w-11 items-center justify-center rounded-full border border-linen/15 text-base text-linen transition-colors duration-300 hover:border-ember hover:text-ember disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-linen/15 disabled:hover:text-linen"
     >
       {children}
     </button>

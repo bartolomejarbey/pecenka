@@ -1,18 +1,26 @@
-import type { Metadata } from "next";
 import { Suspense } from "react";
 import PageHero from "@/components/PageHero";
 import BookingWizard from "@/components/booking/BookingWizard";
 import WizardSkeleton from "@/components/booking/WizardSkeleton";
+import JsonLd from "@/components/JsonLd";
+import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Rezervace",
   description:
-    "Rezervujte si pobyt v Sedmém lese — domek, termín, doplňky a kontakt ve čtyřech krocích. Žádná platba předem, termín potvrdíme do 24 hodin.",
-};
+    "Rezervujte si tiny house Achát nebo Mech u zatopeného lomu na okraji Českého ráje. Vyberte termín, my do 24 hodin potvrdíme. Bez platby předem.",
+  path: "/rezervace",
+});
 
 export default function RezervacePage() {
   return (
     <main>
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Domů", path: "/" },
+          { name: "Rezervace", path: "/rezervace" },
+        ])}
+      />
       <PageHero
         kicker="Rezervace"
         title="Vyberte si svůj"

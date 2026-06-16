@@ -1,5 +1,6 @@
 import type { House } from "@/lib/content";
 import Reveal from "@/components/Reveal";
+import HouseStats from "@/components/house/HouseStats";
 import { Kicker } from "@/components/ui";
 
 /** Kapitola I · Příběh — velký editorial text a dva detailní bloky. */
@@ -25,6 +26,8 @@ export default function HouseStory({ house }: { house: House }) {
             </Reveal>
           ))}
         </div>
+
+        <HouseStats house={house} />
       </div>
     </section>
   );

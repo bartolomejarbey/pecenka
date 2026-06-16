@@ -1,20 +1,28 @@
-import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
 import CtaBanner from "@/components/CtaBanner";
 import Faq from "@/components/Faq";
 import Reveal from "@/components/Reveal";
+import JsonLd from "@/components/JsonLd";
 import { Button } from "@/components/ui";
 import { FAQ_ITEMS, SITE } from "@/lib/content";
+import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Časté dotazy",
   description:
-    "Check-in, sauna, koupání v lomu, děti, psi i storno podmínky. Odpovědi na dvanáct nejčastějších otázek o pobytu v Sedmém lese.",
-};
+    "Odpovědi na nejčastější otázky o pobytu v Sedmém lese — lokalita, check-in, domky, koupání v lomu, storno a platba.",
+  path: "/faq",
+});
 
 export default function FaqPage() {
   return (
     <main>
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Domů", path: "/" },
+          { name: "Časté dotazy", path: "/faq" },
+        ])}
+      />
       <PageHero
         kicker="Časté dotazy"
         title="Na všechno jsme"

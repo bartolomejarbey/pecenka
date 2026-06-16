@@ -1,16 +1,20 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import PageHero from "@/components/PageHero";
 import CtaBanner from "@/components/CtaBanner";
 import Reveal from "@/components/Reveal";
+import JsonLd from "@/components/JsonLd";
+import DistanceBars from "@/components/lokalita/DistanceBars";
 import { Kicker, LogoMark } from "@/components/ui";
+import { pageMeta, breadcrumbLd } from "@/lib/seo";
 import { LOCATION } from "@/lib/content";
 
-export const metadata: Metadata = {
+export const metadata = pageMeta({
   title: "Lokalita",
   description:
-    "Sedmý les leží na samotě u zatopeného břidlicového lomu nad Jílovým u Držkova v Libereckém kraji, na okraji Českého ráje. Přesné souřadnice posíláme s potvrzenou rezervací — z Prahy zhruba hodinu a půl autem.",
-};
+    "Sedmý les leží u zatopeného břidlicového lomu nad Jílovým u Držkova na okraji Českého ráje. Z Prahy hodinu a půl, z Liberce půl hodiny.",
+  path: "/lokalita",
+  ogImage: "/foto/lom-letecky.jpg",
+});
 
 /** Kompasová růžice — dekorace mapy, sever žhne ember. */
 function CompassRose({ className = "h-16 w-16" }: { className?: string }) {
@@ -47,6 +51,12 @@ const STEPS = [
 export default function LokalitaPage() {
   return (
     <main>
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Domů", path: "/" },
+          { name: "Lokalita", path: "/lokalita" },
+        ])}
+      />
       <PageHero
         kicker="Lokalita"
         title="Kde přesně? To je"
@@ -84,7 +94,7 @@ export default function LokalitaPage() {
               <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
                 <LogoMark className="h-7 w-auto text-sage" />
                 <p className="font-display mt-6 text-2xl text-linen md:text-3xl">
-                  50.67° N, 15.30° E
+                  ≈ 50,6° N · 15,3° E
                 </p>
                 <p className="mt-3 max-w-xs text-sm leading-relaxed text-sage">
                   Souřadnice dostanete s potvrzenou rezervací.
@@ -125,18 +135,7 @@ export default function LokalitaPage() {
             </h2>
           </Reveal>
 
-          <div className="mt-12 max-w-3xl md:mt-16">
-            {LOCATION.distances.map((d, i) => (
-              <Reveal key={d.place} i={i} as="div">
-                <div className="flex items-baseline justify-between gap-6 border-b border-linen/8 py-5 md:py-6">
-                  <span className="text-[15.5px] text-sage">{d.place}</span>
-                  <span className="font-display whitespace-nowrap text-lg text-linen md:text-xl">
-                    {d.time}
-                  </span>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+          <DistanceBars />
         </div>
       </section>
 
