@@ -10,3 +10,5 @@ screenshots
 .pglite
 .pglite
 db/drizzle/meta
+.vercel
+.env*

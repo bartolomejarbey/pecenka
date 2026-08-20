@@ -94,10 +94,14 @@ export type Radek = {
 /**
  * Rozpad ceny včetně DPH na základ a daň.
  *
- * Ceník je koncový (host vidí cenu s daní), takže se počítá „shora":
- * `základ = celkem / (1 + sazba)` a `daň = celkem − základ`. Odečtením místo
- * druhého zaokrouhlení je zaručeno, že `základ + daň` dá přesně původní částku
- * a na dokladu nevznikne haléřový rozdíl.
+ * Ceník je koncový (host vidí cenu s daní), takže se musí použít metoda podle
+ * **§ 37 písm. b) ZDPH** — daň jako rozdíl úplaty a podílu úplaty a koeficientu.
+ * (Písm. a) je výpočet zdola ze základu, který u koncových cen neznáme;
+ * `SYSTEM.md` ho cituje chybně, viz `FAKTURACE.md`.)
+ *
+ * Druhé zaokrouhlení se schválně nedělá — odečtením je zaručeno, že
+ * `základ + daň` dá přesně částku, kterou host viděl, a na dokladu nevznikne
+ * haléřový rozdíl.
  */
 export function rozpadDph(
   celkemHalere: number,
