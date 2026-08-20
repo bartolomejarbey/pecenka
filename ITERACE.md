@@ -334,7 +334,11 @@ viselo na kořenovém `app/layout.tsx`. Veřejné stránky se přesunuly do skup
 Zaplacená záloha zároveň překlopí rezervaci z `hold` na `confirmed` — to je
 jediné místo, kde se to děje.
 
-**69 testů prochází.**
+**65 testů prochází.**
+
+Pojistka proti vymyšlené dostupnosti se při přesunu stránek do `app/(web)/`
+rozbila — hlídala pevný seznam souborů. Teď prochází **celý strom**, takže
+platí i po přesunu a chytí i nový soubor, který by ten vzorec zavedl znovu.
 
 ### Zbývá
 Ruční rezervace v administraci, úprava cen a doklady. Automatické párování
