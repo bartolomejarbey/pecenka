@@ -6,11 +6,12 @@ import { HOUSES } from "@/lib/content";
 import {
   calcPrice,
   formatCzDate,
-  formatPrice,
-  getBookedDays,
+  formatHalere,
   isRangeFree,
+  toKey,
   validateRange,
   type AddonSelection,
+  type Cenik,
   type HouseSlug,
 } from "@/lib/booking";
 import { Button } from "@/components/ui";
@@ -27,6 +28,9 @@ type Step = 1 | 2 | 3 | 4;
 type Range = { from: Date | null; to: Date | null };
 type Status = "idle" | "sending" | "sent" | "error";
 
+/** Dostupnost a ceník jednoho domku, jak je připraví server. */
+export type DataDomku = { obsazene: string[]; cenik: Cenik };
+
 
 function StepHeading({ title, sub }: { title: string; sub?: string }) {
   return (
@@ -37,8 +41,14 @@ function StepHeading({ title, sub }: { title: string; sub?: string }) {
   );
 }
 
-/** Čtyřkrokový rezervační průvodce — interaktivní srdce webu. */
-export default function BookingWizard() {
+/**
+ * Čtyřkrokový rezervační průvodce — interaktivní srdce webu.
+ *
+ * Obsazenost i ceny dostává z serveru (`nactiRezervacniData`). Dřív si je
+ * vyráběl sám z konstant a determinovaného generátoru; jakmile na web přijdou
+ * skutečné rezervace, je to rozdíl mezi „volno" a dvojím prodejem.
+ */
+export default function BookingWizard({ data }: { data: Record<string, DataDomku> }) {
   const searchParams = useSearchParams();
 
   const [mounted, setMounted] = useState(false);
@@ -78,34 +88,43 @@ export default function BookingWizard() {
     [house],
   );
 
+  const domek = house ? data[house] : undefined;
+
   const booked = useMemo(
-    () => (house ? getBookedDays(house) : new Set<string>()),
-    [house],
+    () => new Set(domek?.obsazene ?? []),
+    [domek],
   );
 
   const rangeError = useMemo(() => {
-    if (!range.from || !range.to) return null;
-    const invalid = validateRange(range.from, range.to);
+    if (!range.from || !range.to || !domek) return null;
+    // Ceníkový kalendář může u konkrétních termínů žádat delší pobyt než dvě noci.
+    const minNoci = Math.max(
+      2,
+      ...Object.entries(domek.cenik.minNoci)
+        .filter(([d]) => d >= toKey(range.from!) && d < toKey(range.to!))
+        .map(([, n]) => n),
+    );
+    const invalid = validateRange(range.from, range.to, minNoci);
     if (invalid) return invalid;
     if (!isRangeFree(booked, range.from, range.to)) {
       return "Vybraný termín zasahuje do obsazených nocí. Zkuste prosím jiný.";
     }
     return null;
-  }, [range, booked]);
+  }, [range, booked, domek]);
 
   const rangeValid = range.from !== null && range.to !== null && rangeError === null;
 
   // Živý řádek pod kalendářem — jen cena ubytování, bez doplňků.
   const stay = useMemo(() => {
-    if (!range.from || !range.to || rangeError) return null;
-    return calcPrice(range.from, range.to, {});
-  }, [range, rangeError]);
+    if (!range.from || !range.to || rangeError || !domek) return null;
+    return calcPrice(range.from, range.to, {}, domek.cenik);
+  }, [range, rangeError, domek]);
 
   // Plný rozpad ceny pro souhrn — včetně doplňků.
   const breakdown = useMemo(() => {
-    if (!range.from || !range.to) return null;
-    return calcPrice(range.from, range.to, addons);
-  }, [range, addons]);
+    if (!range.from || !range.to || !domek) return null;
+    return calcPrice(range.from, range.to, addons, domek.cenik);
+  }, [range, addons, domek]);
 
   function handleDaySelect(day: Date) {
     setRange((r) => {
@@ -262,7 +281,7 @@ export default function BookingWizard() {
                       <span>{nightsLabel(stay.nights)}</span>
                       <span aria-hidden="true">·</span>
                       <span className="font-display text-xl text-ember">
-                        {formatPrice(stay.total)}
+                        {formatHalere(stay.total)}
                       </span>
                     </p>
                   )}
@@ -292,6 +311,7 @@ export default function BookingWizard() {
                   addons={addons}
                   onQtyChange={setAddonQty}
                   nights={breakdown?.nights ?? 0}
+                  doplnky={domek?.cenik.doplnky ?? []}
                 />
                 {breakdown && (
                   <p className="mt-8 inline-flex flex-wrap items-baseline gap-x-2.5 gap-y-1 rounded-2xl border border-ember/25 bg-ember/5 px-5 py-3.5 text-[15px] text-sage">
@@ -299,13 +319,13 @@ export default function BookingWizard() {
                     {breakdown.addonsTotal > 0 && (
                       <>
                         <span aria-hidden="true">·</span>
-                        <span>doplňky {formatPrice(breakdown.addonsTotal)}</span>
+                        <span>doplňky {formatHalere(breakdown.addonsTotal)}</span>
                       </>
                     )}
                     <span aria-hidden="true">·</span>
                     <span className="text-linen">celkem</span>
                     <span className="font-display text-xl text-ember">
-                      {formatPrice(breakdown.total)}
+                      {formatHalere(breakdown.total)}
                     </span>
                   </p>
                 )}

@@ -1,19 +1,9 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import type { HouseSlug } from "@/lib/booking";
-import { getBookedDays, toKey, startOfDay, formatPrice } from "@/lib/booking";
-import { PRICING } from "@/lib/content";
+import { toKey, startOfDay, formatHalere } from "@/lib/booking";
 import Reveal from "@/components/Reveal";
 import { Button, Kicker } from "@/components/ui";
 
 const WEEKDAYS = ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"];
-
-type CalendarData = {
-  booked: Set<string>;
-  months: { year: number; month: number }[];
-  todayKey: string;
-};
 
 function monthLabel(year: number, month: number): string {
   const label = new Date(year, month, 1).toLocaleDateString("cs-CZ", {
@@ -93,25 +83,25 @@ function MonthGrid({
 export default function Availability({
   slug,
   houseName,
+  obsazene,
+  odCenyHalere,
 }: {
   slug: HouseSlug;
   houseName: string;
+  /** Obsazené dny (YYYY-MM-DD) ze skutečné databáze. */
+  obsazene: string[];
+  /** Nejnižší cena noci v nejbližším roce, v haléřích. */
+  odCenyHalere: number;
 }) {
-  const [data, setData] = useState<CalendarData | null>(null);
-
-  useEffect(() => {
-    const today = startOfDay(new Date());
-    const y = today.getFullYear();
-    const m = today.getMonth();
-    setData({
-      booked: getBookedDays(slug),
-      months: [
-        { year: y, month: m },
-        { year: m === 11 ? y + 1 : y, month: (m + 1) % 12 },
-      ],
-      todayKey: toKey(today),
-    });
-  }, [slug]);
+  const today = startOfDay(new Date());
+  const y = today.getFullYear();
+  const m = today.getMonth();
+  const booked = new Set(obsazene);
+  const todayKey = toKey(today);
+  const months = [
+    { year: y, month: m },
+    { year: m === 11 ? y + 1 : y, month: (m + 1) % 12 },
+  ];
 
   return (
     <section className="grain relative overflow-hidden bg-bark py-20 md:py-26">
@@ -126,23 +116,11 @@ export default function Availability({
         </Reveal>
 
         <div className="mt-12 grid gap-6 md:mt-16 md:grid-cols-2 md:gap-8">
-          {data ? (
-            data.months.map((mo, i) => (
-              <div key={`${mo.year}-${mo.month}`} className={i === 1 ? "hidden md:block" : ""}>
-                <MonthGrid
-                  year={mo.year}
-                  month={mo.month}
-                  booked={data.booked}
-                  todayKey={data.todayKey}
-                />
-              </div>
-            ))
-          ) : (
-            <>
-              <div className="h-[380px] animate-pulse rounded-[28px] border border-linen/8 bg-pine" />
-              <div className="hidden h-[380px] animate-pulse rounded-[28px] border border-linen/8 bg-pine md:block" />
-            </>
-          )}
+          {months.map((mo, i) => (
+            <div key={`${mo.year}-${mo.month}`} className={i === 1 ? "hidden md:block" : ""}>
+              <MonthGrid year={mo.year} month={mo.month} booked={booked} todayKey={todayKey} />
+            </div>
+          ))}
         </div>
 
         <Reveal i={1}>
@@ -164,7 +142,8 @@ export default function Availability({
             </span>
           </div>
           <p className="mt-5 max-w-md text-sm leading-relaxed text-sage/80">
-            Kalendář je orientační — termín potvrdíme do 24 hodin.
+            Kalendář ukazuje skutečnou obsazenost. Termín přesto potvrdíme
+            do 24 hodin — ať víte, že o vás víme.
           </p>
         </Reveal>
 
@@ -174,7 +153,7 @@ export default function Availability({
             <p className="text-sm text-sage">
               od{" "}
               <span className="font-display text-xl text-linen">
-                {formatPrice(PRICING.baseNight)}
+                {formatHalere(odCenyHalere)}
               </span>{" "}
               / noc
             </p>

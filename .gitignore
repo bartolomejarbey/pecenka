@@ -7,3 +7,6 @@ tsconfig.tsbuildinfo
 npm-debug.log*
 screenshots
 .playwright-mcp
+.pglite
+.pglite
+db/drizzle/meta

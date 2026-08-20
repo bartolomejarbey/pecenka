@@ -4,7 +4,9 @@ import { useMemo, useState } from "react";
 import { formatCzDate, isRangeFree, startOfDay, toKey } from "@/lib/booking";
 
 const WEEKDAYS = ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"];
-const MAX_MONTH_OFFSET = 7; // ilustrační dostupnost máme ~8 měsíců dopředu
+// Dokud web ukazuje rok dopředu (OKNO_DNI v lib/booking/server.ts),
+// nemá smysl pouštět kalendář dál — dál stejně nemáme ceny.
+const MAX_MONTH_OFFSET = 11;
 
 function monthLabel(d: Date): string {
   const s = d.toLocaleDateString("cs-CZ", { month: "long", year: "numeric" });

@@ -11,8 +11,12 @@ import HouseGallery from "@/components/house/HouseGallery";
 import Availability from "@/components/house/Availability";
 import OtherHouse from "@/components/house/OtherHouse";
 import CtaBanner from "@/components/CtaBanner";
+import { nactiDostupnost } from "@/lib/booking/server";
 
 export const dynamicParams = false;
+
+/** Obsazenost se mění, ale ne po vteřinách — pět minut je dost čerstvé. */
+export const revalidate = 300;
 
 export function generateStaticParams() {
   return HOUSES.map((house) => ({ slug: house.slug }));
@@ -38,6 +42,9 @@ export default async function HouseDetailPage({ params }: Props) {
   if (!house) notFound();
 
   const other = HOUSES.find((h) => h.slug !== house.slug)!;
+  const dostupnost = (await nactiDostupnost([house.slug]))[house.slug];
+  const ceny = Object.values(dostupnost.ceny);
+  const odCeny = ceny.length ? Math.min(...ceny) : PRICING.baseNight * 100;
 
   return (
     <main>
@@ -63,7 +70,12 @@ export default async function HouseDetailPage({ params }: Props) {
       <Signature house={house} />
       <Amenities house={house} />
       <HouseGallery house={house} />
-      <Availability slug={house.slug} houseName={house.name} />
+      <Availability
+        slug={house.slug}
+        houseName={house.name}
+        obsazene={dostupnost.obsazene}
+        odCenyHalere={odCeny}
+      />
       <OtherHouse house={other} />
       <CtaBanner />
     </main>

@@ -1,12 +1,14 @@
 "use client";
 
-import { ADDONS } from "@/lib/content";
-import { formatPrice } from "@/lib/booking";
+import { formatHalere, type Doplnek } from "@/lib/booking";
 import { daysLabel } from "./format";
 
-/** Jednotky, u kterých dává smysl množství — zbytek je zapnuto/vypnuto. */
-const QTY_UNITS = new Set(["za den", "za lahev", "za balík"]);
-const MAX_QTY = 5;
+/** Jak se jednotka doplňku píše v souhrnu. */
+const JEDNOTKA: Record<Doplnek["unit"], string> = {
+  per_day: "za den",
+  per_piece: "za kus",
+  per_stay: "za pobyt",
+};
 
 function StepperButton({
   onClick,
@@ -39,12 +41,15 @@ export default function AddonsStep({
   addons,
   onQtyChange,
   nights,
+  doplnky,
 }: {
   guests: number;
   onGuestsChange: (n: number) => void;
   addons: Record<string, number>;
   onQtyChange: (id: string, qty: number) => void;
   nights: number;
+  /** Nabídka doplňků z databáze — ceny i maxima se dají měnit bez nasazení. */
+  doplnky: Doplnek[];
 }) {
   return (
     <div className="space-y-8">
@@ -84,11 +89,11 @@ export default function AddonsStep({
       <div>
         <p className="kicker mb-4 text-sage">Doplňky pobytu</p>
         <ul className="space-y-3.5">
-          {ADDONS.map((addon) => {
+          {doplnky.map((addon) => {
             const qty = addons[addon.id] ?? 0;
             const active = qty > 0;
-            const isQty = QTY_UNITS.has(addon.unit);
-            const perDay = addon.unit === "za den";
+            const isQty = addon.maxQty > 1;
+            const perDay = addon.unit === "per_day";
             return (
               <li
                 key={addon.id}
@@ -98,15 +103,15 @@ export default function AddonsStep({
               >
                 <div className="max-w-md">
                   <p className="font-semibold text-linen">{addon.name}</p>
-                  <p className="mt-1 text-sm leading-relaxed text-sage">{addon.desc}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-sage">{addon.description}</p>
                 </div>
                 <div className="flex shrink-0 items-center justify-between gap-6 sm:justify-end">
                   <p className="text-[15px] text-linen">
-                    {formatPrice(addon.price)}{" "}
-                    <span className="text-sm text-sage">· {addon.unit}</span>
+                    {formatHalere(addon.priceHalere)}{" "}
+                    <span className="text-sm text-sage">· {JEDNOTKA[addon.unit]}</span>
                     {perDay && active && nights > 0 && (
                       <span className="mt-0.5 block text-sm text-ember">
-                        = {formatPrice(addon.price * qty * nights)} / {daysLabel(nights)}
+                        = {formatHalere(addon.priceHalere * qty * nights)} / {daysLabel(nights)}
                       </span>
                     )}
                   </p>
@@ -133,7 +138,7 @@ export default function AddonsStep({
                       </span>
                       <StepperButton
                         onClick={() => onQtyChange(addon.id, qty + 1)}
-                        disabled={qty >= MAX_QTY}
+                        disabled={qty >= addon.maxQty}
                         label={`Přidat — ${addon.name}`}
                       >
                         +

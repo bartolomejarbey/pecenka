@@ -10,7 +10,7 @@ Architektonické zadání pro celý systém: **[SYSTEM.md](./SYSTEM.md)** (výst
 |---|---|---|
 | 1 | Výkon webu, nové logo, podklady systému | ✅ hotovo |
 | 2 | Zjednodušení a přehlednost webu, mobil, dořešení Safari | ✅ hotovo |
-| 3 | Databáze: schéma, migrace, konec fiktivní dostupnosti | ⏳ |
+| 3 | Databáze: schéma, migrace, konec fiktivní dostupnosti | ✅ hotovo |
 | 4 | Rezervační jádro: skutečné rezervace, VS, blokace termínů | ⏳ |
 | 5 | Platby: QR (SPAYD), `PaymentProvider`, příprava ComGate | ⏳ |
 | 6 | Admin: Dnes, kalendář, detail rezervace, ruční rezervace | ⏳ |
@@ -97,3 +97,53 @@ na 393 px ani na 1440 px.
 - **Úvodní stránka má pořád devět sekcí.** Nabízí se sloučit „Šest věcí, které ve
   městě nekoupíte" (Experiences) s pásem ročních období (SeasonStrip) — obojí je
   výčet hezkých věcí. Je to zásah do obsahu, tak čekám na tvoje slovo.
+
+
+---
+
+## Iterace 3 — hotovo
+
+### Databáze bez instalace
+Bez `DATABASE_URL` běží projekt na **PGlite** — Postgres 18 přeložený do WASM,
+data v `.pglite/`. Žádný docker, žádný účet, `npm run dev` prostě funguje.
+Je to týž Postgres jako naostro, včetně `btree_gist`, takže ochrana proti
+dvojímu prodeji se chová stejně. Na produkci se nastaví `DATABASE_URL` (Neon)
+a nemění se nic jiného.
+
+### Schéma
+`db/migrations/0001_init.sql` — **52 tabulek, 3 výčtové typy, 69 cizích klíčů,
+49 CHECK omezení**. Generuje se ze SYSTEM.md skriptem
+`scripts/dev/build-migration.py`, který tabulky topologicky seřadí podle cizích
+klíčů a cyklus `invoices ↔ document_blobs` rozetne do `ALTER TABLE` na konci.
+Typy pro dotazy se načítají zpátky z databáze (`npm run db:pull`) — jeden zdroj
+pravdy, žádné ruční přepisování.
+
+**Ochrana proti dvojímu prodeji je v databázi, ne v aplikaci:**
+```sql
+CONSTRAINT no_overlap EXCLUDE USING gist (
+  unit_id WITH =, daterange(checkin, checkout, '[)') WITH &&
+) WHERE (status IN ('hold','confirmed','checked_in'))
+```
+Ověřeno: překryvná rezervace je zamítnuta, navazující (odjezd = příjezd) projde.
+
+### Konec vymyšlené dostupnosti
+`getBookedDays()` a `seededRandom()` jsou **smazané**. Kalendář teď čte
+`reservation_units` + `calendar_blocks` + `rate_calendar`, ceny bere
+z ceníkového kalendáře (730 dní dopředu, ceny v haléřích) a doplňky z tabulky
+`addons`. Změna ceny už nevyžaduje nasazení nové verze webu.
+
+Virtuální jednotka **„Celý les"** je v datech: prodává se jako celek 30 m²,
+ale blokuje oba domky — a naopak, rezervace jednoho domku blokuje celek.
+
+Pojistka `__tests__/dostupnost.test.ts` spadne, kdyby se generovaná obsazenost
+jakkoli vrátila. Hned při zavedení chytila zapomenutý komentář a `MAX_MONTH_OFFSET = 7`
+odvozený od staré vymyšlené dostupnosti.
+
+**21 testů prochází** (cena, sleva jen na ubytování, doplňky za den vs. za pobyt,
+minimální délka pobytu z ceníku, formátování haléřů, pojistky).
+
+### Zbývá — a je to důležité
+Průvodce **ukazuje** skutečnou obsazenost, ale odeslání pořád jen posílá e-mail;
+rezervace se do databáze nezapisuje. Kalendář tím vypadá závazněji, než ve
+skutečnosti je. **Tohle je první věc v iteraci 4**, včetně generátoru
+variabilního symbolu a odchycení `23P01` („termín právě obsadil někdo jiný").

@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname),
   },
+  // PGlite si veze Postgres jako WASM a rozšíření jako .tar.gz. Bundler z nich
+  // udělá statická aktiva pod /_next/static/media, která pak serverový proces
+  // neumí načíst — proto ho necháváme mimo bundle a načítá se přes require.
+  serverExternalPackages: ["@electric-sql/pglite"],
   images: {
     // AVIF u fotek lesa a lomu ušetří ~30 % oproti WebP; WebP zůstává jako záloha.
     formats: ["image/avif", "image/webp"],

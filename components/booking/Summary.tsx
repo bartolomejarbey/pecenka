@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { House } from "@/lib/content";
-import { formatCzDate, formatPrice, type PriceBreakdown } from "@/lib/booking";
+import { formatCzDate, formatHalere, type PriceBreakdown } from "@/lib/booking";
 import { daysLabel, guestsLabel, nightsLabel } from "./format";
 
 /** Souhrn rezervace — pravý sloupec posledního kroku. */
@@ -45,12 +45,12 @@ export default function Summary({
       <ul className="mt-6 space-y-2.5 border-t border-linen/10 pt-6 text-[15px]">
         <li className="flex items-baseline justify-between gap-4">
           <span className="text-sage">Ubytování ({nightsLabel(breakdown.nights)})</span>
-          <span className="text-linen">{formatPrice(breakdown.nightsTotal)}</span>
+          <span className="text-linen">{formatHalere(breakdown.nightsTotal)}</span>
         </li>
         {breakdown.weekDiscount > 0 && (
           <li className="flex items-baseline justify-between gap-4 text-ember">
             <span>Sleva za týden −10 %</span>
-            <span>−{formatPrice(breakdown.weekDiscount)}</span>
+            <span>−{formatHalere(breakdown.weekDiscount)}</span>
           </li>
         )}
         {breakdown.addonItems.map((item) => (
@@ -60,7 +60,7 @@ export default function Summary({
               {item.qty > 1 ? ` ×${item.qty}` : ""}
               {item.perDay ? ` · ${daysLabel(item.days)}` : ""}
             </span>
-            <span className="text-linen">{formatPrice(item.total)}</span>
+            <span className="text-linen">{formatHalere(item.total)}</span>
           </li>
         ))}
       </ul>
@@ -68,12 +68,12 @@ export default function Summary({
       <div className="mt-6 flex items-baseline justify-between gap-4 border-t border-linen/10 pt-6">
         <span className="text-[15px] text-sage">Celkem</span>
         <span className="font-display text-3xl text-linen">
-          {formatPrice(breakdown.total)}
+          {formatHalere(breakdown.total)}
         </span>
       </div>
 
       <p className="mt-4 text-sm leading-relaxed text-sage">
-        + vratná kauce {formatPrice(breakdown.deposit)}
+        + vratná kauce {formatHalere(breakdown.deposit)}
         <br />
         Záloha 50 % po potvrzení termínu.
       </p>

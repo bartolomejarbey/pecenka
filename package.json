@@ -5,14 +5,25 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "db:migration": "python3 scripts/dev/build-migration.py",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "db:pull": "node scripts/db-pull.mjs",
+    "db:reset": "rm -rf .pglite && node scripts/db-migrate.mjs && node scripts/db-seed.mjs",
+    "db:seed": "node scripts/db-seed.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.5.5",
+    "drizzle-orm": "^0.45.2",
     "marked": "^18.0.5",
     "next": "16.2.7",
     "nodemailer": "^8.0.11",
+    "postgres": "^3.4.9",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -20,7 +31,9 @@
     "@types/nodemailer": "^8.0.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.10",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.7"
   }
 }

@@ -4,6 +4,12 @@ import BookingWizard from "@/components/booking/BookingWizard";
 import WizardSkeleton from "@/components/booking/WizardSkeleton";
 import JsonLd from "@/components/JsonLd";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
+import { nactiRezervacniData } from "@/lib/booking/server";
+
+/** Obsazenost se mění, ale ne po vteřinách — pět minut je dost čerstvé.
+ *  Skutečnou pojistkou proti dvojímu prodeji je databázové omezení
+ *  `reservation_units.no_overlap` při zakládání rezervace, ne tenhle kalendář. */
+export const revalidate = 300;
 
 export const metadata = pageMeta({
   title: "Rezervace",
@@ -12,7 +18,15 @@ export const metadata = pageMeta({
   path: "/rezervace",
 });
 
-export default function RezervacePage() {
+export default async function RezervacePage() {
+  const { dostupnost, ceniky } = await nactiRezervacniData(["achat", "mech"]);
+  const data = Object.fromEntries(
+    (["achat", "mech"] as const).map((s) => [
+      s,
+      { obsazene: dostupnost[s].obsazene, cenik: ceniky[s] },
+    ]),
+  );
+
   return (
     <main>
       <JsonLd
@@ -34,7 +48,7 @@ export default function RezervacePage() {
       >
         <div className="relative z-10 mx-auto max-w-7xl px-5 md:px-8">
           <Suspense fallback={<WizardSkeleton />}>
-            <BookingWizard />
+            <BookingWizard data={data} />
           </Suspense>
 
           <ul className="mt-9 flex flex-wrap items-center justify-center gap-x-9 gap-y-3 text-sm text-sage">

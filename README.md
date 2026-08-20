@@ -1,14 +1,31 @@
 # sedmyles.cz
 
-Web pro pronájem dvou tiny housů u zatopeného lomu. Next.js 16 + Tailwind v4 +
-motion + lenis. Kreativní zadání viz [ZADANI.md](./ZADANI.md).
+Web pro pronájem dvou tiny housů u zatopeného lomu. Next.js 16 + Tailwind v4,
+bez animačních knihoven. Kreativní zadání viz [ZADANI.md](./ZADANI.md),
+architektura rezervačního a fakturačního systému viz [SYSTEM.md](./SYSTEM.md),
+postup prací viz [ITERACE.md](./ITERACE.md).
 
 ## Spuštění
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000
-npm run build    # produkční build
+npm run db:reset   # založí lokální databázi a naplní ji ceníkem
+npm run dev        # http://localhost:3000
+npm run build      # produkční build
+npm test           # testy (cena, pojistka proti vymyšlené dostupnosti)
+```
+
+**Databáze nepotřebuje žádnou instalaci.** Bez `DATABASE_URL` běží projekt na
+PGlite — Postgres 18 přeložený do WASM, data v `.pglite/`. Je to týž Postgres
+jako naostro, včetně `btree_gist`, takže i ochrana proti dvojímu prodeji se
+chová stejně. Na produkci se nastaví `DATABASE_URL` (Neon) a nic jiného se nemění.
+
+```bash
+npm run db:migration   # SYSTEM.md → db/migrations/0001_init.sql
+npm run db:migrate     # nasadí migrace
+npm run db:seed        # ceník, doplňky, jednotky, číselné řady
+npm run db:pull        # z databáze zpět do lib/db/schema.ts (typy)
+node scripts/dev/seed-ukazka.mjs   # pár rezervací na hraní
 ```
 
 ## Kde co je
