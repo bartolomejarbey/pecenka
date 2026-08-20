@@ -11,7 +11,7 @@ Architektonické zadání pro celý systém: **[SYSTEM.md](./SYSTEM.md)** (výst
 | 1 | Výkon webu, nové logo, podklady systému | ✅ hotovo |
 | 2 | Zjednodušení a přehlednost webu, mobil, dořešení Safari | ✅ hotovo |
 | 3 | Databáze: schéma, migrace, konec fiktivní dostupnosti | ✅ hotovo |
-| 4 | Rezervační jádro: skutečné rezervace, VS, blokace termínů | ⏳ |
+| 4 | Rezervační jádro: skutečné rezervace, VS, blokace termínů | ✅ hotovo |
 | 5 | Platby: QR (SPAYD), `PaymentProvider`, příprava ComGate | ⏳ |
 | 6 | Admin: Dnes, kalendář, detail rezervace, ruční rezervace | ⏳ |
 | 7 | Fakturace: zálohy, doklady, **dobropisy**, kauce | ⏳ |
@@ -147,3 +147,66 @@ Průvodce **ukazuje** skutečnou obsazenost, ale odeslání pořád jen posílá
 rezervace se do databáze nezapisuje. Kalendář tím vypadá závazněji, než ve
 skutečnosti je. **Tohle je první věc v iteraci 4**, včetně generátoru
 variabilního symbolu a odchycení `23P01` („termín právě obsadil někdo jiný").
+
+
+---
+
+## Iterace 4 — hotovo
+
+### Rezervace se konečně zapisuje
+`/api/rezervace` už neposílá jen e-mail — zakládá rezervaci v jedné transakci:
+rezervace → blokace termínu → zmrazený rozpad ceny → host → předpis zálohy → úkol
+pro majitele. Buď vznikne všechno, nebo nic. Půlka rezervace v databázi je horší
+než žádná: termín by byl blokovaný a nikdo by nevěděl proč.
+
+**Dva režimy podle času do příjezdu:**
+
+| Situace | Stav | Co se stane |
+|---|---|---|
+| Příjezd za > 48 h, jeden domek | `hold` | Termín se zablokuje hned a drží se 72 h na zálohu |
+| Příjezd do 48 h, nebo celý les | `inquiry` | Termín se neblokuje, majitel potvrzuje ručně |
+
+Blokovat termín pro poptávku, kterou za pár hodin nikdo nezaplatí, by znamenalo
+odmítat hosty kvůli mrtvým rezervacím.
+
+### Variabilní symbol
+Deset číslic: `RRMM` (rok a měsíc **příjezdu**) + `NNNNN` (pořadí v roce)
++ kontrolní číslice mod 11. Majitel z bankovního výpisu pozná termín, aniž by
+otevřel systém, a překlep při ručním zadání platby se odchytí (ověřeno testem:
+přes 90 % jednociferných překlepů). Deset číslic je strop, který dovoluje SPAYD,
+takže se VS vejde do QR platby. Pořadí bere atomický čítač v `invoice_series`,
+takže dvě souběžné rezervace nedostanou stejné číslo.
+
+### Cena se počítá na serveru
+Klient posílá částku, kterou viděl, ale server si ji spočítá znovu z ceníkového
+kalendáře a jen porovná. Při neshodě vrátí **409** a rezervaci nezaloží. Ceny
+se pak zmrazí do `reservation_items` — po založení se už nepřepočítávají,
+takže změna ceníku nepřepíše hosty, kteří už mají potvrzeno.
+
+### Uvolňování termínů
+`/api/cron/expirace-drzeni` (Vercel Cron á 15 min, chráněno `CRON_SECRET`).
+Klíčové je, že se přepisuje **`reservation_units.status`**, ne jen stav rezervace —
+teprve to vypustí databázové omezení. Ověřeno testem: termín blokuje → cron ho
+uvolní → jde koupit znovu.
+
+### Bezpečnostní záplaty
+- **Escapování v e-mailech** (`lib/mail/html.ts`). Do šablon jdou jména a poznámky
+  z webu; bez escapování stačilo do poznámky napsat `<img src=x onerror=…>`.
+- **Ošetření hlaviček** — zalomení řádku v předmětu je cesta k cizímu `Bcc:`.
+- **Zod validace** celého vstupu, s českými hláškami (Zodí „Invalid option:
+  expected one of…" host nepochopí).
+- **Kontrola Origin** — rezervaci zakládá jen náš web.
+
+### Texty srovnány se skutečností
+Web sliboval „Žádná platba předem — termín nejdřív do 24 hodin potvrdíme".
+To už neplatí. Přepsáno na rezervační stránce, v „Jak to funguje", ve FAQ
+a hlavně v **obchodních podmínkách**, kde teď stojí oba režimy včetně toho, že
+rezervace bez zálohy do 72 hodin zaniká. *(Právník to má pořád zkontrolovat —
+viz TODO v README.)*
+
+**47 testů prochází**, z toho 15 integračních nad skutečným Postgresem: dvojí
+prodej, navazující termíny, podvržená cena, DPH doplňků (víno 21 %, snídaně 12 %),
+záporná položka slevy, celý cyklus vypršení držení.
+
+### Zbývá
+Platební údaje se posílají e-mailem textem — **QR platba a ComGate jsou iterace 5**.

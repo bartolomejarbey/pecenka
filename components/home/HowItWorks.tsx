@@ -50,8 +50,8 @@ const STEPS: {
   },
   {
     n: "02",
-    title: "Do 24 hodin potvrdíme",
-    desc: "Ozveme se s potvrzením a pošleme platební údaje. Den před příjezdem dostanete přesné souřadnice a kód od schránky s klíčem.",
+    title: "Termín je hned váš",
+    desc: "Po odeslání vám termín zablokujeme a tři dny držíme — akorát na zálohu. Den před příjezdem dostanete přesné souřadnice a kód od schránky s klíčem.",
     Icon: EnvelopeCheckIcon,
   },
   {

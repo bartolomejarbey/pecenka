@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createTransport } from "nodemailer";
+import { hlavicka } from "@/lib/mail/html";
 
 /** Kontaktní formulář — stejný princip jako /api/rezervace. */
 
@@ -56,7 +57,7 @@ export async function POST(req: Request) {
       from: `"sedmyles.cz — web" <${SMTP_USER}>`,
       to: CONTACT_TO ?? "ahoj@sedmyles.cz",
       replyTo: data.email,
-      subject: `🌲 Zpráva z webu: ${data.name}`,
+      subject: `🌲 Zpráva z webu: ${hlavicka(data.name, 80)}`,
       text: `Od: ${data.name} <${data.email}>\n\n${String(data.message).slice(0, 5000)}`,
     });
     return NextResponse.json({ ok: true });

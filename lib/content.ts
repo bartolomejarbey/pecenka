@@ -304,7 +304,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "Jak funguje rezervace a platba?",
-    a: "Vyberete termín v rezervačním formuláři, my do 24 hodin potvrdíme dostupnost a pošleme platební údaje. Záloha 50 % do 3 dnů, doplatek 14 dní před příjezdem. Pak už jen přijedete.",
+    a: "Vyberete termín v rezervačním formuláři a my vám ho hned zablokujeme — držíme ho tři dny, než dorazí záloha 50 %. Doplatek platíte 14 dní před příjezdem. Pokud přijíždíte do 48 hodin nebo chcete oba domky, potvrzujeme ručně do 24 hodin.",
   },
   {
     q: "Jaké jsou storno podmínky?",

@@ -14,7 +14,7 @@ export const revalidate = 300;
 export const metadata = pageMeta({
   title: "Rezervace",
   description:
-    "Rezervujte si tiny house Achát nebo Mech u zatopeného lomu na okraji Českého ráje. Vyberte termín, my do 24 hodin potvrdíme. Bez platby předem.",
+    "Rezervujte si tiny house Achát nebo Mech u zatopeného lomu na okraji Českého ráje. Termín vám zablokujeme hned, zálohu pošlete do tří dnů.",
   path: "/rezervace",
 });
 
@@ -39,7 +39,7 @@ export default async function RezervacePage() {
         kicker="Rezervace"
         title="Vyberte si svůj"
         accent="kus ticha."
-        lead="Čtyři kroky a je to. Žádná platba předem — termín nejdřív do 24 hodin potvrdíme, pak teprve platíte zálohu."
+        lead="Čtyři kroky a je to. Termín vám zablokujeme hned po odeslání a držíme ho tři dny — akorát tak dlouho, abyste v klidu poslali zálohu."
       />
 
       <section
@@ -53,8 +53,8 @@ export default async function RezervacePage() {
 
           <ul className="mt-9 flex flex-wrap items-center justify-center gap-x-9 gap-y-3 text-sm text-sage">
             {[
-              "Odpovíme do 24 hodin",
-              "Záloha až po potvrzení termínu",
+              "Termín blokujeme hned",
+              "Záloha 50 % do tří dnů",
               "Vratná kauce 3 000 Kč",
             ].map((item) => (
               <li key={item} className="flex items-center gap-2.5">

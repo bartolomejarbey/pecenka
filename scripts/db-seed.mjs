@@ -145,7 +145,8 @@ await dotaz(
 
 /* ===== 6. Číselné řady dokladů ===== */
 const rok = new Date().getFullYear();
-for (const kod of ["ZAL", "DZP", "FAK", "OPD", "POU"]) {
+// REZ není doklad, ale používá týž atomický čítač — pořadí rezervace v roce.
+for (const kod of ["REZ", "ZAL", "DZP", "FAK", "OPD", "POU"]) {
   await dotaz(
     `INSERT INTO invoice_series (code, year, last_number) VALUES ($1,$2,0)
      ON CONFLICT (code, year) DO NOTHING`,
@@ -173,7 +174,8 @@ const klic = (d) => d.toISOString().slice(0, 10);
 
 const dnes = new Date();
 dnes.setHours(12, 0, 0, 0);
-const DNI = 730;
+// V testech stačí kratší okno — plnění dvou let je nejpomalejší část seedu.
+const DNI = Number(process.env.SEED_DNI ?? 730);
 let radku = 0;
 for (const [slug, id] of Object.entries(idJednotky)) {
   const hodnoty = [];

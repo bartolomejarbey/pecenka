@@ -31,6 +31,16 @@ type Status = "idle" | "sending" | "sent" | "error";
 /** Dostupnost a ceník jednoho domku, jak je připraví server. */
 export type DataDomku = { obsazene: string[]; cenik: Cenik };
 
+/** Co vrátí `/api/rezervace` po úspěšném založení. */
+type VysledekRezervace = {
+  kod: string;
+  vs: string;
+  stav: "hold" | "inquiry";
+  celkem: number;
+  zaloha: number;
+  drziDo: string | null;
+};
+
 
 function StepHeading({ title, sub }: { title: string; sub?: string }) {
   return (
@@ -69,6 +79,7 @@ export default function BookingWizard({ data }: { data: Record<string, DataDomku
   const [web, setWeb] = useState(""); // honeypot
   const [status, setStatus] = useState<Status>("idle");
   const [apiError, setApiError] = useState<string | null>(null);
+  const [vysledek, setVysledek] = useState<VysledekRezervace | null>(null);
 
   const topRef = useRef<HTMLDivElement>(null);
 
@@ -147,28 +158,37 @@ export default function BookingWizard({ data }: { data: Record<string, DataDomku
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          house: houseData.name,
-          from: formatCzDate(range.from),
-          to: formatCzDate(range.to),
-          nights: breakdown.nights,
-          guests,
-          addons: breakdown.addonItems,
-          total: breakdown.total,
-          name: contact.name,
+          domek: house,
+          prijezd: toKey(range.from),
+          odjezd: toKey(range.to),
+          hoste: guests,
+          doplnky: addons,
+          // Server si cenu spočítá sám a tuhle jen porovná — když se rozejdou,
+          // rezervaci nezaloží a host uvidí aktuální souhrn.
+          celkem: breakdown.total,
+          jmeno: contact.name,
           email: contact.email,
-          phone: contact.phone,
-          note: contact.note,
+          telefon: contact.phone || undefined,
+          poznamka: contact.note || undefined,
           web,
         }),
       });
-      const json: { ok?: boolean; error?: string } = await res
+      const json: Partial<VysledekRezervace> & { ok?: boolean; error?: string } = await res
         .json()
-        .catch(() => ({}) as { ok?: boolean; error?: string });
-      if (!res.ok) {
+        .catch(() => ({}));
+      if (!res.ok || !json.ok) {
         throw new Error(
           json.error ?? "Odeslání se nepovedlo. Zkuste to prosím znovu za chvíli.",
         );
       }
+      setVysledek({
+        kod: json.kod!,
+        vs: json.vs!,
+        stav: json.stav!,
+        celkem: json.celkem!,
+        zaloha: json.zaloha!,
+        drziDo: json.drziDo ?? null,
+      });
       setStatus("sent");
     } catch (err) {
       setStatus("error");
@@ -207,12 +227,50 @@ export default function BookingWizard({ data }: { data: Record<string, DataDomku
           </p>
         )}
         <h2 className="display-hero mx-auto mt-5 max-w-2xl text-4xl text-linen md:text-6xl">
-          Poptávka je <span className="accent-italic">na cestě.</span>
+          {vysledek?.stav === "hold" ? (
+            <>
+              Termín je <span className="accent-italic">váš.</span>
+            </>
+          ) : (
+            <>
+              Poptávka je <span className="accent-italic">na cestě.</span>
+            </>
+          )}
         </h2>
-        <p className="mx-auto mt-6 max-w-md text-[16px] leading-relaxed text-sage">
-          Ozveme se do 24 hodin s potvrzením termínu a platebními údaji. Zatím si můžete
-          balit — moc toho nepotřebujete.
-        </p>
+
+        {vysledek?.stav === "hold" ? (
+          <>
+            <p className="mx-auto mt-6 max-w-lg text-[16px] leading-relaxed text-sage">
+              Termín jsme pro vás zablokovali
+              {vysledek.drziDo && ` do ${formatCzDate(new Date(vysledek.drziDo))}`}. Do té
+              doby stačí poslat zálohu — platební údaje máte v e-mailu.
+            </p>
+            <dl className="mx-auto mt-9 grid max-w-md gap-px overflow-hidden rounded-2xl border border-linen/10 bg-linen/10 text-left sm:grid-cols-3">
+              {[
+                ["Číslo rezervace", vysledek.kod],
+                ["Variabilní symbol", vysledek.vs],
+                ["Záloha", formatHalere(vysledek.zaloha)],
+              ].map(([popis, hodnota]) => (
+                <div key={popis} className="bg-bark px-5 py-4">
+                  <dt className="text-[12px] uppercase tracking-[0.14em] text-sage/70">{popis}</dt>
+                  <dd className="font-display mt-1.5 text-lg text-linen">{hodnota}</dd>
+                </div>
+              ))}
+            </dl>
+          </>
+        ) : (
+          <>
+            <p className="mx-auto mt-6 max-w-lg text-[16px] leading-relaxed text-sage">
+              Ozveme se do 24 hodin s potvrzením termínu a platebními údaji. Termín zatím
+              nedržíme — u pobytů na poslední chvíli a u celého lesa to potvrzujeme ručně.
+            </p>
+            {vysledek && (
+              <p className="mt-7 inline-block rounded-full border border-linen/15 px-5 py-2 text-sm text-sage">
+                Číslo poptávky <span className="font-display text-linen">{vysledek.kod}</span>
+              </p>
+            )}
+          </>
+        )}
         <div className="mt-10">
           <Button href="/" variant="outline">
             Zpět na úvod

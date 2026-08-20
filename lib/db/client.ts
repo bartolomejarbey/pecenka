@@ -74,10 +74,45 @@ export const jeLokalniDb = () => !process.env.DATABASE_URL;
  */
 export async function radky<T>(dotaz: SQLDotaz): Promise<T[]> {
   const db = await getDb();
-  const vysledek = (await db.execute(dotaz)) as unknown;
+  return normalizuj<T>(await db.execute(dotaz));
+}
+
+function normalizuj<T>(vysledek: unknown): T[] {
   if (Array.isArray(vysledek)) return vysledek as T[];
   if (vysledek && typeof vysledek === "object" && Array.isArray((vysledek as { rows?: unknown }).rows)) {
     return (vysledek as { rows: T[] }).rows;
   }
   return [];
+}
+
+/** Cokoli, co umí spustit SQL — databáze i otevřená transakce. */
+export type Spousteni = { execute(dotaz: SQLDotaz): Promise<unknown> };
+
+/** Řádky z dotazu uvnitř transakce. */
+export async function radkyT<T>(tx: Spousteni, dotaz: SQLDotaz): Promise<T[]> {
+  return normalizuj<T>(await tx.execute(dotaz));
+}
+
+/**
+ * Transakce.
+ *
+ * Zakládání rezervace musí být atomické: buď vznikne rezervace, zablokovaný
+ * termín, zmrazený rozpad ceny i předpis zálohy, nebo nevznikne nic. Půlka
+ * rezervace v databázi je horší než žádná — termín by byl blokovaný a nikdo
+ * by nevěděl proč.
+ */
+export async function transakce<T>(fn: (tx: Spousteni) => Promise<T>): Promise<T> {
+  const db = await getDb();
+  return (db as unknown as {
+    transaction<R>(cb: (tx: Spousteni) => Promise<R>): Promise<R>;
+  }).transaction(fn);
+}
+
+/** Kód, kterým Postgres hlásí porušení EXCLUDE omezení (překryv termínů). */
+export const PREKRYV_TERMINU = "23P01";
+
+export function jePrekryvTerminu(e: unknown): boolean {
+  const kod = (e as { code?: string; cause?: { code?: string } })?.code
+    ?? (e as { cause?: { code?: string } })?.cause?.code;
+  return kod === PREKRYV_TERMINU || String((e as Error)?.message ?? "").includes("no_overlap");
 }

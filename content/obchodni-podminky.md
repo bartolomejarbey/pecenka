@@ -21,14 +21,22 @@ Smlouva o ubytování vzniká okamžikem, kdy potvrdíme vaši rezervaci (viz č
 
 ## 3. Rezervace a platba
 
-Rezervace u nás funguje poptávkově. Krok za krokem:
+Rezervace probíhá ve dvou režimech podle toho, jak brzy přijíždíte.
 
-- **Poptávka.** Vyberete domek, termín a doplňky v rezervačním formuláři (nebo nám napíšete e-mail).
-- **Potvrzení do 24 hodin.** Ověříme dostupnost a pošleme vám potvrzení s platebními údaji. Do té doby není termín závazně blokován.
-- **Záloha 50 %** z ceny pobytu je splatná **do 3 dnů** od potvrzení. Jejím uhrazením je rezervace závazná pro obě strany.
-- **Doplatek** zbývajících 50 % je splatný **nejpozději 14 dní před příjezdem**. U rezervací vytvořených méně než 14 dní před příjezdem platíte celou částku najednou.
+**Běžná rezervace — příjezd za více než 48 hodin, jeden domek**
 
-Pokud záloha nedorazí včas, rezervace bez dalšího zaniká a termín uvolníme dalším hostům. Ceny jsou uvedeny v Kč a platí ceník zveřejněný na webu v okamžiku potvrzení rezervace. Provozovatel není plátcem DPH; uvedené ceny jsou konečné.
+- **Termín zablokujeme hned.** Jakmile odešlete rezervační formulář, systém termín vyřadí z nabídky a **drží vám ho 72 hodin**. Dostanete číslo rezervace, variabilní symbol a platební údaje.
+- **Záloha 50 %** z ceny pobytu je splatná **do 3 dnů**. Jejím uhrazením se rezervace stává závaznou pro obě strany a vzniká smlouva o ubytování.
+- Pokud záloha do 72 hodin nedorazí, **rezervace bez dalšího zaniká** a termín se automaticky vrací do nabídky. Nic neplatíte a nic nedlužíte.
+
+**Poptávka — příjezd do 48 hodin, nebo oba domky dohromady**
+
+- Termín se **neblokuje**. Ozveme se **do 24 hodin** s potvrzením a platebními údaji; teprve tím rezervace vzniká.
+- Do potvrzení může termín obsadit někdo jiný.
+
+**Společné pro oba režimy**
+
+- **Doplatek** zbývajících 50 % je splatný **nejpozději 14 dní před příjezdem**. U rezervací vytvořených méně než 14 dní před příjezdem platíte celou částku najednou. Ceny jsou uvedeny v Kč a platí ceník zveřejněný na webu v okamžiku potvrzení rezervace. Provozovatel není plátcem DPH; uvedené ceny jsou konečné.
 
 ## 4. Kauce
 
