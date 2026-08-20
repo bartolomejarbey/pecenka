@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { AnimatePresence, motion } from "motion/react";
 import { HOUSES } from "@/lib/content";
 import {
   calcPrice,
@@ -28,7 +27,6 @@ type Step = 1 | 2 | 3 | 4;
 type Range = { from: Date | null; to: Date | null };
 type Status = "idle" | "sending" | "sent" | "error";
 
-const STEP_EASE = [0.16, 1, 0.3, 1] as const;
 
 function StepHeading({ title, sub }: { title: string; sub?: string }) {
   return (
@@ -168,17 +166,10 @@ export default function BookingWizard() {
   /* ===== Úspěšné odeslání — nahradí celý průvodce ===== */
   if (status === "sent") {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: STEP_EASE }}
-        className="rounded-[34px] border border-linen/8 bg-bark/60 px-6 py-16 text-center backdrop-blur md:px-10 md:py-24"
-      >
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.15, ease: STEP_EASE }}
-          className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-ember text-night shadow-[0_18px_60px_-12px_rgba(217,145,78,0.6)]"
+      <div className="rise-in rounded-[34px] border border-linen/8 bg-bark px-6 py-16 text-center md:px-10 md:py-24">
+        <div
+          className="rise-in mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-ember text-night shadow-[0_18px_60px_-12px_rgba(217,145,78,0.6)]"
+          style={{ "--rise-i": 1 } as React.CSSProperties}
           aria-hidden="true"
         >
           <svg viewBox="0 0 24 24" fill="none" className="h-9 w-9">
@@ -190,7 +181,7 @@ export default function BookingWizard() {
               strokeLinejoin="round"
             />
           </svg>
-        </motion.div>
+        </div>
         {houseData && range.from && range.to && (
           <p className="kicker mt-8 text-sage">
             {houseData.name} · {formatCzDate(range.from)} – {formatCzDate(range.to)}
@@ -208,7 +199,7 @@ export default function BookingWizard() {
             Zpět na úvod
           </Button>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
@@ -216,19 +207,13 @@ export default function BookingWizard() {
     <div
       ref={topRef}
       id="pruvodce"
-      className="rounded-[34px] border border-linen/8 bg-bark/60 p-6 backdrop-blur md:p-10"
+      className="rounded-[34px] border border-linen/8 bg-bark p-6 md:p-10"
     >
       <Steps step={step} onBackTo={(s) => s < step && setStep(s as Step)} />
 
       <div className="mt-10 md:mt-12">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -24 }}
-            transition={{ duration: 0.5, ease: STEP_EASE }}
-          >
+        {/* key={step} → React uzel přemontuje a CSS animace se přehraje znovu */}
+        <div key={step} className="step-in">
             {/* ===== Krok 1 — Domek ===== */}
             {step === 1 && (
               <div>
@@ -361,8 +346,7 @@ export default function BookingWizard() {
                 />
               </div>
             )}
-          </motion.div>
-        </AnimatePresence>
+        </div>
       </div>
     </div>
   );

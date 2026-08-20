@@ -1,38 +1,25 @@
-"use client";
-
-import { useRef } from "react";
 import Image from "next/image";
-import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import Reveal from "@/components/Reveal";
 import { Kicker } from "@/components/ui";
 
-/** Kapitola IV — celostránkové foto s paralaxou a citátem. */
+/**
+ * Kapitola IV — celostránkové foto s citátem.
+ *
+ * Paralaxa (useScroll + useTransform) je pryč: na Safari přepočítávala
+ * transformaci velké fotky na každém snímku scrollu. Statická fotka vypadá
+ * stejně dobře a nestojí nic.
+ */
 export default function Evening() {
-  const ref = useRef<HTMLElement>(null);
-  const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-  const rawY = useTransform(scrollYProgress, [0, 1], ["-6%", "6%"]);
-  const y = reduced ? "0%" : rawY;
-
   return (
-    <section
-      ref={ref}
-      className="grain relative flex h-[70vh] min-h-[540px] items-center justify-center overflow-hidden bg-night"
-    >
+    <section className="grain relative flex h-[70vh] min-h-[540px] items-center justify-center overflow-hidden bg-night">
       <div className="photo-frame absolute inset-0">
-        {/* Vrstva s fotkou je vyšší než sekce — paralaxa má kam jet */}
-        <motion.div style={{ y }} className="absolute inset-x-0 -top-[15%] h-[130%]">
-          <Image
-            src="/foto/ohniste-vecer.jpg"
-            alt="Ohniště na dřevěné terase před černým domkem za večera"
-            fill
-            sizes="100vw"
-            className="object-cover"
-          />
-        </motion.div>
+        <Image
+          src="/foto/ohniste-vecer.jpg"
+          alt="Ohniště na dřevěné terase před černým domkem za večera"
+          fill
+          sizes="100vw"
+          className="object-cover"
+        />
         <div className="absolute inset-0 bg-night/55" />
         <div className="absolute inset-0 bg-gradient-to-t from-night via-transparent to-night/60" />
       </div>

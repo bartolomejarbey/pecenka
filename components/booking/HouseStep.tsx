@@ -51,7 +51,7 @@ export default function HouseStep({
                 <span className="font-display text-3xl font-light text-linen md:text-4xl">
                   {house.name}
                 </span>
-                <span className="rounded-full border border-linen/20 bg-night/50 px-3.5 py-1 text-[12.5px] font-medium text-linen backdrop-blur-md">
+                <span className="rounded-full border border-linen/20 bg-night/75 px-3.5 py-1 text-[12.5px] font-medium text-linen">
                   {house.capacity}
                 </span>
               </span>

@@ -1,34 +1,28 @@
-"use client";
-
 import Image from "next/image";
-import { motion } from "motion/react";
 import type { House } from "@/lib/content";
 import { Kicker } from "@/components/ui";
 
-const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
-
-/** Celostránkové hero detailu domku — pomalý Ken Burns, jméno přes fotku. */
+/**
+ * Celostránkové hero detailu domku. Server komponenta — vstupní animace jede
+ * přes CSS, fotka se vykreslí rovnou (dřív ji Ken Burns zoom držel v pohybu
+ * první 2,4 s, což na Safari zdržovalo LCP).
+ */
 export default function HouseHero({ house }: { house: House }) {
   const chips = [house.capacity, house.area, house.beds];
 
   return (
     <section className="grain relative h-[85vh] min-h-[560px] overflow-hidden bg-night">
-      {/* Fotka s pomalým zoomem */}
-      <motion.div
-        className="photo-frame absolute inset-0"
-        initial={{ scale: 1.14 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 2.4, ease: EASE }}
-      >
+      <div className="photo-frame absolute inset-0">
         <Image
           src={house.photo}
           alt={house.photoAlt}
           fill
           priority
+          fetchPriority="high"
           sizes="100vw"
           className="object-cover"
         />
-      </motion.div>
+      </div>
 
       {/* Přechody do tmy — čitelnost navigace i titulku */}
       <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-night/70 to-transparent" />
@@ -37,39 +31,31 @@ export default function HouseHero({ house }: { house: House }) {
       {/* Obsah dole vlevo */}
       <div className="absolute inset-x-0 bottom-0 z-10">
         <div className="mx-auto max-w-7xl px-5 pb-12 md:px-8 md:pb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.25, ease: EASE }}
-          >
+          <div className="rise-in">
             <Kicker>{house.tagline}</Kicker>
-          </motion.div>
+          </div>
 
-          <motion.h1
-            className="display-hero mt-5 text-6xl text-linen md:text-8xl"
-            initial={{ opacity: 0, y: 36 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.4, ease: EASE }}
+          <h1
+            className="display-hero rise-in mt-5 text-6xl text-linen md:text-8xl"
+            style={{ "--rise-i": 1 } as React.CSSProperties}
           >
             {house.name}
-          </motion.h1>
+          </h1>
 
-          <motion.ul
-            className="mt-7 flex flex-wrap gap-2.5"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.55, ease: EASE }}
+          <ul
+            className="rise-in mt-7 flex flex-wrap gap-2.5"
+            style={{ "--rise-i": 2 } as React.CSSProperties}
             aria-label="Základní parametry domku"
           >
             {chips.map((chip) => (
               <li
                 key={chip}
-                className="rounded-full border border-linen/20 bg-night/40 px-4 py-1.5 text-[13px] font-medium text-linen backdrop-blur-md"
+                className="rounded-full border border-linen/20 bg-night/60 px-4 py-1.5 text-[13px] font-medium text-linen"
               >
                 {chip}
               </li>
             ))}
-          </motion.ul>
+          </ul>
         </div>
       </div>
     </section>

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
-import SmoothScroll from "@/components/SmoothScroll";
+import RevealObserver from "@/components/RevealObserver";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import CookieBanner from "@/components/CookieBanner";
@@ -147,6 +147,17 @@ const jsonLd = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="cs" className={`${fraunces.variable} ${hanken.variable}`}>
+      <head>
+        <script
+          // Zapne skrývání [data-reveal] ještě před prvním vykreslením, aby obsah
+          // neproblikl. Pojistka: když se JS nenačte do 2,5 s, skrývání vypneme,
+          // takže web zůstane čitelný i bez JS.
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var r=document.documentElement;if(!matchMedia('(prefers-reduced-motion: reduce)').matches){r.setAttribute('data-reveal-armed','');setTimeout(function(){r.hasAttribute('data-reveal-live')||r.removeAttribute('data-reveal-armed')},2500)}}catch(e){}",
+          }}
+        />
+      </head>
       <body>
         <a
           href="#obsah"
@@ -158,14 +169,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <SmoothScroll>
-          <Nav />
-          <div id="obsah" tabIndex={-1} className="outline-none">
-            {children}
-          </div>
-          <Footer />
-          <CookieBanner />
-        </SmoothScroll>
+        <RevealObserver />
+        <Nav />
+        <div id="obsah" tabIndex={-1} className="outline-none">
+          {children}
+        </div>
+        <Footer />
+        <CookieBanner />
       </body>
     </html>
   );

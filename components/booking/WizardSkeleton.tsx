@@ -5,7 +5,7 @@
 export default function WizardSkeleton() {
   return (
     <div
-      className="animate-pulse rounded-[34px] border border-linen/8 bg-bark/60 p-6 backdrop-blur md:p-10"
+      className="animate-pulse rounded-[34px] border border-linen/8 bg-bark p-6 md:p-10"
       aria-hidden="true"
     >
       <div className="hidden items-center gap-4 md:flex">

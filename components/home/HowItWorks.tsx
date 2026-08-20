@@ -1,7 +1,4 @@
-"use client";
-
 import type { ComponentType } from "react";
-import { motion } from "motion/react";
 import Reveal from "@/components/Reveal";
 import { Kicker } from "@/components/ui";
 
@@ -79,26 +76,10 @@ export default function HowItWorks() {
 
         <div className="relative mt-16">
           {/* Kreslená spojnice kroků na desktopu — naběhne podle scrollu */}
-          <svg
-            className="absolute left-0 right-0 top-8 hidden h-px w-full overflow-visible text-ember md:block"
-            viewBox="0 0 100 1"
-            preserveAspectRatio="none"
-            fill="none"
+          <div
+            className="absolute left-0 right-0 top-8 hidden h-px bg-ember/45 md:block"
             aria-hidden="true"
-          >
-            <motion.path
-              d="M0 0.5 H100"
-              stroke="currentColor"
-              strokeWidth="1"
-              strokeLinecap="round"
-              vectorEffect="non-scaling-stroke"
-              opacity={0.5}
-              initial={{ pathLength: 0 }}
-              whileInView={{ pathLength: 1 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-            />
-          </svg>
+          />
 
           <ol className="grid gap-12 md:grid-cols-3 md:gap-8">
             {STEPS.map((step, i) => (

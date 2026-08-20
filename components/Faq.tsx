@@ -1,11 +1,14 @@
 "use client";
 
 import { useId, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
 
 export type FaqItem = { q: string; a: string };
 
-/** Akordeon častých dotazů — jedna otevřená odpověď, plynulá výška. */
+/**
+ * Akordeon častých dotazů — jedna otevřená odpověď.
+ * Plynulá výška jde přes CSS grid (`0fr` → `1fr`), takže odpověď zůstává
+ * v DOM (a čitelná pro čtečky) a nepotřebujeme animační knihovnu.
+ */
 export default function Faq({ items }: { items: FaqItem[] }) {
   const [open, setOpen] = useState<number | null>(0);
   const uid = useId();
@@ -51,25 +54,21 @@ export default function Faq({ items }: { items: FaqItem[] }) {
                 </svg>
               </span>
             </button>
-            <AnimatePresence initial={false}>
-              {isOpen && (
-                <motion.div
-                  key="answer"
-                  id={answerId}
-                  role="region"
-                  aria-labelledby={questionId}
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                  className="overflow-hidden"
-                >
-                  <p className="max-w-2xl pb-7 pr-12 text-[15.5px] leading-relaxed text-sage">
-                    {item.a}
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div
+              id={answerId}
+              role="region"
+              aria-labelledby={questionId}
+              className="collapse-grid"
+              data-open={isOpen ? "" : undefined}
+            >
+              {/* inert = zavřená odpověď zmizí z pořadí fokusu i ze čtečky,
+                  ale zůstane v DOM, takže může plynule najet. */}
+              <div className="min-h-0 overflow-hidden" inert={!isOpen}>
+                <p className="max-w-2xl pb-7 pr-12 text-[15.5px] leading-relaxed text-sage">
+                  {item.a}
+                </p>
+              </div>
+            </div>
           </div>
         );
       })}

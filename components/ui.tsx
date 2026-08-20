@@ -1,30 +1,20 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { ReactNode } from "react";
+import LogoMark from "./LogoMark";
 
 /* ===== Logo ===== */
 
-/** Znak Sedmého lesa — rytinový emblém (hory, les, ember měsíc) na průhledném
- *  pozadí. Světlá linka, určená na tmavé podklady. */
-export function LogoMark({ className = "h-9 w-auto" }: { className?: string }) {
-  return (
-    <Image
-      src="/znak-sedmyles.png"
-      alt=""
-      width={440}
-      height={440}
-      priority
-      className={className}
-      aria-hidden="true"
-    />
-  );
-}
+export { default as LogoMark } from "./LogoMark";
 
+/**
+ * Logo do navigace a patičky — znak (sedm smrků nad hladinou) a jméno vedle sebe.
+ * Znak bere barvu z okolí, takže stejná komponenta sedí na tmavé i světlé sekci.
+ */
 export function Logo({ light = true }: { light?: boolean }) {
   return (
-    <span className={`flex items-center gap-3 ${light ? "text-linen" : "text-night"}`}>
-      <LogoMark className="h-10 w-auto" />
-      <span className="font-display text-[1.05rem] font-medium uppercase tracking-[0.18em]">
+    <span className={`flex items-center gap-2.5 ${light ? "text-linen" : "text-night"}`}>
+      <LogoMark className="h-[26px] w-auto" />
+      <span className="font-display text-[1.02rem] font-medium uppercase tracking-[0.16em]">
         Sedmý&nbsp;les
       </span>
     </span>
@@ -48,7 +38,7 @@ export function Kicker({
         tone === "dark" ? "text-sage" : "text-ember-deep"
       } ${className}`}
     >
-      <span className="inline-block h-1.5 w-1.5 rounded-full bg-ember animate-ember" />
+      <span className="inline-block h-1.5 w-1.5 rounded-full bg-ember" aria-hidden="true" />
       {children}
     </p>
   );

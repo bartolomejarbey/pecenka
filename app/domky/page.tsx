@@ -176,7 +176,7 @@ export default function DomkyPage() {
                 sizes="(max-width: 768px) 100vw, 596px"
                 className="object-cover"
               />
-              <div className="absolute left-5 top-5 rounded-full border border-linen/30 bg-night/55 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-linen backdrop-blur-sm">
+              <div className="absolute left-5 top-5 rounded-full border border-linen/30 bg-night/75 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-linen">
                 Příští sezónu
               </div>
             </div>
