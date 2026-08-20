@@ -25,16 +25,35 @@ function rozdelSql(sql) {
   return out.filter((p) => p && !/^(--[^\n]*\n?|\s)*$/.test(p));
 }
 
-const url = process.env.DATABASE_URL;
+// DDL i hromadné vkládání patří na PŘÍMÉ spojení (Supabase port 5432).
+// Transakční pooler na 6543 neumí připravené dotazy ani zámky napříč
+// transakcemi a schéma by se přes něj nasazovalo nespolehlivě.
+const url = process.env.DIRECT_URL || process.env.DATABASE_URL;
 let exec, dotaz, zavri;
 
 if (url) {
   const postgres = (await import("postgres")).default;
-  const sql = postgres(url, { max: 1 });
+  const sql = postgres(url, { max: 1, prepare: false, connect_timeout: 20 });
   exec = (q) => sql.unsafe(q);
   dotaz = (q) => sql.unsafe(q);
   zavri = () => sql.end();
-  console.log("[db] ostrý Postgres");
+  console.log("[db] ostrý Postgres" + (process.env.DIRECT_URL ? " (přímé spojení)" : ""));
+
+  // Supabase drží rozšíření ve schématu `extensions`, ne v `public`.
+  // Bez něj v search_path Postgres nenajde operátorovou třídu pro gist
+  // a `EXCLUDE USING gist` — tedy ochrana proti dvojímu prodeji — se
+  // nevytvoří. Nastavíme to natvrdo pro tohle spojení i pro databázi.
+  await sql.unsafe("SET search_path TO public, extensions");
+  try {
+    const [{ db }] = await sql.unsafe("SELECT current_database() AS db");
+    await sql.unsafe(`ALTER DATABASE "${db}" SET search_path TO public, extensions`);
+    console.log("[db] search_path nastaven na public, extensions");
+  } catch {
+    // Na spravovaných databázích bez práv na ALTER DATABASE stačí nastavení
+    // pro spojení — schéma se vytvoří správně a aplikace pak jede s výchozím
+    // search_path, který Supabase u role postgres už `extensions` obsahuje.
+    console.log("[db] ALTER DATABASE není povolen, používám search_path jen pro toto spojení");
+  }
 } else {
   const { PGlite } = await import("@electric-sql/pglite");
   const { btree_gist } = await import("@electric-sql/pglite/contrib/btree_gist");

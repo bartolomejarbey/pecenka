@@ -13,7 +13,9 @@
     "db:seed": "node scripts/db-seed.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "admin:create": "node scripts/create-admin.mts"
+    "admin:create": "node scripts/create-admin.mts",
+    "db:check": "node scripts/db-check.mjs",
+    "db:setup": "node scripts/db-migrate.mjs && node scripts/db-seed.mjs && node scripts/db-check.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.5",

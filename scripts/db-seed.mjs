@@ -11,11 +11,14 @@
 import { randomBytes } from "node:crypto";
 
 /* ===== připojení ===== */
-const url = process.env.DATABASE_URL;
+// DDL i hromadné vkládání patří na PŘÍMÉ spojení (Supabase port 5432).
+// Transakční pooler na 6543 neumí připravené dotazy ani zámky napříč
+// transakcemi a schéma by se přes něj nasazovalo nespolehlivě.
+const url = process.env.DIRECT_URL || process.env.DATABASE_URL;
 let dotaz, zavri;
 if (url) {
   const postgres = (await import("postgres")).default;
-  const sql = postgres(url, { max: 1 });
+  const sql = postgres(url, { max: 1, prepare: false, connect_timeout: 20 });
   dotaz = (text, params = []) => sql.unsafe(text, params);
   zavri = () => sql.end();
   console.log("[seed] ostrý Postgres");

@@ -3,7 +3,8 @@ import "server-only";
 /**
  * Připojení k databázi.
  *
- * · **Produkce** — `DATABASE_URL` (Neon Postgres). Ostrý driver, connection pool.
+ * · **Produkce** — `DATABASE_URL` (Supabase nebo Neon Postgres). Za transakčním
+ *   poolerem, takže bez připravených dotazů.
  * · **Lokálně bez DATABASE_URL** — PGlite: Postgres přeložený do WASM, běží
  *   v procesu a data si drží v `.pglite/`. Žádný docker, žádný účet, `npm run dev`
  *   prostě funguje. Je to týž Postgres 18, včetně `btree_gist`, takže ochrana
@@ -28,12 +29,21 @@ declare global {
   var __sedmylesDb: Promise<Db> | undefined;
 }
 
-async function pripojNeon(url: string): Promise<Db> {
+async function pripojPostgres(url: string): Promise<Db> {
   const [{ drizzle }, postgres] = await Promise.all([
     import("drizzle-orm/postgres-js"),
     import("postgres").then((m) => m.default),
   ]);
-  const sql = postgres(url, { max: 5, idle_timeout: 20, prepare: false });
+  // `prepare: false` je povinné za transakčním poolerem (Supabase port 6543,
+  // PgBouncer): připravené dotazy tam nepřežijí mezi transakcemi.
+  // `max: 5` proto, že serverless instancí může běžet víc naráz a pooler
+  // má omezený počet klientských spojení.
+  const sql = postgres(url, {
+    max: Number(process.env.DB_POOL_MAX ?? 5),
+    idle_timeout: 20,
+    connect_timeout: 15,
+    prepare: false,
+  });
   return drizzle(sql);
 }
 
@@ -57,7 +67,7 @@ async function pripojPglite(): Promise<Db> {
 export function getDb(): Promise<Db> {
   if (!globalThis.__sedmylesDb) {
     const url = process.env.DATABASE_URL;
-    globalThis.__sedmylesDb = url ? pripojNeon(url) : pripojPglite();
+    globalThis.__sedmylesDb = url ? pripojPostgres(url) : pripojPglite();
   }
   return globalThis.__sedmylesDb;
 }
