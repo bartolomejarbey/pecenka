@@ -17,6 +17,7 @@ export const POLOZKY = [
   { href: "/admin/rezervace", popis: "Rezervace", ikona: RezervaceIkona },
   { href: "/admin/penize", popis: "Peníze", ikona: PenizeIkona },
   { href: "/admin/doklady", popis: "Doklady", ikona: DokladyIkona },
+  { href: "/admin/inspekce", popis: "Protokoly", ikona: ProtokolIkona },
   { href: "/admin/nastaveni", popis: "Víc", ikona: VicIkona },
 ] as const;
 
@@ -87,7 +88,7 @@ export default function Shell({
 
       {/* Spodní navigace na telefonu */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t border-linen/10 bg-bark lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-7 border-t border-linen/10 bg-bark lg:hidden"
         aria-label="Administrace"
       >
         {POLOZKY.map((p) => (
@@ -154,6 +155,15 @@ function DokladyIkona({ className }: I) {
     <svg viewBox="0 0 24 24" className={className} aria-hidden="true" {...obrys}>
       <path d="M6 3.5h8l4 4v13H6z" />
       <path d="M14 3.5v4h4M9 12h6M9 16h4" />
+    </svg>
+  );
+}
+function ProtokolIkona({ className }: I) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true" {...obrys}>
+      <rect x="2.5" y="6" width="19" height="14" rx="2.5" />
+      <circle cx="12" cy="13" r="3.5" />
+      <path d="M8.5 6l1.5-2h4l1.5 2" />
     </svg>
   );
 }

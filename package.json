@@ -18,6 +18,7 @@
     "db:setup": "node scripts/db-migrate.mjs && node scripts/db-seed.mjs && node scripts/db-check.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.120.0",
     "@electric-sql/pglite": "^0.5.5",
     "drizzle-orm": "^0.45.2",
     "marked": "^18.0.5",
@@ -28,6 +29,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "server-only": "^0.0.1",
+    "sharp": "^0.35.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {
