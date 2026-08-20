@@ -38,8 +38,11 @@ async function pripojPostgres(url: string): Promise<Db> {
   // PgBouncer): připravené dotazy tam nepřežijí mezi transakcemi.
   // `max: 5` proto, že serverless instancí může běžet víc naráz a pooler
   // má omezený počet klientských spojení.
+  // Při buildu běží 15 workerů paralelně a každý by si otevřel vlastní pool —
+  // dohromady víc spojení, než pooler pustí. Za běhu je pět v pořádku.
+  const vychozi = process.env.NEXT_PHASE === "phase-production-build" ? 1 : 5;
   const sql = postgres(url, {
-    max: Number(process.env.DB_POOL_MAX ?? 5),
+    max: Number(process.env.DB_POOL_MAX ?? vychozi),
     idle_timeout: 20,
     connect_timeout: 15,
     prepare: false,

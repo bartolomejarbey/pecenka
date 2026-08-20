@@ -6,10 +6,15 @@ import JsonLd from "@/components/JsonLd";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
 import { nactiRezervacniData } from "@/lib/booking/server";
 
-/** Obsazenost se mění, ale ne po vteřinách — pět minut je dost čerstvé.
- *  Skutečnou pojistkou proti dvojímu prodeji je databázové omezení
- *  `reservation_units.no_overlap` při zakládání rezervace, ne tenhle kalendář. */
-export const revalidate = 300;
+/**
+ * Vykresluje se při každém požadavku.
+ *
+ * Předgenerovat stránku, jejímž jediným obsahem je živá obsazenost, nedává
+ * smysl — první návštěvník po nasazení by viděl stav z okamžiku buildu.
+ * Skutečnou pojistkou proti dvojímu prodeji je stejně databázové omezení
+ * `reservation_units.no_overlap` při zakládání rezervace, ne tenhle kalendář.
+ */
+export const dynamic = "force-dynamic";
 
 export const metadata = pageMeta({
   title: "Rezervace",

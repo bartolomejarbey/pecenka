@@ -8,6 +8,7 @@ import Shell from "@/components/admin/Shell";
 import { Odznak, StavPlatby, StavRezervace, Telefon, den } from "@/components/admin/prvky";
 import Akce from "./akce";
 import Poznamka from "./poznamka";
+import Doklady from "./doklady";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -171,6 +172,8 @@ export default async function DetailRezervace({ params }: Props) {
           </tbody>
         </table>
       </section>
+
+      <Doklady kod={r.kod} doklady={r.doklady} />
 
       {/* Platby */}
       {r.platby.length > 0 && (

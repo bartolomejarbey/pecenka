@@ -3,6 +3,7 @@ import "server-only";
 import { sql, type SQL } from "drizzle-orm";
 import { radky } from "@/lib/db/client";
 import { bezDiakritiky } from "@/lib/db/text";
+import { nazevDokladu, type TypDokladu } from "@/lib/doklady/typy";
 
 /** Seznam a detail rezervací pro administraci. */
 
@@ -140,6 +141,16 @@ export type Platba = {
   zaplaceno: string | null;
 };
 
+export type DokladRadek = {
+  id: string;
+  cislo: string;
+  nazev: string;
+  stav: string;
+  celkemHalere: number;
+  vystaveno: string | null;
+  lzeOpravit: boolean;
+};
+
 export type Detail = Radek & {
   id: string;
   dospeli: number;
@@ -152,6 +163,7 @@ export type Detail = Radek & {
   polozky: Polozka[];
   platby: Platba[];
   historie: { kdy: string; akce: string; kdo: string | null }[];
+  doklady: DokladRadek[];
 };
 
 export async function nactiDetail(kod: string): Promise<Detail | null> {
@@ -204,6 +216,21 @@ export async function nactiDetail(kod: string): Promise<Detail | null> {
      WHERE r.code = ${kod} ORDER BY p.created_at
   `);
 
+  const doklady = await radky<{
+    id: string;
+    number: string;
+    doc_type: string;
+    status: string;
+    issue_date: string | null;
+    total_with_vat_cents: string | number;
+    vat_applicable: boolean;
+  }>(sql`
+    SELECT i.id::text AS id, i.number, i.doc_type, i.status,
+           i.issue_date::text AS issue_date, i.total_with_vat_cents, i.vat_applicable
+      FROM invoices i JOIN reservations r ON r.id = i.reservation_id
+     WHERE r.code = ${kod} ORDER BY i.created_at
+  `);
+
   const historie = await radky<{ at: string; action: string; actor_id: string | null }>(sql`
     SELECT a.at::text AS at, a.action, a.actor_id
       FROM audit_log a
@@ -240,5 +267,15 @@ export async function nactiDetail(kod: string): Promise<Detail | null> {
       zaplaceno: p.paid_at,
     })),
     historie: historie.map((h) => ({ kdy: h.at, akce: h.action, kdo: h.actor_id })),
+    doklady: doklady.map((d) => ({
+      id: d.id,
+      cislo: d.number,
+      nazev: nazevDokladu(d.doc_type as TypDokladu, d.vat_applicable),
+      stav: d.status,
+      celkemHalere: cislo(d.total_with_vat_cents),
+      vystaveno: d.issue_date,
+      // Zálohová faktura není doklad a opravený doklad se neopravuje podruhé.
+      lzeOpravit: d.doc_type !== "PROFORMA" && !["CORRECTED", "CANCELLED", "DRAFT"].includes(d.status),
+    })),
   };
 }

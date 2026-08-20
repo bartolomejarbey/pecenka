@@ -157,38 +157,51 @@ type RadekDoplnku = {
 };
 
 /**
- * Sestaví ceník pro jednu jednotku: ceny nocí, doplňky, slevové pravidlo
- * a výši kauce. Vše v haléřích, přímo z databáze — cena se dá měnit
- * v administraci bez nasazení nové verze webu.
+ * Části ceníku, které jsou pro všechny domky stejné.
+ *
+ * Načítají se **jedním dotazem a jen jednou**. Dřív to byly tři dotazy
+ * na každý domek — šest paralelních dotazů, což na vzdálené databázi
+ * za transakčním poolerem vyčerpalo spojení a stránka se zasekla.
+ * Kromě toho to byla zbytečná práce: doplňky ani výše kauce se podle
+ * domku neliší.
  */
-export async function nactiCenik(
-  dostupnost: DostupnostJednotky,
-): Promise<import("./index").Cenik> {
-  const [doplnky, slevy, nastaveni] = await Promise.all([
-    radky<RadekDoplnku>(sql`
-      SELECT id, name, description, price_cents, unit, max_qty
-      FROM addons
-      WHERE active
-        AND (available_from IS NULL OR available_from <= CURRENT_DATE)
-        AND (available_to   IS NULL OR available_to   >= CURRENT_DATE)
-      ORDER BY sort_order
-    `),
-    radky<{ min_nights: number; percent_bp: number }>(sql`
-      SELECT min_nights, percent_bp FROM discount_rules
-      WHERE active AND kind = 'length'
-        AND (valid_from IS NULL OR valid_from <= CURRENT_DATE)
-        AND (valid_to   IS NULL OR valid_to   >= CURRENT_DATE)
-      ORDER BY min_nights ASC LIMIT 1
-    `),
-    radky<{ security_deposit_cents: string | number }>(
-      sql`SELECT security_deposit_cents FROM company_settings WHERE id = 1`,
-    ),
-  ]);
+export type SpolecnyCenik = {
+  doplnky: import("./index").Doplnek[];
+  slevaDlouhehoPobytu: { odNoci: number; bodu: number } | null;
+  kauceHalere: number;
+};
 
+export async function nactiSpolecnyCenik(): Promise<SpolecnyCenik> {
+  const [radek] = await radky<{
+    doplnky: RadekDoplnku[] | string | null;
+    sleva_min_nights: number | null;
+    sleva_percent_bp: number | null;
+    kauce: string | number | null;
+  }>(sql`
+    SELECT
+      (SELECT json_agg(d ORDER BY d.sort_order)
+         FROM (SELECT id, name, description, price_cents, unit, max_qty, sort_order
+                 FROM addons
+                WHERE active
+                  AND (available_from IS NULL OR available_from <= CURRENT_DATE)
+                  AND (available_to   IS NULL OR available_to   >= CURRENT_DATE)) d
+      ) AS doplnky,
+      (SELECT min_nights FROM discount_rules
+        WHERE active AND kind = 'length'
+          AND (valid_from IS NULL OR valid_from <= CURRENT_DATE)
+          AND (valid_to   IS NULL OR valid_to   >= CURRENT_DATE)
+        ORDER BY min_nights LIMIT 1) AS sleva_min_nights,
+      (SELECT percent_bp FROM discount_rules
+        WHERE active AND kind = 'length'
+          AND (valid_from IS NULL OR valid_from <= CURRENT_DATE)
+          AND (valid_to   IS NULL OR valid_to   >= CURRENT_DATE)
+        ORDER BY min_nights LIMIT 1) AS sleva_percent_bp,
+      (SELECT security_deposit_cents FROM company_settings WHERE id = 1) AS kauce
+  `);
+
+  const surove = typeof radek?.doplnky === "string" ? JSON.parse(radek.doplnky) : radek?.doplnky;
   return {
-    ceny: dostupnost.ceny,
-    minNoci: dostupnost.minNoci,
-    doplnky: doplnky.map((d) => ({
+    doplnky: (surove ?? []).map((d: RadekDoplnku) => ({
       id: d.id,
       name: d.name,
       description: d.description,
@@ -196,20 +209,39 @@ export async function nactiCenik(
       unit: d.unit,
       maxQty: d.max_qty,
     })),
-    slevaDlouhehoPobytu: slevy[0]
-      ? { odNoci: slevy[0].min_nights, bodu: slevy[0].percent_bp }
-      : null,
-    kauceHalere: nastaveni[0] ? cislo(nastaveni[0].security_deposit_cents) : 0,
+    slevaDlouhehoPobytu:
+      radek?.sleva_min_nights != null && radek?.sleva_percent_bp != null
+        ? { odNoci: radek.sleva_min_nights, bodu: radek.sleva_percent_bp }
+        : null,
+    kauceHalere: cislo(radek?.kauce ?? 0),
   };
 }
 
-/** Dostupnost i ceník pro sadu jednotek najednou — jeden průchod databází. */
+/** Ceník pro jednu jednotku = společná část + její ceny nocí. */
+export function sestavCenik(
+  dostupnost: DostupnostJednotky,
+  spolecne: SpolecnyCenik,
+): import("./index").Cenik {
+  return {
+    ceny: dostupnost.ceny,
+    minNoci: dostupnost.minNoci,
+    doplnky: spolecne.doplnky,
+    slevaDlouhehoPobytu: spolecne.slevaDlouhehoPobytu,
+    kauceHalere: spolecne.kauceHalere,
+  };
+}
+
+/**
+ * Dostupnost i ceníky pro sadu jednotek.
+ *
+ * Tři dotazy dohromady, ať se toho po síti nepřenáší víc, než je nutné:
+ * ceník, obsazenost, společná část. Žádné paralelní vějíře.
+ */
 export async function nactiRezervacniData(slugy: string[], dni: number = OKNO_DNI) {
   const dostupnost = await nactiDostupnost(slugy, dni);
+  const spolecne = await nactiSpolecnyCenik();
   const ceniky = Object.fromEntries(
-    await Promise.all(
-      slugy.map(async (s) => [s, await nactiCenik(dostupnost[s])] as const),
-    ),
+    slugy.map((s) => [s, sestavCenik(dostupnost[s], spolecne)]),
   );
   return { dostupnost, ceniky } as {
     dostupnost: Record<string, DostupnostJednotky>;
