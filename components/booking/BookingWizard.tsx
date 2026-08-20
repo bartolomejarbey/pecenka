@@ -39,6 +39,7 @@ type VysledekRezervace = {
   celkem: number;
   zaloha: number;
   drziDo: string | null;
+  odkazPlatba: string | null;
 };
 
 
@@ -188,6 +189,7 @@ export default function BookingWizard({ data }: { data: Record<string, DataDomku
         celkem: json.celkem!,
         zaloha: json.zaloha!,
         drziDo: json.drziDo ?? null,
+        odkazPlatba: json.odkazPlatba ?? null,
       });
       setStatus("sent");
     } catch (err) {
@@ -271,7 +273,10 @@ export default function BookingWizard({ data }: { data: Record<string, DataDomku
             )}
           </>
         )}
-        <div className="mt-10">
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          {vysledek?.odkazPlatba && (
+            <Button href={vysledek.odkazPlatba}>Zaplatit zálohu</Button>
+          )}
           <Button href="/" variant="outline">
             Zpět na úvod
           </Button>

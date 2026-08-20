@@ -12,7 +12,7 @@ Architektonické zadání pro celý systém: **[SYSTEM.md](./SYSTEM.md)** (výst
 | 2 | Zjednodušení a přehlednost webu, mobil, dořešení Safari | ✅ hotovo |
 | 3 | Databáze: schéma, migrace, konec fiktivní dostupnosti | ✅ hotovo |
 | 4 | Rezervační jádro: skutečné rezervace, VS, blokace termínů | ✅ hotovo |
-| 5 | Platby: QR (SPAYD), `PaymentProvider`, příprava ComGate | ⏳ |
+| 5 | Platby: QR (SPAYD), `PaymentProvider`, příprava ComGate | ✅ hotovo |
 | 6 | Admin: Dnes, kalendář, detail rezervace, ruční rezervace | ⏳ |
 | 7 | Fakturace: zálohy, doklady, **dobropisy**, kauce | ⏳ |
 | 8 | Hostovský portál: přístupy, foto-protokol, checklisty | ⏳ |
@@ -210,3 +210,74 @@ záporná položka slevy, celý cyklus vypršení držení.
 
 ### Zbývá
 Platební údaje se posílají e-mailem textem — **QR platba a ComGate jsou iterace 5**.
+
+
+---
+
+## Iterace 5 — hotovo
+
+### QR platba (standard SPAYD / QR Platba ČBA)
+Vlastní generátor, **žádná externí služba** — externí generátor by dostal číslo
+účtu a částku každé rezervace, a QR musí fungovat i v PDF a e-mailu.
+
+```
+SPD*1.0*ACC:CZ6508000000192000145399+GIBACZPX*AM:7450.00*CC:CZK
+    *RN:SEDMY LES*DT:20260823*X-VS:2702000071*X-SS:1*MSG:SEDMY LES REZ 2702000071 ZALOHA
+```
+
+Povolená abeceda je jen `0-9 A-Z`, mezera a `$ % * + - . / :`, takže se srovnává
+diakritika a strukturální znaky se kódují (`*` → `%2A`, jinak by rozbily pole).
+Hotový řetězec se **ukládá do `payments.spayd`** — QR musí být reprodukovatelné
+i za rok, kdyby se dohledávalo, co přesně měl host naskenované.
+
+### Platební stránka
+`/rezervace/{kod}/platba` — QR 250 × 250 px a **vedle něj vždy údaje textem**
+(ne každá banka QR načte). Souhrn s cenou, zálohou, doplatkem a lhůtou držení.
+
+Chráněná podpisem: kód rezervace `SL-26-0007` je krátký a jde uhodnout, takže
+sám o sobě nestačí. Kontrola sedí v `proxy.ts`, ne až v komponentě — Next už
+při vykreslování streamuje, takže `notFound()` v komponentě skončí jako
+„měkká 404" (stav **200** s obsahem 404). Ověřeno: bez podpisu i se špatným
+podpisem přijde poctivá **404**.
+
+### Bezpečnostní hlavičky
+`proxy.ts` přidává `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
+`Referrer-Policy: strict-origin-when-cross-origin` a `Permissions-Policy`.
+Referrer je tu důležitý — bez něj by se kód rezervace v adrese posílal na cizí
+weby v hlavičce `Referer`.
+
+### E-mail hostovi
+Potvrzení s QR jako **CID příloha**, ne `data:` URI — Gmail data URI v obrázcích
+zahazuje a host by viděl prázdné místo místo platby. Vedle QR jsou údaje textem
+a je i čistě textová verze zprávy.
+
+### ComGate — připraveno, čeká na smlouvu
+Celý adaptér je napsaný podle REST API v2.0 (vytvoření, stav, storno, refundace,
+předautorizace). **Aktivace je odvozená od prostředí, ne od přepínače v kódu:**
+bez `COMGATE_MERCHANT` a `COMGATE_SECRET` se metoda v rozhraní vůbec nenabídne.
+Po podpisu smlouvy to jsou tři proměnné ve Vercelu — žádný zásah do kódu.
+
+Šest testů zamyká tvar požadavku podle dokumentace (částka v haléřích, `label`
+do 16 znaků, `refId` = VS, `enableApplePayGooglePay`, překlad stavů, neznámý
+stav nikdy nehlásí „zaplaceno"). Až smlouva bude, rozdíl se pozná hned — ne až
+na první ostré platbě.
+
+Loga Visa, Mastercard, Apple Pay a Google Pay jsou na platební stránce jako
+**acceptance marks** (ne tlačítka — ta musí vykreslit brána), zatím tlumená
+s poznámkou „teprve zprovozňujeme".
+
+### Dvě chyby, které se cestou našly
+1. **Chybějící `PAYMENTS_SIGNING_KEY` shodil odpověď až *po* založení rezervace.**
+   Host viděl chybu, termín byl přitom obsazený, a opakovaný pokus narazil na
+   „obsazeno". Cokoli za commitem transakce teď rezervaci neshodí; bez klíče se
+   odkaz prostě nevygeneruje a platební údaje jdou e-mailem.
+2. **Kolize čísla rezervace.** Ukázková data zabrala kódy `SL-26-0007+`, ale
+   nezvedla čítač. Kolize kódu nebo VS už není fatální — zvedne se čítač a zkusí
+   znovu (pětkrát). Reálně nastane při ruční rezervaci v adminu, importu
+   z Booking.com nebo obnově ze zálohy.
+
+**63 testů prochází.**
+
+### Zbývá
+Nic zatím nepozná, že platba dorazila — to je párování bankovních plateb podle VS
+(Fio API) a patří k administraci v iteraci 6.

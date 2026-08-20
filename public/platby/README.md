@@ -6,14 +6,13 @@ Stažená oficiální loga pro platební stránku. **Zatím se nikde nepoužíva
 
 | Soubor | Co to je | Zdroj |
 |---|---|---|
-| `comgate-logo.png` | ComGate — čtvercové logo 400×100 | comgate.eu |
-| `comgate-logo-horizontal.png` | ComGate — vodorovné logo 848×200 | comgate.eu |
+| `comgate.png` | ComGate — vodorovné logo 848×200 | comgate.eu |
 | `applepay-mark.svg` | Apple Pay Mark (RGB, oficiální) | developer.apple.com |
 | `gpay-mark-dark.svg` | Google Pay mark — na tmavý podklad | gstatic.com (Google Pay API) |
 | `gpay-mark-light.svg` | Google Pay mark — na světlý podklad | gstatic.com (Google Pay API) |
 | `gpay-button-cs-dark.svg` | Google Pay tlačítko, česky, tmavé | gstatic.com (Google Pay API) |
-| `visa.png` | Visa — bílá varianta | comgate.eu |
-| `mastercard.png` | Mastercard | comgate.eu |
+| `visa.png` | Visa — bílá varianta (jen na tmavý podklad) | comgate.eu |
+| `mastercard.png` | Mastercard — bílá varianta (jen na tmavý podklad) | comgate.eu |
 
 ## Pravidla použití — nutno dodržet
 
@@ -32,5 +31,9 @@ skládat do vlastních kompozic.
   „Platby zajišťuje Comgate Payments, a. s.“ + odkaz na obchodní podmínky a reklamační řád.
 - Apple Pay ani Google Pay se **nesmí zobrazovat na zařízení, které je nepodporuje** —
   detekce přes `ApplePaySession.canMakePayments()` a `google.payments.api.isReadyToPay()`.
+
+Visa i Mastercard jsou v bílé variantě — na světlém podkladu zmizí. Platební
+stránka je tmavá, takže to sedí; kdyby se dělala světlá varianta, je potřeba
+stáhnout barevné verze.
 
 Podrobnosti k implementaci viz `SYSTEM.md`, kapitola 6 (Platební vrstva).

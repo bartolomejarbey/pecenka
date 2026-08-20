@@ -83,18 +83,41 @@ export async function vytvorRezervaci(vstup: NovaRezervace): Promise<VysledekRez
     return chyba("neplatny_termin", "Příjezd nemůže být v minulosti.");
   }
 
-  try {
-    return await transakce(async (tx) => zaloz(tx, vstup, prijezd, odjezd));
-  } catch (e) {
-    if (jePrekryvTerminu(e)) {
-      return chyba(
-        "obsazeno",
-        "Termín právě obsadil někdo jiný. Vyberte prosím jiné datum — omlouváme se.",
-      );
+  // Čítač pořadí je atomický, ale číslo může být obsazené i jinak — ručním
+  // vložením v adminu, importem z Booking.com, obnovou ze zálohy. Kolize kódu
+  // nebo VS proto není fatální: zvedneme čítač a zkusíme to znovu.
+  for (let pokus = 0; pokus < 5; pokus++) {
+    try {
+      return await transakce(async (tx) => zaloz(tx, vstup, prijezd, odjezd));
+    } catch (e) {
+      if (jePrekryvTerminu(e)) {
+        return chyba(
+          "obsazeno",
+          "Termín právě obsadil někdo jiný. Vyberte prosím jiné datum — omlouváme se.",
+        );
+      }
+      if (jeObsazeneCislo(e) && pokus < 4) {
+        console.warn(`[rezervace] číslo už bylo obsazené, zkouším znovu (${pokus + 1}/5)`);
+        continue;
+      }
+      console.error("[rezervace] nepodařilo se založit:", e);
+      return chyba("chyba", "Rezervaci se nepodařilo založit. Zkuste to prosím znovu.");
     }
-    console.error("[rezervace] nepodařilo se založit:", e);
-    return chyba("chyba", "Rezervaci se nepodařilo založit. Zkuste to prosím znovu.");
   }
+  return chyba("chyba", "Rezervaci se nepodařilo založit. Zkuste to prosím znovu.");
+}
+
+/** Kolize kódu rezervace nebo variabilního symbolu (unikátní index). */
+function jeObsazeneCislo(e: unknown): boolean {
+  const chyba = e as { code?: string; cause?: { code?: string; constraint?: string } };
+  const kod = chyba?.code ?? chyba?.cause?.code;
+  const omezeni = chyba?.cause?.constraint ?? "";
+  const zprava = String((e as Error)?.message ?? "") + String((e as { cause?: Error })?.cause?.message ?? "");
+  return (
+    kod === "23505" &&
+    (/reservations_(code|variable_symbol)_key/.test(omezeni) ||
+      /reservations_(code|variable_symbol)_key/.test(zprava))
+  );
 }
 
 async function zaloz(

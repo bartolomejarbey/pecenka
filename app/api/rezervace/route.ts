@@ -3,6 +3,12 @@ import { createTransport } from "nodemailer";
 import { z } from "zod";
 import { formatCzDate, formatHalere } from "@/lib/booking";
 import { esc, hlavicka } from "@/lib/mail/html";
+import { odkazNaPlatbu } from "@/lib/payments/odkaz";
+import { podpisyNastaveny } from "@/lib/payments/podpis";
+import { pripravPlatbu } from "@/lib/payments/priprav";
+import { posliPotvrzeniHostovi } from "@/lib/mail/rezervace";
+import { sql } from "drizzle-orm";
+import { radky } from "@/lib/db/client";
 import { vytvorRezervaci, type Duvod } from "@/lib/reservations/vytvor";
 
 /**
@@ -129,9 +135,15 @@ export async function POST(req: Request) {
     );
   }
 
-  // Pošta je až po založení: když spadne, rezervace platí dál.
+  const odkaz = vysledek.stav === "hold" ? bezpecnyOdkaz(vysledek.kod) : null;
+
+  // Pošta je až po založení a mimo hlavní cestu: když spadne, rezervace platí
+  // dál a majitel ji vidí v administraci.
   void posliMajiteli(data, vysledek).catch((e) =>
     console.error("[rezervace] e-mail majiteli selhal:", e),
+  );
+  void posliHostovi(data, vysledek, odkaz).catch((e) =>
+    console.error("[rezervace] e-mail hostovi selhal:", e),
   );
 
   return NextResponse.json({
@@ -142,6 +154,46 @@ export async function POST(req: Request) {
     celkem: vysledek.celkemHalere,
     zaloha: vysledek.zalohaHalere,
     drziDo: vysledek.drziDo?.toISOString() ?? null,
+    // Odkaz nese podpis — kód rezervace sám o sobě je uhodnutelný.
+    odkazPlatba: odkaz,
+  });
+}
+
+function bezpecnyOdkaz(kod: string): string | null {
+  // Bez podpisového klíče by odkaz vedl na 404 — to je horší než žádný odkaz.
+  // Host v tom případě dostane platební údaje e-mailem.
+  if (!podpisyNastaveny()) return null;
+  try {
+    return odkazNaPlatbu(kod);
+  } catch (e) {
+    console.error("[rezervace] odkaz na platbu se nepodařilo sestavit:", e);
+    return null;
+  }
+}
+
+/** Potvrzení hostovi s QR platbou. */
+async function posliHostovi(data: Data, v: Uspech, odkaz: string | null) {
+  const [r] = await radky<{ id: string; platba_id: string | null; unit_name: string }>(
+    sql`SELECT r.id::text AS id, u.name AS unit_name,
+               (SELECT p.id::text FROM payments p
+                 WHERE p.reservation_id = r.id AND p.kind = 'deposit'
+                 ORDER BY p.created_at DESC LIMIT 1) AS platba_id
+        FROM reservations r JOIN units u ON u.id = r.unit_id WHERE r.code = ${v.kod}`,
+  );
+  const platba = r?.platba_id ? await pripravPlatbu(r.platba_id) : null;
+
+  await posliPotvrzeniHostovi({
+    komu: data.email,
+    jmeno: data.jmeno,
+    kodRezervace: v.kod,
+    domek: r?.unit_name ?? data.domek,
+    prijezd: new Date(data.prijezd + "T12:00:00"),
+    odjezd: new Date(data.odjezd + "T12:00:00"),
+    celkemHalere: v.celkemHalere,
+    stav: v.stav,
+    drziDo: v.drziDo,
+    platba,
+    odkazPlatba: odkaz,
   });
 }
 

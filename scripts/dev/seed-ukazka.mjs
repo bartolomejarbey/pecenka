@@ -26,10 +26,12 @@ if (!achat) {
   process.exit(1);
 }
 
+// Ukázkové rezervace berou čísla z horního konce řady, aby se nepraly
+// s čítačem, ze kterého berou skutečné rezervace.
 const REZERVACE = [
-  { kod: "SL-26-0007", vs: "2609000079", unit: achat, za: 6, noci: 3, stav: "confirmed" },
-  { kod: "SL-26-0008", vs: "2609000087", unit: achat, za: 17, noci: 4, stav: "confirmed" },
-  { kod: "SL-26-0009", vs: "2609000095", unit: mech, za: 23, noci: 2, stav: "hold" },
+  { kod: "SL-26-9001", vs: "2609090015", unit: achat, za: 6, noci: 3, stav: "confirmed" },
+  { kod: "SL-26-9002", vs: "2609090023", unit: achat, za: 17, noci: 4, stav: "confirmed" },
+  { kod: "SL-26-9003", vs: "2609090031", unit: mech, za: 23, noci: 2, stav: "hold" },
 ];
 
 for (const r of REZERVACE) {
@@ -55,6 +57,17 @@ if (!(await db.query("SELECT id FROM calendar_blocks WHERE reason = 'ukázka —
     [mech],
   );
 }
+
+// Ukázkové bankovní spojení, ať jde proklikat QR platbu. Skript se odmítne
+// spustit proti ostré databázi, takže se tenhle IBAN nikam nedostane.
+await db.query(
+  `UPDATE company_settings
+   SET bank_iban = 'CZ6508000000192000145399', bank_bic = 'GIBACZPX',
+       bank_display = '192000145399/0800',
+       legal_name = CASE WHEN legal_name LIKE 'DOPLNIT%' THEN 'Sedmý les (ukázka)' ELSE legal_name END
+   WHERE id = 1`,
+);
+console.log("bankovní spojení: nastaveno ukázkové (jen pro vývoj)");
 
 const prehled = (
   await db.query(`
