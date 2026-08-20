@@ -29,6 +29,30 @@ export async function resolve(specifier, context, next) {
   if (specifier === "server-only" || specifier === "client-only") {
     return { url: "data:text/javascript,export{}", shortCircuit: true };
   }
+  // Next.js runtime mimo Next neexistuje. Skripty ho nepotřebují — sáhnou
+  // rovnou do databáze — ale moduly ho mají v importech.
+  if (specifier === "next/headers") {
+    return {
+      url: "data:text/javascript," + encodeURIComponent(
+        "export const cookies = async () => ({ get: () => undefined, set: () => {}, delete: () => {} });" +
+        "export const headers = async () => new Map();"),
+      shortCircuit: true,
+    };
+  }
+  if (specifier === "next/cache") {
+    return {
+      url: "data:text/javascript," + encodeURIComponent("export const revalidatePath = () => {};"),
+      shortCircuit: true,
+    };
+  }
+  if (specifier === "next/navigation") {
+    return {
+      url: "data:text/javascript," + encodeURIComponent(
+        "export const redirect = (u) => { throw new Error('redirect ' + u); };" +
+        "export const notFound = () => { throw new Error('notFound'); };"),
+      shortCircuit: true,
+    };
+  }
   // Do node_modules nesaháme — knihovny mají vlastní pravidla (JSON importy,
   // podmíněné exporty) a naše doplňování přípon by je rozbilo.
   const zNodeModules = context.parentURL?.includes("/node_modules/");
