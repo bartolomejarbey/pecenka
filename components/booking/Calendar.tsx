@@ -93,7 +93,7 @@ export default function Calendar({
           isBooked ? (canCheckout ? " — obsazeno, lze jen jako den odjezdu" : " — obsazeno") : ""
         }`}
         aria-pressed={isEdge}
-        className={`flex h-10 w-10 items-center justify-center rounded-full text-sm transition-colors duration-200 md:h-11 md:w-11 ${tone} ${
+        className={`flex h-11 w-11 items-center justify-center rounded-full text-sm transition-colors duration-200 ${tone} ${
           key === todayKey && !isEdge ? "ring-1 ring-inset ring-linen/25" : ""
         }`}
       >

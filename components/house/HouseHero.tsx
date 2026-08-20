@@ -11,7 +11,7 @@ export default function HouseHero({ house }: { house: House }) {
   const chips = [house.capacity, house.area, house.beds];
 
   return (
-    <section className="grain relative h-[85vh] min-h-[560px] overflow-hidden bg-night">
+    <section className="grain relative h-[85svh] min-h-[560px] overflow-hidden bg-night">
       <div className="photo-frame absolute inset-0">
         <Image
           src={house.photo}

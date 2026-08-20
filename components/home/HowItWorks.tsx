@@ -65,7 +65,7 @@ const STEPS: {
 /** Kapitola V — tři kroky rezervace. */
 export default function HowItWorks() {
   return (
-    <section className="grain relative overflow-hidden bg-bark py-24 md:py-32">
+    <section className="grain relative overflow-hidden bg-bark py-20 md:py-26">
       <div className="relative z-10 mx-auto max-w-7xl px-5 md:px-8">
         <Reveal>
           <Kicker>Kapitola V · Jak to funguje</Kicker>

@@ -5,7 +5,7 @@ import { Logo } from "./ui";
 export default function Footer() {
   return (
     <footer className="grain relative overflow-hidden border-t border-linen/8 bg-night">
-      <div className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
+      <div className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-16">
         <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>
             <Link href="/" aria-label="Sedmý les — úvodní stránka">
@@ -99,7 +99,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col gap-4 border-t border-linen/8 pt-7 text-[13px] text-sage/80 md:flex-row md:items-center md:justify-between">
+        <div className="mt-12 flex flex-col gap-4 border-t border-linen/8 pt-7 text-[13px] text-sage/80 md:flex-row md:items-center md:justify-between">
           <p>© {new Date().getFullYear()} {SITE.name} · {SITE.domain}</p>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             {LEGAL_LINKS.map((l) => (
@@ -111,9 +111,10 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Vodoznak */}
+      {/* Vodoznak — decentní podpis, ne druhá obrazovka.
+          Dřív měl 21vw (na desktopu ~300 px) a ukusoval konec každé stránky. */}
       <div
-        className="font-display pointer-events-none select-none whitespace-nowrap text-center text-[21vw] font-medium leading-[0.72] tracking-tight text-linen/[0.035]"
+        className="font-display pointer-events-none select-none overflow-hidden whitespace-nowrap text-center text-[clamp(2.6rem,9vw,7rem)] font-medium leading-[0.8] tracking-tight text-linen/[0.045]"
         aria-hidden="true"
       >
         sedmý les

@@ -11,7 +11,7 @@ import { Kicker } from "@/components/ui";
  */
 export default function Evening() {
   return (
-    <section className="grain relative flex h-[70vh] min-h-[540px] items-center justify-center overflow-hidden bg-night">
+    <section className="grain relative flex h-[70svh] min-h-[540px] items-center justify-center overflow-hidden bg-night">
       <div className="photo-frame absolute inset-0">
         <Image
           src="/foto/ohniste-vecer.jpg"

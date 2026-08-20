@@ -6,7 +6,7 @@ import { Kicker } from "@/components/ui";
 /** Kapitola I · Příběh — velký editorial text a dva detailní bloky. */
 export default function HouseStory({ house }: { house: House }) {
   return (
-    <section className="grain relative overflow-hidden bg-night py-24 md:py-32">
+    <section className="grain relative overflow-hidden bg-night py-20 md:py-26">
       <div className="relative z-10 mx-auto max-w-7xl px-5 md:px-8">
         <Reveal>
           <Kicker>Kapitola I · Příběh</Kicker>

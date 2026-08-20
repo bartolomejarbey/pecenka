@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function NotFound() {
   return (
-    <main className="grain contours flex min-h-screen flex-col items-center justify-center bg-night px-6 text-center">
+    <main className="grain contours flex min-h-svh flex-col items-center justify-center bg-night px-6 text-center">
       <p className="kicker text-sage">Chyba 404</p>
       <h1 className="display-hero mt-6 max-w-2xl text-5xl text-linen md:text-7xl">
         Zabloudili jste <span className="accent-italic">hlouběji,</span> než vede cesta.

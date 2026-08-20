@@ -11,7 +11,7 @@ const STATS: { value: number | string; suffix?: string; label: string }[] = [
 /** Kapitola I — manifest ticha. */
 export default function Story() {
   return (
-    <section id="pribeh" className="grain contours relative overflow-hidden bg-night py-24 md:py-32">
+    <section id="pribeh" className="grain contours relative overflow-hidden bg-night py-20 md:py-26">
       <div className="relative z-10 mx-auto max-w-7xl px-5 md:px-8">
         <Reveal>
           <Kicker>Kapitola I · Ticho</Kicker>

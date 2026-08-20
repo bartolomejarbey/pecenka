@@ -9,7 +9,7 @@ Architektonické zadání pro celý systém: **[SYSTEM.md](./SYSTEM.md)** (výst
 | # | Iterace | Stav |
 |---|---|---|
 | 1 | Výkon webu, nové logo, podklady systému | ✅ hotovo |
-| 2 | Zjednodušení a přehlednost webu, mobil, dořešení Safari | ⏳ |
+| 2 | Zjednodušení a přehlednost webu, mobil, dořešení Safari | ✅ hotovo |
 | 3 | Databáze: schéma, migrace, konec fiktivní dostupnosti | ⏳ |
 | 4 | Rezervační jádro: skutečné rezervace, VS, blokace termínů | ⏳ |
 | 5 | Platby: QR (SPAYD), `PaymentProvider`, příprava ComGate | ⏳ |
@@ -64,8 +64,36 @@ na 393 px ani na 1440 px.
 - `scripts/qa-shots.mjs` — vizuální QA přes CDP (screenshoty desktop + mobil, metriky,
   detekce vodorovného přetoku). Playwright se na tomhle stroji nespustí, tohle ano.
 
-### Zbývá dořešit (iterace 2)
-- Patička: vodoznak `text-[21vw]` „sedmý les" ukusuje ~800 px na konci každé stránky.
-- `CtaBanner` je na všech deseti stránkách — na /kontakt je vedle formuláře nadbytečný.
-- Úvodní stránka má devět sekcí; dvě se dají sloučit.
-- Ověřit doběh reveal animací v reálném prohlížeči (screenshoty je chytaly v půlce).
+---
+
+## Iterace 2 — hotovo
+
+### Přehlednost
+- **Svislé odsazení sekcí** `py-24 md:py-32` → `py-20 md:py-26` ve 13 souborech.
+  Web se prochází svižněji, obsahu na obrazovku se vejde víc.
+- **Vodoznak v patičce** `text-[21vw]` (na desktopu ~300 px) →
+  `clamp(2.6rem, 9vw, 7rem)`. Byl to prázdný pás na konci každé stránky.
+- **PageHero** už nečeká na JS: naběhnutí přes CSS `.rise-in` místo scroll revealu.
+  Titulek podstránky je obvykle LCP element — teď se vykreslí dřív a bez závislosti
+  na IntersectionObserveru.
+
+### Mobil
+- **Dny v kalendáři** 40 → 44 px i na mobilu (doporučený minimální dotykový cíl).
+- **Lišta cookies** zabírala na mobilu čtvrtinu obrazovky — teď je jednořádková
+  a tlačítko je vedle textu.
+- **`svh` místo `vh`** v hero sekcích (Evening, HouseHero) a `min-h-svh` na 404
+  a načítací obrazovce — na iOS Safari sekce neskáče při schování lišty prohlížeče.
+- Ověřeno: **nikde žádný vodorovný přetok** (393 px ani 1440 px, všech 12 stránek).
+
+### Ověření
+- Reveal animace v reálném prohlížeči: před scrollem viditelné jen prvky nad ohybem
+  (0–6 z 30–43), po projetí stránky všechny. Chová se, jak má.
+- Výška stránek klesla, např. /kontakt 2 422 → 2 222 px, úvod 7 879 → 7 471 px.
+
+### Vědomě neuděláno
+- **`CtaBanner` zůstává na všech deseti stránkách.** Je to hlavní konverzní prvek;
+  mazat ho je obchodní rozhodnutí, ne technické. Řekni, jestli ho chceš vyhodit
+  z /kontakt (kde je vedle formuláře nadbytečný) a /faq.
+- **Úvodní stránka má pořád devět sekcí.** Nabízí se sloučit „Šest věcí, které ve
+  městě nekoupíte" (Experiences) s pásem ročních období (SeasonStrip) — obojí je
+  výčet hezkých věcí. Je to zásah do obsahu, tak čekám na tvoje slovo.

@@ -125,6 +125,10 @@ async function main() {
   await s("Runtime.enable");
   await s("Network.enable");
   if (!MOTION) await s("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
+  // Lišta cookies by zakrývala spodek každého snímku — odbavíme ji před načtením.
+  await s("Page.addScriptToEvaluateOnNewDocument", {
+    source: "try{localStorage.setItem('sedmyles-cookies','ack')}catch(e){}",
+  });
 
   const zprava = [];
 
@@ -153,8 +157,6 @@ async function main() {
           } catch {}
         }, 120);
       });
-      // cookie lišta pryč, ať nezakrývá obsah
-      await s("Runtime.evaluate", { expression: "try{localStorage.setItem('sedmyles-cookies','ack')}catch(e){}" });
       await spat(MOTION ? 1400 : 450);
 
       const metriky = await s("Runtime.evaluate", {
@@ -173,11 +175,26 @@ async function main() {
             obrazky: Math.round(res.filter(r => r.initiatorType === 'img').reduce((a,r)=>a+(r.transferSize||0),0)/1024),
             vyska: document.documentElement.scrollHeight,
             prekryv: (() => {
-              // vodorovný přetok = nejčastější mobilní chyba
+              // Vodorovný přetok = nejčastější mobilní chyba. Elementy oříznuté
+              // předkem s overflow:hidden se nepočítají — ty nic nerozbíjejí.
               const w = document.documentElement.clientWidth;
+              const orezany = (el) => {
+                for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+                  const o = getComputedStyle(p);
+                  if (o.overflowX !== 'visible' && p.getBoundingClientRect().right <= w + 1) return true;
+                }
+                return false;
+              };
+              const popis = (el) => {
+                const cn = typeof el.className === 'string' ? el.className : (el.getAttribute('class') || '');
+                return el.tagName.toLowerCase() + (cn ? '.' + cn.trim().split(/\s+/).slice(0,3).join('.') : '');
+              };
               return [...document.querySelectorAll('body *')]
-                .filter(el => el.getBoundingClientRect().right > w + 1)
-                .slice(0, 5).map(el => el.tagName.toLowerCase() + '.' + (el.className.toString().slice(0,60)));
+                .filter(el => {
+                  const r = el.getBoundingClientRect();
+                  return r.width > 0 && r.right > w + 1 && !orezany(el);
+                })
+                .slice(0, 5).map(popis);
             })(),
             skryte: document.querySelectorAll('[data-reveal]:not([data-revealed])').length,
           });

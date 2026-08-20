@@ -107,7 +107,7 @@ export default function DomkyPage() {
       </section>
 
       {/* ===== Dva domky, nebo jeden velký (JOIN) ===== */}
-      <section className="grain relative overflow-hidden bg-bark py-24 md:py-32">
+      <section className="grain relative overflow-hidden bg-bark py-20 md:py-26">
         <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-5 md:grid-cols-2 md:gap-16 md:px-8">
           <Reveal>
             <div className="photo-frame relative aspect-[4/3] overflow-hidden rounded-[34px] border border-linen/8">

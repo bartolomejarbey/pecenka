@@ -1,8 +1,15 @@
-import type { ReactNode } from "react";
-import Reveal from "./Reveal";
+import type { CSSProperties, ReactNode } from "react";
 import { Kicker } from "./ui";
 
-/** Hlavička podstránek — kapitola, titulek s kurzívním akcentem, perex. */
+const rise = (i: number) => ({ "--rise-i": i }) as CSSProperties;
+
+/**
+ * Hlavička podstránek — kapitola, titulek s kurzívním akcentem, perex.
+ *
+ * Naběhnutí jede přes CSS `.rise-in`, ne přes scroll reveal: hlavička je vždy
+ * nad ohybem, takže nemá smysl čekat na JS a IntersectionObserver. Titulek se
+ * tím vykreslí dřív (a je to obvykle LCP element podstránky).
+ */
 export default function PageHero({
   kicker,
   title,
@@ -18,23 +25,27 @@ export default function PageHero({
   children?: ReactNode;
 }) {
   return (
-    <section className="grain contours relative overflow-hidden bg-night pb-16 pt-36 md:pb-24 md:pt-44">
+    <section className="grain contours relative overflow-hidden bg-night pb-14 pt-32 md:pb-20 md:pt-40">
       <div className="relative z-10 mx-auto max-w-7xl px-5 md:px-8">
-        <Reveal>
+        <div className="rise-in">
           <Kicker>{kicker}</Kicker>
-        </Reveal>
-        <Reveal i={1}>
-          <h1 className="display-hero mt-6 max-w-4xl text-5xl text-linen md:text-7xl">
-            {title}{" "}
-            {accent && <span className="accent-italic">{accent}</span>}
-          </h1>
-        </Reveal>
+        </div>
+        <h1
+          className="display-hero rise-in mt-6 max-w-4xl text-5xl text-linen md:text-7xl"
+          style={rise(1)}
+        >
+          {title} {accent && <span className="accent-italic">{accent}</span>}
+        </h1>
         {lead && (
-          <Reveal i={2}>
-            <p className="mt-7 max-w-xl text-lg leading-relaxed text-sage">{lead}</p>
-          </Reveal>
+          <p className="rise-in mt-7 max-w-xl text-lg leading-relaxed text-sage" style={rise(2)}>
+            {lead}
+          </p>
         )}
-        {children && <Reveal i={3}>{children}</Reveal>}
+        {children && (
+          <div className="rise-in" style={rise(3)}>
+            {children}
+          </div>
+        )}
       </div>
     </section>
   );
