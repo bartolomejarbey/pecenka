@@ -12,7 +12,8 @@
     "db:reset": "rm -rf .pglite && node scripts/db-migrate.mjs && node scripts/db-seed.mjs",
     "db:seed": "node scripts/db-seed.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "admin:create": "node scripts/create-admin.mts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.5",

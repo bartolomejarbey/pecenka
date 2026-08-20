@@ -5,6 +5,9 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    // scripts/*.mts pouští Node přímo (odstraňuje typy za běhu),
+    // a tam musí import nést příponu .ts.
+    "allowImportingTsExtensions": true,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",

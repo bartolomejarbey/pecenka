@@ -13,7 +13,7 @@ Architektonické zadání pro celý systém: **[SYSTEM.md](./SYSTEM.md)** (výst
 | 3 | Databáze: schéma, migrace, konec fiktivní dostupnosti | ✅ hotovo |
 | 4 | Rezervační jádro: skutečné rezervace, VS, blokace termínů | ✅ hotovo |
 | 5 | Platby: QR (SPAYD), `PaymentProvider`, příprava ComGate | ✅ hotovo |
-| 6 | Admin: Dnes, kalendář, detail rezervace, ruční rezervace | ⏳ |
+| 6 | Admin: Dnes, kalendář, detail rezervace, peníze | ✅ hotovo |
 | 7 | Fakturace: zálohy, doklady, **dobropisy**, kauce | ⏳ |
 | 8 | Hostovský portál: přístupy, foto-protokol, checklisty | ⏳ |
 | 9 | Luna 5.6: párování fotek před/po, vyhodnocení škod | ⏳ |
@@ -281,3 +281,62 @@ s poznámkou „teprve zprovozňujeme".
 ### Zbývá
 Nic zatím nepozná, že platba dorazila — to je párování bankovních plateb podle VS
 (Fio API) a patří k administraci v iteraci 6.
+
+
+---
+
+## Iterace 6 — hotovo
+
+### Administrace na `/admin`
+Mobile-first, protože provozovatel ji bude otevírat hlavně na telefonu.
+Spodní navigace pěti položek, na počítači boční panel.
+
+| Routa | Co umí |
+|---|---|
+| `/admin` | **Dnes** — odjíždí, přijíždí, zůstává, vyžaduje pozornost. Jeden dotaz. Prázdný stav není prázdná stránka: „Nikdo nepřijíždí. Příští příjezd čt 26. 8. — Eva Dvořáková, Achát." |
+| `/admin/kalendar` | Mobil svislý pás 21 dní s cenami, počítač vodorovná osa 60 dní. **Žádný FullCalendar** — dva domky jsou obyčejný CSS grid. |
+| `/admin/rezervace` | Hledání přes `search_text` (bez diakritiky), filtry promítnuté do adresy, historie pod čarou. |
+| `/admin/rezervace/[kod]` | Časová osa se sedmi uzly; **rozbalený je jen ten, na kterém rezervace stojí, a má jedno velké tlačítko**. Cena a doplňky se sazbami DPH, platby, historie přeložená do češtiny. |
+| `/admin/penize` | Nezaplaceno celkem, fronta plateb se splatností, tlačítko „Dorazilo". |
+| `/admin/nastaveni` | **Seznam nedodělků** — chybějící SMTP, podpisový klíč, bankovní účet, ostrá databáze. Jinak se to pozná až na první faktuře, kterou nejde vystavit. |
+
+### Přihlášení
+Heslo přes **scrypt** z `node:crypto` — argon2id by byl o kousek lepší, ale
+znamená nativní závislost, která se láme při každé změně verze Node.
+
+Token v cookie je náhodných 32 bajtů, v databázi leží jen jeho SHA-256 otisk:
+z odcizené databáze se přihlásit nedá. Dvě lhůty — **absolutní 30 dní**
+a **nečinnostní 12 hodin**; majitel se dívá z telefonu venku a kdyby ho ztratil,
+okno nemá být nekonečné. Pět pokusů za deset minut z jedné IP. Heslo se ověřuje
+i u neexistujícího účtu, aby se z doby odpovědi nedalo zjistit, které e-maily
+v systému jsou.
+
+Ověření sedí v `lib/auth/dal.ts`, které volá **každá** stránka i akce. Kontrola
+schválně není jen v `proxy.ts` — proxy je vrstva navíc, ne ochrana: stačí jedna
+chyba v `matcher` a stránka je venku. Ověřeno: všech pět rout bez přihlášení
+přesměruje na `/admin/prihlaseni`.
+
+Účet se zakládá `npm run admin:create -- e-mail "Jméno"`.
+
+### Auditní deník
+Každá změna se zapíše do `audit_log` a řádky jsou zřetězené otiskem
+(`prev_hash` → `hash`), takže dodatečná úprava historie jde poznat. Není to
+blockchain — je to ochrana proti „to tam nikdy nebylo" u agendy, kde se
+strhávají peníze z kauce. V detailu rezervace se ukazuje česky, ne jako JSON diff.
+
+### Přeskládané rozvržení
+Do administrace prosakovala veřejná navigace, patička i lišta cookies — všechno
+viselo na kořenovém `app/layout.tsx`. Veřejné stránky se přesunuly do skupiny
+`app/(web)/`, kořen drží jen kostru dokumentu. Administrace je teď čistá.
+
+### Stav plateb se nikdy nenastavuje ručně
+`prepocitejPlatby()` ho odvodí z toho, co reálně dorazilo v `payments`.
+Zaplacená záloha zároveň překlopí rezervaci z `hold` na `confirmed` — to je
+jediné místo, kde se to děje.
+
+**69 testů prochází.**
+
+### Zbývá
+Ruční rezervace v administraci, úprava cen a doklady. Automatické párování
+plateb podle variabilního symbolu (Fio API) — do té doby se platby označují
+tlačítkem „Dorazilo".

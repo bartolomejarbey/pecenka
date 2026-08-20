@@ -29,9 +29,12 @@ if (!achat) {
 // Ukázkové rezervace berou čísla z horního konce řady, aby se nepraly
 // s čítačem, ze kterého berou skutečné rezervace.
 const REZERVACE = [
-  { kod: "SL-26-9001", vs: "2609090015", unit: achat, za: 6, noci: 3, stav: "confirmed" },
-  { kod: "SL-26-9002", vs: "2609090023", unit: achat, za: 17, noci: 4, stav: "confirmed" },
-  { kod: "SL-26-9003", vs: "2609090031", unit: mech, za: 23, noci: 2, stav: "hold" },
+  { kod: "SL-26-9001", vs: "2609090015", unit: achat, za: 6, noci: 3, stav: "confirmed",
+    host: { jmeno: "Eva", prijmeni: "Dvořáková", email: "eva.dvorakova@example.com", telefon: "+420602111222" } },
+  { kod: "SL-26-9002", vs: "2609090023", unit: achat, za: 17, noci: 4, stav: "confirmed",
+    host: { jmeno: "Martin", prijmeni: "Svoboda", email: "martin.svoboda@example.com", telefon: "+420603333444" } },
+  { kod: "SL-26-9003", vs: "2609090031", unit: mech, za: 23, noci: 2, stav: "hold",
+    host: { jmeno: "Klára", prijmeni: "Nováková", email: "klara.novakova@example.com", telefon: "+420604555666" } },
 ];
 
 for (const r of REZERVACE) {
@@ -48,6 +51,63 @@ for (const r of REZERVACE) {
      VALUES ($1, $2, CURRENT_DATE + ($3)::int, CURRENT_DATE + ($3)::int + ($4)::int, $5)`,
     [rid, r.unit, r.za, r.noci, r.stav],
   );
+
+  // Rozpad ceny z ceníkového kalendáře — bez něj vypadá administrace rozbitě
+  // („Nezaplaceno 0 Kč") a nedá se na ní nic pořádně vyzkoušet.
+  await db.query(
+    `INSERT INTO reservation_items (reservation_id, kind, price_item_code, label, date, unit_slug,
+                                    qty, unit_price_cents, total_cents, vat_rate)
+     SELECT $1, 'night', 'NIGHT', 'Ubytování ' || u.slug, rc.date, u.slug, 1,
+            rc.price_cents, rc.price_cents, (SELECT vat_rate FROM price_items WHERE code = 'NIGHT')
+       FROM rate_calendar rc JOIN units u ON u.id = rc.unit_id
+      WHERE rc.unit_id = $2
+        AND rc.date >= CURRENT_DATE + ($3)::int
+        AND rc.date <  CURRENT_DATE + ($3)::int + ($4)::int`,
+    [rid, r.unit, r.za, r.noci],
+  );
+  await db.query(
+    `UPDATE reservations r
+        SET total_cents = s.suma, accommodation_cents = s.suma,
+            deposit_required_cents = round(s.suma / 2.0)
+       FROM (SELECT coalesce(sum(total_cents), 0) AS suma FROM reservation_items
+              WHERE reservation_id = $1) s
+      WHERE r.id = $1`,
+    [rid],
+  );
+
+  // Host
+  const g = (
+    await db.query(
+      `INSERT INTO guests (first_name, last_name, email, phone_e164)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (lower(email)) WHERE email IS NOT NULL AND anonymized_at IS NULL
+       DO UPDATE SET first_name = EXCLUDED.first_name RETURNING id`,
+      [r.host.jmeno, r.host.prijmeni, r.host.email, r.host.telefon],
+    )
+  ).rows[0];
+  await db.query(
+    `INSERT INTO reservation_guests (reservation_id, guest_id, role) VALUES ($1, $2, 'payer')
+     ON CONFLICT DO NOTHING`,
+    [rid, g.id],
+  );
+
+  // Předpis zálohy
+  await db.query(
+    `INSERT INTO payments (reservation_id, kind, direction, provider, amount_cents,
+                           status, variable_symbol, specific_symbol, due_at)
+     SELECT $1, 'deposit', 'IN', 'qr_transfer', r.deposit_required_cents,
+            $2, r.variable_symbol, '1', now() + interval '3 days'
+       FROM reservations r WHERE r.id = $1`,
+    [rid, r.stav === "confirmed" ? "paid" : "created"],
+  );
+  if (r.stav === "confirmed") {
+    await db.query(
+      `UPDATE reservations SET paid_cents = deposit_required_cents,
+              payment_state = 'deposit_paid'::payment_state WHERE id = $1`,
+      [rid],
+    );
+    await db.query(`UPDATE payments SET paid_at = now() WHERE reservation_id = $1`, [rid]);
+  }
 }
 
 if (!(await db.query("SELECT id FROM calendar_blocks WHERE reason = 'ukázka — údržba'")).rows.length) {
