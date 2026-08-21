@@ -7,6 +7,7 @@ import { formatHalere } from "@/lib/booking";
 import Shell from "@/components/admin/Shell";
 import { Odznak } from "@/components/admin/prvky";
 import Rozhodnuti from "./rozhodnuti";
+import Vyuctovat from "./vyuctovat";
 import Uzavrit from "./uzavrit";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -135,6 +136,16 @@ export default async function DetailInspekce({ params }: { params: Promise<{ id:
                       : "Bez nároku"}
                   </p>
                   <p className="mt-1.5 text-[14px] leading-relaxed text-sage">{z.rozhodnuto.duvod}</p>
+                  {z.rozhodnuto.castka > 0 && !z.vyuctovano && (
+                    <Vyuctovat
+                      pripadId={z.pripadId!}
+                      castka={z.rozhodnuto.castka}
+                      sluzba={z.rozhodnuto.sluzba}
+                    />
+                  )}
+                  {z.vyuctovano && (
+                    <p className="mt-3 text-[13.5px] text-ok">Vyúčtováno dokladem {z.vyuctovano}.</p>
+                  )}
                 </div>
               ) : z.pripadId ? (
                 <Rozhodnuti

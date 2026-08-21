@@ -570,3 +570,62 @@ export async function vystavNedanovy(
     }),
   );
 }
+
+/**
+ * Doúčtování po pobytu — služba navíc, nebo náhrada škody.
+ *
+ * Dvě různé věci, které se na dokladu chovají jinak:
+ *
+ *   · **Služba** (úklid nad rámec, doprava, oprava provedená provozovatelem)
+ *     je zdanitelné plnění. U plátce nese sazbu.
+ *   · **Náhrada škody** je mimo předmět daně — §14 odst. 1 zákona o DPH
+ *     mluví o poskytnutí služby, náhrada škody jím není. Sazba na ní být
+ *     nesmí a doklad se nesmí jmenovat daňový.
+ *
+ * Rozhodnutí o tom, co z toho je, dělá provozovatel při schvalování nálezu.
+ */
+export async function vystavDouctovani(
+  rezervaceId: string,
+  popis: string,
+  castkaHalere: number,
+  jeSluzba: boolean,
+): Promise<Uspech | Chyba> {
+  if (castkaHalere <= 0) return { ok: false, chyba: "Částka musí být kladná." };
+  if (popis.trim().length < 5) return { ok: false, chyba: "Doplň popis, co se účtuje." };
+
+  if (!jeSluzba) return vystavNedanovy(rezervaceId, popis, castkaHalere);
+
+  return transakce(async (tx) => {
+    const firma = await nactiFirmu(tx);
+    if (!firma) return { ok: false as const, chyba: "Chybí údaje firmy v nastavení." };
+
+    // Neplátce sazbu neuvádí vůbec; u plátce jde o službu v základní sazbě.
+    const sazba = firma.plátceDph ? 21 : null;
+    const { zaklad, dan } = rozpadDph(castkaHalere, sazba);
+
+    return zapis(tx, {
+      rezervaceId,
+      typ: "FINAL",
+      splatnostDni: 14,
+      radky: [
+        {
+          poradi: 1,
+          druh: "TAXABLE",
+          kodPolozky: null,
+          popis: popis.trim(),
+          czCpa: null,
+          mnozstvi: 1,
+          jednotka: "ks",
+          cenaSDphHalere: castkaHalere,
+          sazbaDph: sazba,
+          zakladHalere: zaklad,
+          danHalere: dan,
+          celkemHalere: castkaHalere,
+          domekSlug: null,
+          sluzbaOd: null,
+          sluzbaDo: null,
+        },
+      ],
+    });
+  });
+}

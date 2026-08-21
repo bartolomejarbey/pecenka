@@ -24,11 +24,13 @@ const RIZIKO: Record<string, number> = {
 
 export async function nactiFrontu(): Promise<RadekFronty[]> {
   const r = await radky<{
-    id: string; code: string; unit_slug: string; status: string;
+    id: string; code: string; unit_slug: string; unit_name: string | null; status: string;
     submitted_at: string | null; cost_cents: string | number; jmeno: string | null;
     nejhorsi: string | null; k_posouzeni: number;
   }>(sql`
-    SELECT i.id::text AS id, r.code, i.unit_slug, i.status,
+    SELECT i.id::text AS id, r.code, i.unit_slug,
+           (SELECT u.name FROM units u WHERE u.slug = i.unit_slug) AS unit_name,
+           i.status,
            i.submitted_at::text AS submitted_at, i.cost_cents,
            (SELECT trim(coalesce(g.first_name,'') || ' ' || coalesce(g.last_name,''))
               FROM reservation_guests rg JOIN guests g ON g.id = rg.guest_id
@@ -49,7 +51,7 @@ export async function nactiFrontu(): Promise<RadekFronty[]> {
      LIMIT 100
   `);
   return r.map((x) => ({
-    id: x.id, kodRezervace: x.code, domek: x.unit_slug, jmeno: x.jmeno,
+    id: x.id, kodRezervace: x.code, domek: x.unit_name ?? x.unit_slug, jmeno: x.jmeno,
     stav: x.status, odeslano: x.submitted_at, nejhorsi: x.nejhorsi,
     kPosouzeni: x.k_posouzeni, nakladHalere: Number(x.cost_cents),
   }));
@@ -72,6 +74,8 @@ export type ZonaDetail = {
   predUrl: string | null;
   poUrl: string | null;
   pripadId: string | null;
+  /** Číslo dokladu, kterým se škoda vyúčtovala. */
+  vyuctovano: string | null;
   rozhodnuto: { castka: number; duvod: string; kdy: string; sluzba: boolean } | null;
 };
 
@@ -90,11 +94,14 @@ export type DetailInspekce = {
 
 export async function nactiDetailInspekce(id: string): Promise<DetailInspekce | null> {
   const [i] = await radky<{
-    id: string; code: string; reservation_id: string; unit_slug: string; status: string;
+    id: string; code: string; reservation_id: string; unit_slug: string;
+    unit_name: string | null; status: string;
     submitted_at: string | null; summary_cs: string | null; cost_cents: string | number;
     jmeno: string | null;
   }>(sql`
-    SELECT i.id::text AS id, r.code, r.id::text AS reservation_id, i.unit_slug, i.status,
+    SELECT i.id::text AS id, r.code, r.id::text AS reservation_id, i.unit_slug,
+           (SELECT u.name FROM units u WHERE u.slug = i.unit_slug) AS unit_name,
+           i.status,
            i.submitted_at::text AS submitted_at, i.summary_cs, i.cost_cents,
            (SELECT trim(coalesce(g.first_name,'') || ' ' || coalesce(g.last_name,''))
               FROM reservation_guests rg JOIN guests g ON g.id = rg.guest_id
@@ -114,6 +121,7 @@ export async function nactiDetailInspekce(id: string): Promise<DetailInspekce | 
     pred_key: string | null; po_key: string | null;
     pripad_id: string | null;
     r_castka: string | number | null; r_duvod: string | null; r_kdy: string | null; r_sluzba: boolean | null;
+    vyuctovano: string | null;
   }>(sql`
     SELECT cz.zone_key, cz.label,
            lf.severity, lf.confidence, lf.what_changed, lf.alternative_explanation,
@@ -124,7 +132,15 @@ export async function nactiDetailInspekce(id: string): Promise<DetailInspekce | 
            bs.storage_key AS pred_key, ip.storage_key AS po_key,
            dc.id::text AS pripad_id,
            dd.amount_cents AS r_castka, dd.reason_cs AS r_duvod,
-           dd.decided_at::text AS r_kdy, dd.is_service_not_damage AS r_sluzba
+           dd.decided_at::text AS r_kdy, dd.is_service_not_damage AS r_sluzba,
+           -- Doklad vystavený po rozhodnutí. Bez toho by šlo tutéž škodu
+           -- vyúčtovat dvakrát a host by dostal dvě faktury.
+           (SELECT inv.number FROM invoices inv
+             WHERE inv.reservation_id = i.reservation_id
+               AND inv.status <> 'DRAFT'
+               AND inv.doc_type IN ('NON_TAX','FINAL')
+               AND inv.created_at > dd.decided_at
+             ORDER BY inv.created_at LIMIT 1) AS vyuctovano
       FROM inspections i
       JOIN checklist_zones cz ON cz.checklist_version_id = i.checklist_version_id
       LEFT JOIN photo_pairs pp ON pp.inspection_id = i.id AND pp.zone_key = cz.zone_key
@@ -142,7 +158,7 @@ export async function nactiDetailInspekce(id: string): Promise<DetailInspekce | 
   `);
 
   return {
-    id: i.id, kodRezervace: i.code, rezervaceId: i.reservation_id, domek: i.unit_slug,
+    id: i.id, kodRezervace: i.code, rezervaceId: i.reservation_id, domek: i.unit_name ?? i.unit_slug,
     jmeno: i.jmeno, stav: i.status, odeslano: i.submitted_at, shrnuti: i.summary_cs,
     nakladHalere: Number(i.cost_cents),
     zony: await Promise.all(
@@ -163,6 +179,7 @@ export async function nactiDetailInspekce(id: string): Promise<DetailInspekce | 
         predUrl: z.pred_key ? await podepsanyOdkaz(z.pred_key, 1800).catch(() => null) : null,
         poUrl: z.po_key ? await podepsanyOdkaz(z.po_key, 1800).catch(() => null) : null,
         pripadId: z.pripad_id,
+        vyuctovano: z.vyuctovano,
         rozhodnuto: z.r_kdy
           ? {
               castka: Number(z.r_castka ?? 0) / 100,

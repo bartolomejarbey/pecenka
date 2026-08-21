@@ -109,3 +109,62 @@ export async function spustVyhodnoceni(inspekceId: string): Promise<Vysledek> {
     return { ok: false, chyba: "Vyhodnocení se nepovedlo. Zkontroluj, jestli je nastavený klíč k modelu." };
   }
 }
+
+/**
+ * Vyúčtování rozhodnuté škody hostovi.
+ *
+ * Rozhodnutí se dosud jen zapsalo. Hláška slibovala „vyfakturuje se jako
+ * služba" nebo „vyúčtuje se jako náhrada škody", ale nebylo kudy — provozovatel
+ * měl v systému rozhodnutí a nic, co by z něj udělalo doklad.
+ *
+ * Doklad se vystaví z toho, co provozovatel napsal vlastními slovy. Ten text
+ * jde hostovi na doklad jako důvod, takže se nedá účtovat nic, co by se
+ * nedalo obhájit.
+ */
+export async function vyuctujSkodu(pripadId: string): Promise<Vysledek> {
+  const kdo = await vyzadujMajitele();
+
+  const [r] = await radky<{
+    reservation_id: string;
+    castka: string | number;
+    duvod: string;
+    sluzba: boolean;
+    zona: string;
+    stav: string;
+    uz_vyuctovano: boolean;
+  }>(sql`
+    SELECT d.reservation_id::text AS reservation_id, d.amount_cents AS castka,
+           d.reason_cs AS duvod, d.is_service_not_damage AS sluzba,
+           c.zone_key AS zona, c.state AS stav,
+           EXISTS (SELECT 1 FROM invoices i
+                    WHERE i.reservation_id = d.reservation_id
+                      AND i.status <> 'DRAFT'
+                      AND i.doc_type IN ('NON_TAX','FINAL')
+                      AND i.created_at > d.decided_at) AS uz_vyuctovano
+      FROM damage_decisions d
+      JOIN damage_cases c ON c.id = d.damage_case_id
+     WHERE d.damage_case_id = ${pripadId}::uuid
+     ORDER BY d.decided_at DESC LIMIT 1
+  `);
+
+  if (!r) return { ok: false, chyba: "Rozhodnutí nenalezeno." };
+  if (r.stav !== "decided") return { ok: false, chyba: "Tenhle nález se neúčtuje." };
+
+  const castka = Number(r.castka);
+  if (castka <= 0) return { ok: false, chyba: "Rozhodnutá částka je nulová." };
+
+  const { vystavDouctovani } = await import("@/lib/doklady/vystav");
+  const v = await vystavDouctovani(r.reservation_id, r.duvod, castka, r.sluzba);
+  if (!v.ok) return { ok: false, chyba: v.chyba };
+
+  await zapisDoDeniku({
+    akce: "skoda.vyuctovana",
+    typEntity: "invoice",
+    idEntity: v.doklad.id,
+    kdo: kdo.id,
+    zmena: { pripadId, zona: r.zona, castkaHalere: castka, jeSluzba: r.sluzba, doklad: v.doklad.cislo },
+  });
+
+  revalidatePath("/admin", "layout");
+  return { ok: true, zprava: `Vystaveno ${v.doklad.cislo}. Otevřít ho můžeš v dokladech rezervace.` };
+}
