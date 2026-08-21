@@ -6,6 +6,7 @@ import LogoMark from "@/components/LogoMark";
 import { formatCzDate } from "@/lib/booking";
 import { odhlas } from "@/lib/portal/akce";
 import { ktoJePrihlasen } from "@/lib/portal/pristup";
+import { nactiInfoDomku } from "@/lib/admin/pobyt";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,7 @@ export default async function PobytPrehled() {
      ORDER BY i.id LIMIT 1
   `);
 
+  const info = await nactiInfoDomku(pobyt.domekSlug);
   const odjezd = new Date(pobyt.odjezd);
   const dnuDoOdjezdu = Math.ceil((odjezd.getTime() - Date.now()) / 86400000);
   const odeslano = protokol && protokol.status !== "draft";
@@ -54,6 +56,81 @@ export default async function PobytPrehled() {
           <dd className="font-display mt-1 text-lg text-linen">{pobyt.vs}</dd>
         </div>
       </dl>
+
+      {/*
+        * Praktické informace.
+        *
+        * Ukazují se jen ty, které majitel vyplnil — prázdná kolonka „Wi-Fi: —"
+        * je horší než žádná. Adresa je tu schválně a na webu ne: na samotu
+        * u lomu nemá jezdit kdokoliv, kdo si otevře stránku.
+        */}
+      {info && (info.adresa || info.klice || info.wifiSit || info.poznamky || info.telefon) && (
+        <section className="mt-8 rounded-2xl border border-linen/10 bg-bark px-5 py-5">
+          <h2 className="text-[12px] uppercase tracking-[0.14em] text-sage/70">Váš pobyt</h2>
+
+          <dl className="mt-4 space-y-4 text-[15px] leading-relaxed">
+            {info.adresa && (
+              <div>
+                <dt className="text-[13px] text-sage">Kde to je</dt>
+                <dd className="mt-0.5 text-linen">
+                  {info.adresa}
+                  {info.mapa && (
+                    <>
+                      {" · "}
+                      <a href={info.mapa} target="_blank" rel="noopener noreferrer"
+                         className="text-ember hover:text-ember-soft">otevřít v mapě</a>
+                    </>
+                  )}
+                </dd>
+              </div>
+            )}
+
+            <div>
+              <dt className="text-[13px] text-sage">Předání</dt>
+              <dd className="mt-0.5 text-linen">
+                Příjezd od {info.prijezdOd}, odjezd do {info.odjezdDo}.
+              </dd>
+            </div>
+
+            {info.klice && (
+              <div>
+                <dt className="text-[13px] text-sage">Jak se dostanete dovnitř</dt>
+                <dd className="mt-0.5 whitespace-pre-line text-linen">{info.klice}</dd>
+              </div>
+            )}
+
+            {info.wifiSit && (
+              <div>
+                <dt className="text-[13px] text-sage">Wi-Fi</dt>
+                <dd className="mt-0.5 text-linen">
+                  {info.wifiSit}
+                  {info.wifiHeslo && (
+                    <> · heslo <span className="font-display tracking-wide">{info.wifiHeslo}</span></>
+                  )}
+                </dd>
+              </div>
+            )}
+
+            {info.poznamky && (
+              <div>
+                <dt className="text-[13px] text-sage">Dobré vědět</dt>
+                <dd className="mt-0.5 whitespace-pre-line text-linen">{info.poznamky}</dd>
+              </div>
+            )}
+
+            {info.telefon && (
+              <div>
+                <dt className="text-[13px] text-sage">Kdyby bylo něco potřeba</dt>
+                <dd className="mt-0.5 text-linen">
+                  <a href={`tel:${info.telefon.replace(/\s/g, "")}`} className="hover:text-ember">
+                    {info.telefon}
+                  </a>
+                </dd>
+              </div>
+            )}
+          </dl>
+        </section>
+      )}
 
       {/* Foto-protokol */}
       <section className="mt-6 rounded-2xl border border-linen/10 bg-bark p-6">

@@ -9,6 +9,8 @@ import { podpisyNastaveny } from "@/lib/payments/podpis";
 import Shell from "@/components/admin/Shell";
 import { Karta } from "@/components/admin/prvky";
 import FormularFirmy from "./formular";
+import Pobyt from "./pobyt";
+import { nactiInfoOPobytu } from "@/lib/admin/pobyt";
 
 export const metadata: Metadata = { title: "Nastavení", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -22,6 +24,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function AdminNastaveni() {
   const kdo = await vyzadujPrihlaseni();
+  const infoOPobytu = await nactiInfoOPobytu();
 
   const [firma] = await radky<{
     legal_name: string;
@@ -103,6 +106,10 @@ export default async function AdminNastaveni() {
 
         <Karta nadpis="Fakturační údaje">
           <FormularFirmy vychozi={vychozi} />
+        </Karta>
+
+        <Karta nadpis="Co host uvidí v portálu">
+          <Pobyt domky={infoOPobytu} />
         </Karta>
 
         <Karta nadpis="Účet">

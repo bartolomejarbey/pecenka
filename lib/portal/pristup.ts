@@ -31,6 +31,8 @@ export type Pobyt = {
   kod: string;
   vs: string;
   domek: string;
+  /** Slug fyzického domku — informace k pobytu se liší dům od domu. */
+  domekSlug: string;
   prijezd: string;
   odjezd: string;
   stav: string;
@@ -158,10 +160,10 @@ export async function odhlasHosta(): Promise<void> {
 
 async function nactiPobyt(rezervaceId: string): Promise<Pobyt | null> {
   const [r] = await radky<{
-    id: string; code: string; variable_symbol: string; unit_name: string;
+    id: string; code: string; variable_symbol: string; unit_name: string; unit_slug: string;
     checkin: string; checkout: string; status: string;
   }>(sql`
-    SELECT r.id::text AS id, r.code, r.variable_symbol, u.name AS unit_name,
+    SELECT r.id::text AS id, r.code, r.variable_symbol, u.name AS unit_name, u.slug AS unit_slug,
            r.checkin::text AS checkin, r.checkout::text AS checkout, r.status::text AS status
       FROM reservations r JOIN units u ON u.id = r.unit_id
      WHERE r.id = ${rezervaceId}::uuid
@@ -169,6 +171,7 @@ async function nactiPobyt(rezervaceId: string): Promise<Pobyt | null> {
   if (!r) return null;
   return {
     rezervaceId: r.id, kod: r.code, vs: r.variable_symbol, domek: r.unit_name,
+    domekSlug: r.unit_slug,
     prijezd: r.checkin, odjezd: r.checkout, stav: r.status,
   };
 }

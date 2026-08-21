@@ -736,3 +736,73 @@ export async function zmenCenu(f: {
     zprava: `Přepsáno ${n} ${n === 1 ? "den" : n < 5 ? "dny" : "dní"} na ${cena.toLocaleString("cs-CZ")} Kč za noc.`,
   };
 }
+
+/* ===== Informace k pobytu ===== */
+
+/**
+ * Uložení praktických informací k jednomu domku.
+ *
+ * Nic z toho není povinné — dokud to majitel nedoplní, portál to prostě
+ * neukáže. Lepší než ukazovat hostovi prázdné kolonky nebo vymyšlené údaje.
+ */
+export async function ulozInfoOPobytu(f: {
+  domek: string;
+  adresa: string;
+  mapa: string;
+  prijezdOd: string;
+  odjezdDo: string;
+  klice: string;
+  wifiSit: string;
+  wifiHeslo: string;
+  poznamky: string;
+  telefon: string;
+}): Promise<Vysledek> {
+  const kdo = await vyzadujMajitele();
+
+  const cas = (h: string) => /^([01]\d|2[0-3]):[0-5]\d$/.test(h.trim());
+  if (!cas(f.prijezdOd) || !cas(f.odjezdDo)) {
+    return { ok: false, chyba: "Časy zadejte jako 15:00." };
+  }
+  const mapa = f.mapa.trim();
+  if (mapa && !/^https?:\/\//i.test(mapa)) {
+    return { ok: false, chyba: "Odkaz do mapy musí začínat na https://." };
+  }
+
+  const prazdneNaNull = (h: string) => (h.trim() ? h.trim() : null);
+
+  const [{ n }] = await radky<{ n: number }>(sql`
+    WITH zapis AS (
+      INSERT INTO stay_info (unit_id, address, map_url, arrival_from, departure_by,
+                             access_note, wifi_ssid, wifi_password, house_notes,
+                             contact_phone, updated_at)
+      SELECT u.id, ${prazdneNaNull(f.adresa)}, ${prazdneNaNull(mapa)},
+             ${f.prijezdOd}::time, ${f.odjezdDo}::time,
+             ${prazdneNaNull(f.klice)}, ${prazdneNaNull(f.wifiSit)},
+             ${prazdneNaNull(f.wifiHeslo)}, ${prazdneNaNull(f.poznamky)},
+             ${prazdneNaNull(f.telefon)}, now()
+        FROM units u WHERE u.slug = ${f.domek}
+      ON CONFLICT (unit_id) DO UPDATE SET
+        address = EXCLUDED.address, map_url = EXCLUDED.map_url,
+        arrival_from = EXCLUDED.arrival_from, departure_by = EXCLUDED.departure_by,
+        access_note = EXCLUDED.access_note, wifi_ssid = EXCLUDED.wifi_ssid,
+        wifi_password = EXCLUDED.wifi_password, house_notes = EXCLUDED.house_notes,
+        contact_phone = EXCLUDED.contact_phone, updated_at = now()
+      RETURNING 1
+    )
+    SELECT count(*)::int AS n FROM zapis
+  `);
+  if (!n) return { ok: false, chyba: "Takový domek neznám." };
+
+  await zapisDoDeniku({
+    akce: "pobyt.info_ulozeno",
+    typEntity: "stay_info",
+    idEntity: f.domek,
+    kdo: kdo.id,
+    // Heslo od wifi do deníku nepatří — stačí, že se změnilo.
+    zmena: { domek: f.domek, wifiZmeneno: Boolean(f.wifiHeslo.trim()) },
+  });
+
+  revalidatePath("/admin", "layout");
+  revalidatePath("/pobyt");
+  return { ok: true, zprava: "Uloženo. Host to uvidí v portálu." };
+}
