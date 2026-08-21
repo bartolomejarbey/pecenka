@@ -15,6 +15,7 @@
     "test:admin": "node scripts/dev/admin-e2e.mjs",
     "test:tok": "node --import ./scripts/dev/bez-server-only.mjs scripts/dev/tok-e2e.mts",
     "posta:zkouska": "node scripts/dev/posta-zkouska.mjs",
+    "uklid:zkousek": "node --import ./scripts/dev/bez-server-only.mjs scripts/dev/uklid-zkousek.mts",
     "qa": "node scripts/qa-shots.mjs",
     "test:watch": "vitest",
     "admin:create": "node scripts/create-admin.mts",

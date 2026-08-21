@@ -16,6 +16,8 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { sql } from "drizzle-orm";
+import { radky } from "@/lib/db/client";
 import { vygenerujKod } from "@/lib/portal/pristup";
 
 const arg = (n: string, d: string) => {
@@ -130,7 +132,13 @@ async function main() {
     body: JSON.stringify({ ...telo, jmeno: "Druhý zájemce", email: `druhy.${razitko}@example.com` }),
   });
   const r2 = await o2.json();
-  zkus(o2.status === 409 && !r2.ok, "tentýž termín se podruhé prodat nedá", `HTTP ${o2.status}`);
+  if (o2.status === 429) {
+    // Omezení pokusů zabralo dřív než ochrana proti dvojímu prodeji.
+    // Neznamená to, že ochrana neplatí — jen se k ní teď nedostaneme.
+    console.log("· dvojí prodej se nezkoušel — vyčerpané omezení pokusů z jedné IP");
+  } else {
+    zkus(o2.status === 409 && !r2.ok, "tentýž termín se podruhé prodat nedá", `HTTP ${o2.status}`);
+  }
 
   /* ===== prohlížeč ===== */
   const profil = fs.mkdtempSync(path.join(os.tmpdir(), "tok-"));
@@ -321,28 +329,64 @@ async function main() {
   /* ===== 8. Úklid — zkušební rezervace se stornuje ===== */
   await jdi(`/admin/rezervace/${r.kod}`);
   const uklizeno = await evalx(`(async () => {
-    const dalsi = [...document.querySelectorAll('button')].find(b => /další|storno|zrušit/i.test(b.textContent || ''));
-    if (dalsi) dalsi.click();
-    await new Promise(res => setTimeout(res, 400));
-    const st = [...document.querySelectorAll('button')].find(b => /storno|zrušit/i.test(b.textContent || ''));
-    if (st) st.click();
-    await new Promise(res => setTimeout(res, 400));
-    const pole = document.querySelector('textarea');
-    if (pole) {
-      const set = Object.getOwnPropertyDescriptor(pole.constructor.prototype, 'value').set;
-      set.call(pole, 'Zkušební rezervace z automatického průchodu.');
-      pole.dispatchEvent(new Event('input', { bubbles: true }));
+    const cekej = (ms) => new Promise(res => setTimeout(res, ms));
+    const tl = (vzor) => [...document.querySelectorAll('button')]
+      .find(b => vzor.test((b.textContent || '').trim()));
+
+    // Storno je schované pod „Další" a pak vyžaduje důvod.
+    const dalsi = tl(/^Další/i);
+    if (dalsi) { dalsi.click(); await cekej(400); }
+
+    // „Stornovat" jen odkryje pole s důvodem; teprve „Opravdu stornovat"
+    // akci spustí. Hledá se proto přesně, ne podle podřetězce.
+    const otevri = tl(/^Stornovat$/);
+    if (!otevri) return 'tlačítko Stornovat nenalezeno';
+    otevri.click();
+    await cekej(400);
+
+    const pole = document.querySelector('#duvod');
+    if (!pole) return 'pole pro důvod se neobjevilo';
+    const set = Object.getOwnPropertyDescriptor(pole.constructor.prototype, 'value').set;
+    set.call(pole, 'Zkušební rezervace z automatického průchodu.');
+    pole.dispatchEvent(new Event('input', { bubbles: true }));
+    await cekej(300);
+
+    const potvrd = tl(/^Opravdu stornovat$/);
+    if (!potvrd) return 'tlačítko Opravdu stornovat nenalezeno';
+    if (potvrd.disabled) return 'potvrzení zůstalo zakázané';
+    potvrd.click();
+
+    // Čte se hláška akce. Text „Storno" je na samotném tlačítku, takže
+    // hledání v celé stránce hlásilo úspěch, i když se nic nestalo —
+    // a v databázi pak zůstaly desítky rezervací blokujících termíny.
+    for (let i = 0; i < 200; i++) {
+      await cekej(150);
+      const p = document.querySelector('[role=status]');
+      const t = p && p.textContent ? p.textContent.trim() : '';
+      if (t) return /stornov/i.test(t) ? 'ok' : t;
     }
-    await new Promise(res => setTimeout(res, 200));
-    const potvrd = [...document.querySelectorAll('button')].find(b => /storno|zrušit/i.test(b.textContent || ''));
-    if (potvrd) potvrd.click();
-    for (let i = 0; i < 100; i++) {
-      await new Promise(res => setTimeout(res, 150));
-      if (/stornov|zrušen/i.test(document.body.innerText)) return 'ok';
-    }
-    return 'nepodařilo se';
+    return 'bez odezvy';
   })()`);
   zkus(uklizeno === "ok", "zkušební rezervace se uklidila", uklizeno === "ok" ? "" : String(uklizeno));
+
+  // Ověření po znovunačtení stránky, ne z hlášky. Znovu zkusit rezervaci by
+  // spálilo kvótu omezení pokusů a zabralo termín podruhé.
+  /*
+   * Poslední slovo má databáze, ne stránka.
+   *
+   * Slovo „Storno" je i na tlačítku, takže hledání v textu stránky hlásilo
+   * úspěch, i když se nic nestalo — a v databázi zůstaly desítky rezervací
+   * blokujících termíny až do roku 2027. Tady se ptáme přímo na stav
+   * a na to, jestli je termín zase volný.
+   */
+  const [po] = await radky<{ stav: string; jednotky: string }>(sql`
+    SELECT r.status::text AS stav,
+           (SELECT string_agg(DISTINCT ru.status::text, ',')
+              FROM reservation_units ru WHERE ru.reservation_id = r.id) AS jednotky
+      FROM reservations r WHERE r.code = ${r.kod}
+  `);
+  zkus(po?.stav === "cancelled", "rezervace je v databázi stornovaná", po?.stav ?? "nenalezena");
+  zkus(po?.jednotky === "cancelled", "termín je zase volný", po?.jednotky ?? "—");
 
   ws.close();
   chrome.kill();
