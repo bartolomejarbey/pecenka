@@ -229,7 +229,51 @@ async function main() {
     }
   }
 
-  /* ===== 5. Úklid — zkušební rezervace se stornuje ===== */
+  /* ===== 5. Foto-protokol ===== */
+  // Fotky bere z veřejných snímků webu — jsou to skutečné fotky interiéru,
+  // takže projdou i přípravou obrázku (zmenšení, EXIF, otisk).
+  await jdi("/pobyt/protokol");
+  const zony = await evalx(`(async () => {
+    await new Promise(res => setTimeout(res, 800));
+    const el = document.querySelector('[data-zony]');
+    return el ? el.dataset.zony.split(',').filter(Boolean) : [];
+  })()`);
+
+  const nahrano = await evalx(`(async () => {
+    const zdroje = ['/foto/interier-obyvak.jpg', '/foto/interier-kuchyne.jpg',
+                    '/foto/interier-koupelna.jpg', '/foto/interier-patro.jpg'];
+    const zony = ${JSON.stringify(zony ?? [])};
+    if (!zony.length) return 'zóny se nenašly';
+    let i = 0, chyb = [];
+    for (const z of zony) {
+      const b = await (await fetch(zdroje[i % zdroje.length])).blob();
+      i++;
+      const fd = new FormData();
+      fd.append('fotka', new File([b], 'z.jpg', { type: 'image/jpeg' }));
+      fd.append('zona', z);
+      fd.append('id', 'e2e-' + z + '-' + Date.now());
+      const o = await fetch('/api/pobyt/foto', { method: 'POST', body: fd });
+      if (!o.ok) chyb.push(z + ': ' + (await o.text()).slice(0, 80));
+    }
+    return chyb.length ? chyb.join(' | ') : 'ok ' + zony.length;
+  })()`);
+  zkus(String(nahrano).startsWith("ok"), "fotky se nahrály", String(nahrano));
+
+  const odeslano = await evalx(`(async () => {
+    const o = await fetch('/api/pobyt/odeslat', { method: 'POST' });
+    const t = await o.json();
+    return o.ok ? 'ok' : (t.error || ('HTTP ' + o.status));
+  })()`);
+  zkus(odeslano === "ok", "protokol se odeslal", odeslano === "ok" ? "" : String(odeslano));
+
+  /* ===== 6. Protokol je v administraci ===== */
+  if (odeslano === "ok") {
+    await jdi("/admin/inspekce");
+    const vidi = await evalx(`document.body.innerText.includes(${JSON.stringify(r.kod)})`);
+    zkus(vidi, "protokol se objevil v administraci");
+  }
+
+  /* ===== 7. Úklid — zkušební rezervace se stornuje ===== */
   await jdi(`/admin/rezervace/${r.kod}`);
   const uklizeno = await evalx(`(async () => {
     const dalsi = [...document.querySelectorAll('button')].find(b => /další|storno|zrušit/i.test(b.textContent || ''));

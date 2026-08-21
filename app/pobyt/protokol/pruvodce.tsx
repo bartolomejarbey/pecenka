@@ -109,7 +109,12 @@ export default function Pruvodce({ domek, zony }: { domek: string; zony: StavZon
   }
 
   return (
-    <main className="mx-auto flex min-h-svh max-w-lg flex-col px-5 py-8">
+    <main
+      className="mx-auto flex min-h-svh max-w-lg flex-col px-5 py-8"
+      /* Seznam zón i pro automatický průchod — průvodce ukazuje vždy jen
+         jednu zónu, takže z viditelné stránky se ostatní vyčíst nedají. */
+      data-zony={zony.map((z) => z.klic).join(",")}
+    >
       {/* Postup */}
       <div className="flex items-center gap-3">
         <Link href="/pobyt" className="text-[13.5px] text-sage hover:text-ember">← Zpět</Link>

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
 import { sql } from "drizzle-orm";
 import { radky } from "@/lib/db/client";
 import { ktoJePrihlasen } from "@/lib/portal/pristup";
@@ -49,9 +50,19 @@ export async function POST() {
      WHERE id = ${inspekce.id}::uuid
   `);
 
-  // Na pozadí: host dostane potvrzení hned, analýza doběhne mezitím.
-  void vyhodnotInspekci(inspekce.id).catch((e) =>
-    console.error("[luna] vyhodnocení selhalo:", e),
+  /*
+   * Na pozadí: host dostane potvrzení hned, analýza doběhne mezitím.
+   *
+   * Přes `waitUntil`, ne jen `void`. Samotné `void` funguje na vlastním
+   * serveru, ale v serverless prostředí se běh může po odeslání odpovědi
+   * zmrazit — vyhodnocení by se zaseklo v půlce a protokol by zůstal viset
+   * ve stavu „analyzing". Pojistkou je `/api/cron/vyhodnoceni`, která
+   * zaseknuté protokoly dotáhne.
+   */
+  waitUntil(
+    vyhodnotInspekci(inspekce.id).catch((e) =>
+      console.error("[luna] vyhodnocení selhalo:", e),
+    ),
   );
 
   return NextResponse.json({ ok: true });
