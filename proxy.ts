@@ -18,13 +18,21 @@ export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico|foto|platby|icon-).*)"],
 };
 
-/** Cesty, na kterých je platný podpis podmínkou. */
-const CHRANENE = /^\/rezervace\/([^/]+)\/platba\/?$/;
+/**
+ * Cesty, na kterých je platný podpis podmínkou.
+ *
+ * Podepisuje se ta část adresy, která věc jednoznačně určuje: kód rezervace
+ * u platby, identifikátor u dokladu.
+ */
+const CHRANENE: RegExp[] = [
+  /^\/rezervace\/([^/]+)\/platba\/?$/,
+  /^\/doklad\/([^/]+)\/?$/,
+];
 
 export default function proxy(req: NextRequest) {
   const cesta = req.nextUrl.pathname;
 
-  const shoda = CHRANENE.exec(cesta);
+  const shoda = CHRANENE.map((v) => v.exec(cesta)).find(Boolean);
   if (shoda) {
     const kod = decodeURIComponent(shoda[1]);
     const token = req.nextUrl.searchParams.get("t");

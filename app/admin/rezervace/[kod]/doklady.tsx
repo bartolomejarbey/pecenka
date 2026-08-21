@@ -20,6 +20,8 @@ export type DokladKRezervaci = {
   celkemHalere: number;
   vystaveno: string | null;
   lzeOpravit: boolean;
+  /** Podepsaný odkaz na tiskovou podobu. Sestavuje ho server, ne klient. */
+  odkaz: string | null;
 };
 
 const TL =
@@ -85,6 +87,11 @@ export default function Doklady({
                   <span className={`font-display text-[15px] ${d.celkemHalere < 0 ? "text-red-300" : "text-linen"}`}>
                     {kc(d.celkemHalere)}
                   </span>
+                  {d.odkaz && (
+                    <a href={d.odkaz} target="_blank" rel="noopener noreferrer" className={TL}>
+                      Otevřít
+                    </a>
+                  )}
                   {d.lzeOpravit && (
                     <button type="button" className={TL} onClick={() => setOpravuje(d.id)}>
                       Opravný doklad

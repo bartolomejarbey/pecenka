@@ -17,3 +17,14 @@ export function odkazNaPlatbu(kodRezervace: string): string {
 export function overOdkaz(kodRezervace: string, token: string | undefined): boolean {
   return Boolean(token) && overPodpis(kodRezervace, token!);
 }
+
+/**
+ * Odkaz na doklad.
+ *
+ * Identifikátor dokladu je náhodné UUID, takže se uhodnout nedá — podpis je
+ * tu proto, aby se odkaz nedal poslat dál omylem přeposláním celé adresy
+ * z prohlížeče. Kontroluje ho `proxy.ts` ještě před vykreslením.
+ */
+export function odkazNaDoklad(idDokladu: string): string {
+  return `/doklad/${idDokladu}?t=${podepis(idDokladu)}`;
+}

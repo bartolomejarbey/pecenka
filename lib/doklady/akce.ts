@@ -6,6 +6,10 @@ import { radky } from "@/lib/db/client";
 import { zapisDoDeniku } from "@/lib/auth/audit";
 import { vyzadujMajitele } from "@/lib/auth/dal";
 import { vystavKonecnou, vystavNedanovy, vystavOpravny, vystavZalohovou } from "./vystav";
+import { nazevDokladu, type TypDokladu } from "./typy";
+import { odkazNaDoklad } from "@/lib/payments/odkaz";
+import { podpisyNastaveny } from "@/lib/payments/podpis";
+import { posliDoklad } from "@/lib/mail/doklad";
 
 /**
  * Akce nad doklady.
@@ -34,11 +38,75 @@ async function obal(
       zmena: { cislo: v.doklad.cislo, rezervace: rezervaceKod },
     });
     revalidatePath("/admin", "layout");
-    return { ok: true, cislo: v.doklad.cislo, zprava: `Vystaveno: ${v.doklad.cislo}` };
+
+    // Doklad, který leží jen v administraci, nikomu nepomůže. Posílá se
+    // hostovi hned — mimo hlavní cestu, takže když pošta spadne, doklad je
+    // vystavený a majitel ho může poslat znovu tlačítkem „Otevřít".
+    const poslano = await posliHostovi(v.doklad.id).catch((e) => {
+      console.error("[doklady] odeslání dokladu selhalo:", e);
+      return false;
+    });
+
+    return {
+      ok: true,
+      cislo: v.doklad.cislo,
+      zprava: poslano
+        ? `Vystaveno: ${v.doklad.cislo}. Odesláno hostovi.`
+        : `Vystaveno: ${v.doklad.cislo}.`,
+    };
   } catch (e) {
     console.error(`[doklady] ${akce} selhalo:`, e);
     return { ok: false, chyba: "Doklad se nepodařilo vystavit." };
   }
+}
+
+/**
+ * Odeslání hotového dokladu hostovi.
+ *
+ * Vrací `false`, když se poslat nedá — bez e-mailu hosta, bez podpisového
+ * klíče nebo bez nastavené pošty. Není to chyba vystavení, jen se to nemá
+ * tvrdit v hlášce.
+ */
+async function posliHostovi(idDokladu: string): Promise<boolean> {
+  if (!podpisyNastaveny()) return false;
+
+  const [d] = await radky<{
+    nazev_typ: string;
+    cislo: string;
+    vs: string;
+    splatnost: string | null;
+    celkem: string | number;
+    k_uhrade: string | number;
+    s_dph: boolean;
+    email: string | null;
+    jmeno: string | null;
+    ucet: string | null;
+  }>(sql`
+    SELECT i.doc_type AS nazev_typ, i.number AS cislo, i.variable_symbol AS vs,
+           i.due_date::text AS splatnost, i.total_with_vat_cents AS celkem,
+           i.amount_to_pay_cents AS k_uhrade, i.vat_applicable AS s_dph,
+           (SELECT c.bank_display FROM company_settings c WHERE c.id = 1) AS ucet,
+           (SELECT g.email FROM reservation_guests rg JOIN guests g ON g.id = rg.guest_id
+             WHERE rg.reservation_id = i.reservation_id AND rg.role = 'payer' LIMIT 1) AS email,
+           (SELECT btrim(coalesce(g.first_name,'') || ' ' || coalesce(g.last_name,''))
+              FROM reservation_guests rg JOIN guests g ON g.id = rg.guest_id
+             WHERE rg.reservation_id = i.reservation_id AND rg.role = 'payer' LIMIT 1) AS jmeno
+      FROM invoices i WHERE i.id = ${idDokladu}::uuid
+  `);
+  if (!d?.email || !d.cislo) return false;
+
+  return posliDoklad({
+    komu: d.email,
+    jmeno: d.jmeno || "hoste",
+    nazev: nazevDokladu(d.nazev_typ as TypDokladu, Boolean(d.s_dph)),
+    cislo: d.cislo,
+    celkemHalere: Number(d.celkem),
+    kUhradeHalere: Number(d.k_uhrade),
+    splatnost: d.splatnost ? new Date(d.splatnost) : null,
+    vs: d.vs,
+    ucet: d.ucet ?? "",
+    odkaz: odkazNaDoklad(idDokladu),
+  });
 }
 
 async function idRezervace(kod: string): Promise<string | null> {

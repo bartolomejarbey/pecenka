@@ -3,6 +3,8 @@ import "server-only";
 import { sql, type SQL } from "drizzle-orm";
 import { radky } from "@/lib/db/client";
 import { bezDiakritiky } from "@/lib/db/text";
+import { odkazNaDoklad } from "@/lib/payments/odkaz";
+import { podpisyNastaveny } from "@/lib/payments/podpis";
 import { nazevDokladu, type TypDokladu } from "@/lib/doklady/typy";
 
 /** Seznam a detail rezervací pro administraci. */
@@ -149,6 +151,7 @@ export type DokladRadek = {
   celkemHalere: number;
   vystaveno: string | null;
   lzeOpravit: boolean;
+  odkaz: string | null;
 };
 
 export type Detail = Radek & {
@@ -276,6 +279,8 @@ export async function nactiDetail(kod: string): Promise<Detail | null> {
       vystaveno: d.issue_date,
       // Zálohová faktura není doklad a opravený doklad se neopravuje podruhé.
       lzeOpravit: d.doc_type !== "PROFORMA" && !["CORRECTED", "CANCELLED", "DRAFT"].includes(d.status),
+      // Koncept nemá číslo ani se netiskne — odkaz by vedl na 404.
+      odkaz: d.status === "DRAFT" || !podpisyNastaveny() ? null : odkazNaDoklad(d.id),
     })),
   };
 }

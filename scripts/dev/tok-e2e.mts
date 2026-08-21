@@ -195,9 +195,14 @@ async function main() {
       .find(b => /potvrdit|dorazil|zaplac/i.test(b.textContent || ''));
     if (!tl) return 'tlačítko nenalezeno: ' + [...document.querySelectorAll('button')].map(b=>b.textContent.trim()).join(' | ');
     tl.click();
-    for (let i = 0; i < 120; i++) {
+    // Čte se hláska akce, ne text celé stránky. Slovo „hotovo" se na detailu
+    // rezervace vyskytuje i jinde a průchod se pak rozeběhl dřív, než akce
+    // doopravdy skončila — portál ještě neexistoval a přihlášení selhalo.
+    for (let i = 0; i < 200; i++) {
       await new Promise(r => setTimeout(r, 150));
-      if (/potvrzena|zapsána|hotovo/i.test(document.body.innerText)) return 'ok';
+      const p = document.querySelector('[role=status]');
+      const t = p && p.textContent ? p.textContent.trim() : '';
+      if (t) return /potvrzena|zapsána/i.test(t) ? 'ok' : t;
     }
     return 'bez odezvy';
   })()`);
@@ -273,7 +278,36 @@ async function main() {
     zkus(vidi, "protokol se objevil v administraci");
   }
 
-  /* ===== 7. Úklid — zkušební rezervace se stornuje ===== */
+  /* ===== 7. Doklady ===== */
+  await jdi(`/admin/rezervace/${r.kod}`);
+  const vystaveno = await evalx(`(async () => {
+    const tl = [...document.querySelectorAll('button')]
+      .find(b => /zálohov/i.test(b.textContent || ''));
+    if (!tl) return 'tlačítko nenalezeno';
+    tl.click();
+    for (let i = 0; i < 200; i++) {
+      await new Promise(res => setTimeout(res, 150));
+      const p = [...document.querySelectorAll('[role=status]')]
+        .map(x => (x.textContent || '').trim()).find(Boolean);
+      if (p) return p;
+    }
+    return 'bez odezvy';
+  })()`);
+  zkus(/^Vystaveno/.test(String(vystaveno)), "zálohová faktura se vystavila", String(vystaveno));
+  zkus(/Odesláno hostovi/.test(String(vystaveno)), "doklad se odeslal hostovi", "");
+
+  const dokladOk = await evalx(`(async () => {
+    await new Promise(res => setTimeout(res, 700));
+    const a = [...document.querySelectorAll('a')].find(x => /otevřít/i.test(x.textContent || ''));
+    if (!a) return 'odkaz na doklad nenalezen';
+    const o = await fetch(a.getAttribute('href'));
+    if (!o.ok) return 'HTTP ' + o.status;
+    const t = await o.text();
+    return /K &#x[0-9a-f]+;hrad|K úhradě|K vrácení/.test(t) ? 'ok' : 'doklad bez částky';
+  })()`);
+  zkus(dokladOk === "ok", "doklad se dá otevřít", dokladOk === "ok" ? "" : String(dokladOk));
+
+  /* ===== 8. Úklid — zkušební rezervace se stornuje ===== */
   await jdi(`/admin/rezervace/${r.kod}`);
   const uklizeno = await evalx(`(async () => {
     const dalsi = [...document.querySelectorAll('button')].find(b => /další|storno|zrušit/i.test(b.textContent || ''));

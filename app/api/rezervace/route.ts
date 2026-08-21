@@ -203,6 +203,13 @@ type Uspech = Extract<Awaited<ReturnType<typeof vytvorRezervaci>>, { ok: true }>
 async function posliMajiteli(data: Data, v: Uspech) {
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, CONTACT_TO } = process.env;
 
+  // Domek se všude jmenuje tak, jak ho zná host: „Achát", ne „achat".
+  // `data.domek` je slug z formuláře, název je v databázi.
+  const [u] = await radky<{ name: string }>(
+    sql`SELECT u.name FROM reservations r JOIN units u ON u.id = r.unit_id WHERE r.code = ${v.kod}`,
+  );
+  const domek = u?.name ?? data.domek;
+
   const doplnky = Object.entries(data.doplnky)
     .filter(([, q]) => q > 0)
     .map(([id, q]) => `<tr><td style="padding:4px 12px 4px 0;color:#666">${esc(id)}</td><td style="padding:4px 0">×${q}</td></tr>`)
@@ -226,7 +233,7 @@ async function posliMajiteli(data: Data, v: Uspech) {
         ${esc(stavPopis)}
       </p>
       <table style="font-size:15px;line-height:1.6">
-        <tr><td style="padding:4px 12px 4px 0;color:#666">Domek</td><td style="padding:4px 0"><strong>${esc(data.domek)}</strong></td></tr>
+        <tr><td style="padding:4px 12px 4px 0;color:#666">Domek</td><td style="padding:4px 0"><strong>${esc(domek)}</strong></td></tr>
         <tr><td style="padding:4px 12px 4px 0;color:#666">Termín</td><td style="padding:4px 0"><strong>${esc(data.prijezd)} → ${esc(data.odjezd)}</strong></td></tr>
         <tr><td style="padding:4px 12px 4px 0;color:#666">Hosté</td><td style="padding:4px 0">${data.hoste}</td></tr>
         ${doplnky}
@@ -258,7 +265,7 @@ async function posliMajiteli(data: Data, v: Uspech) {
     to: CONTACT_TO ?? "ahoj@sedmyles.cz",
     replyTo: data.email,
     subject: hlavicka(
-      `🌲 ${v.stav === "hold" ? "Rezervace" : "Poptávka"} ${v.kod}: ${data.domek} · ${data.prijezd} → ${data.odjezd}`,
+      `🌲 ${v.stav === "hold" ? "Rezervace" : "Poptávka"} ${v.kod}: ${domek} · ${formatCzDate(new Date(data.prijezd))} → ${formatCzDate(new Date(data.odjezd))}`,
     ),
     html,
   });

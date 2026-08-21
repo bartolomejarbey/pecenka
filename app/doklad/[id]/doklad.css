@@ -1,0 +1,208 @@
+/* ===========================================================================
+   Doklad — světlá tisková stránka.
+
+   Web je tmavý, doklad se ale tiskne: tmavé pozadí by sežralo půl toneru
+   a na papíře by bylo nečitelné. Rozměry jsou v milimetrech, protože
+   výsledek je A4, ne obrazovka.
+   ========================================================================= */
+
+/* Kořenové pozadí je tmavé (web). Doklad je bílý list papíru, takže si
+   podklad kolem sebe musí přesvětlit sám — jinak plave na černé. */
+html:has(.doklad), html:has(.doklad) body { background: #f0ece2; }
+
+.doklad {
+  --text: #16130f;
+  --tlumene: #6b6259;
+  --linka: #ddd7cc;
+  --akcent: #96581f;
+
+  background: #fff;
+  color: var(--text);
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.5;
+  max-width: 190mm;
+  margin: 0 auto;
+  padding: 14mm 10mm 18mm;
+  min-height: 100vh;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 2mm 8mm rgba(0, 0, 0, 0.07);
+}
+
+.doklad .cisla { font-variant-numeric: tabular-nums; }
+
+/* ===== Hlavička ===== */
+.doklad .hlava {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8mm;
+  padding-bottom: 6mm;
+  border-bottom: 1.5pt solid var(--text);
+}
+.doklad .znacka {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 9pt;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--akcent);
+}
+.doklad h1 {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 400;
+  font-size: 19pt;
+  line-height: 1.15;
+  margin: 2mm 0 0;
+}
+.doklad .cislo {
+  margin: 1mm 0 0;
+  font-size: 12pt;
+  font-variant-numeric: tabular-nums;
+  color: var(--tlumene);
+}
+.doklad .data { margin: 0; display: grid; gap: 1.5mm; min-width: 55mm; }
+.doklad .data > div { display: flex; justify-content: space-between; gap: 6mm; }
+.doklad .data dt { color: var(--tlumene); }
+.doklad .data dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ===== Dodavatel a odběratel ===== */
+.doklad .strany {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10mm;
+  margin-top: 7mm;
+}
+.doklad .stitek {
+  margin: 0 0 2mm;
+  font-size: 8pt;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tlumene);
+}
+.doklad .strany p { margin: 0; }
+.doklad .jmeno { font-weight: 600; font-size: 11.5pt; margin-bottom: 1mm !important; }
+.doklad .ident { color: var(--tlumene); font-variant-numeric: tabular-nums; }
+
+.doklad .duvod {
+  margin-top: 6mm;
+  padding: 3mm 4mm;
+  background: #faf7f0;
+  border-left: 2pt solid var(--akcent);
+}
+
+/* ===== Položky ===== */
+.doklad .polozky {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8mm;
+  font-size: 10pt;
+}
+.doklad .polozky th {
+  text-align: left;
+  font-size: 8pt;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tlumene);
+  font-weight: 600;
+  padding: 0 3mm 2mm 0;
+  border-bottom: 1pt solid var(--text);
+}
+.doklad .polozky th.c, .doklad .polozky td.c { text-align: right; }
+.doklad .polozky td {
+  padding: 2.5mm 3mm 2.5mm 0;
+  border-bottom: 0.5pt solid var(--linka);
+  vertical-align: top;
+  font-variant-numeric: tabular-nums;
+}
+.doklad .polozky td:first-child { font-variant-numeric: normal; }
+.doklad .polozky .silne { font-weight: 600; }
+.doklad .obdobi {
+  display: block;
+  font-size: 8.5pt;
+  color: var(--tlumene);
+  margin-top: 0.6mm;
+}
+
+/* ===== Souhrn ===== */
+.doklad .souhrn { display: flex; justify-content: flex-end; margin-top: 6mm; }
+.doklad .souhrn dl { margin: 0; min-width: 75mm; display: grid; gap: 1.5mm; }
+.doklad .souhrn > dl > div { display: flex; justify-content: space-between; gap: 8mm; }
+.doklad .souhrn dt { color: var(--tlumene); }
+.doklad .souhrn dd { margin: 0; font-variant-numeric: tabular-nums; }
+.doklad .souhrn .celkem {
+  padding-top: 2mm;
+  border-top: 0.5pt solid var(--linka);
+  font-weight: 600;
+}
+.doklad .souhrn .celkem dt { color: var(--text); }
+.doklad .souhrn .uhrada {
+  margin-top: 1.5mm;
+  padding-top: 2.5mm;
+  border-top: 1.5pt solid var(--text);
+  font-size: 13pt;
+  font-weight: 700;
+}
+.doklad .souhrn .uhrada dt { color: var(--text); }
+
+/* ===== Platební údaje a patička ===== */
+.doklad .platba {
+  margin-top: 8mm;
+  padding: 4mm 5mm;
+  background: #faf7f0;
+  border-radius: 2mm;
+}
+.doklad .platba p { margin: 0; }
+.doklad .platba p + p { margin-top: 1mm; }
+
+.doklad .pata {
+  margin-top: 12mm;
+  padding-top: 4mm;
+  border-top: 0.5pt solid var(--linka);
+  font-size: 8.5pt;
+  color: var(--tlumene);
+}
+.doklad .pata p { margin: 0; }
+
+/* Text jen pro čtečky obrazovky — na papíře i na obrazovce neviditelný. */
+.doklad .srt {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+/* ===== Tlačítko tisku ===== */
+.tlacitko-tisk {
+  position: fixed;
+  right: 5mm;
+  top: 5mm;
+  z-index: 10;
+  border: 0;
+  border-radius: 999px;
+  background: #16130f;
+  color: #fff;
+  font: inherit;
+  font-size: 10pt;
+  font-weight: 600;
+  padding: 2.5mm 6mm;
+  cursor: pointer;
+}
+.tlacitko-tisk:hover { background: var(--akcent); }
+
+@media print {
+  .tlacitko-tisk { display: none; }
+  .doklad { padding: 0; max-width: none; min-height: 0; box-shadow: none; }
+  html:has(.doklad), html:has(.doklad) body { background: #fff; }
+  /* Řádek položky se nemá zlomit přes stránky — půlka ceny na další
+     straně vypadá jako chyba dokladu. */
+  .doklad .polozky tr { break-inside: avoid; }
+  .doklad .souhrn, .doklad .platba { break-inside: avoid; }
+  @page { size: A4; margin: 14mm 12mm; }
+}
+
+@media (max-width: 600px) {
+  .doklad { padding: 8mm 5mm 12mm; font-size: 11pt; }
+  .doklad .strany { grid-template-columns: 1fr; gap: 6mm; }
+  .doklad .polozky { font-size: 10pt; }
+}

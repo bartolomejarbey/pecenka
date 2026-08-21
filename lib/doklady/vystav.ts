@@ -152,6 +152,7 @@ async function radkyZRezervace(
     label: string;
     date: string | null;
     unit_slug: string | null;
+    unit_name: string | null;
     qty: string | number;
     unit_price_cents: string | number;
     total_cents: string | number;
@@ -160,9 +161,11 @@ async function radkyZRezervace(
   }>(
     tx,
     sql`SELECT ri.kind, ri.price_item_code, ri.label, ri.date::text AS date, ri.unit_slug,
+               u.name AS unit_name,
                ri.qty, ri.unit_price_cents, ri.total_cents, ri.vat_rate, pi.cz_cpa
           FROM reservation_items ri
           LEFT JOIN price_items pi ON pi.code = ri.price_item_code
+          LEFT JOIN units u ON u.slug = ri.unit_slug
          WHERE ri.reservation_id = ${rezervaceId}::uuid
          ORDER BY CASE ri.kind WHEN 'night' THEN 0 WHEN 'addon' THEN 1
                                WHEN 'discount' THEN 2 ELSE 3 END, ri.date NULLS LAST, ri.label`,
@@ -189,7 +192,8 @@ async function radkyZRezervace(
       poradi: poradi++,
       druh: "TAXABLE",
       kodPolozky: "NIGHT",
-      popis: `Ubytování — domek ${domek || "?"}, ${skupina.length} ${skupina.length === 1 ? "noc" : skupina.length < 5 ? "noci" : "nocí"}`,
+      // Na dokladu se domek jmenuje tak, jak ho zná host — „Achát", ne „achat".
+      popis: `Ubytování — domek ${skupina[0]?.unit_name ?? domek ?? "?"}, ${skupina.length} ${skupina.length === 1 ? "noc" : skupina.length < 5 ? "noci" : "nocí"}`,
       czCpa: plátceDph ? (skupina[0]?.cz_cpa ?? "55.20") : null,
       mnozstvi: skupina.length,
       jednotka: "noc",
