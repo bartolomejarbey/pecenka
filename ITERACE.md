@@ -344,3 +344,71 @@ platí i po přesunu a chytí i nový soubor, který by ten vzorec zavedl znovu.
 Ruční rezervace v administraci, úprava cen a doklady. Automatické párování
 plateb podle variabilního symbolu (Fio API) — do té doby se platby označují
 tlačítkem „Dorazilo".
+
+## Iterace 10 a audity — hotovo
+
+### Audit A1 — výkon a chování v prohlížeči
+
+Měřeno přes Chrome DevTools Protocol na produkčním buildu: **CPU škrcené 6×,
+cache vypnutá, 24 stránek ve dvou rozlišeních, každá třikrát**. Bez škrcení je
+na vývojářském Macu všechno pod 200 ms a stížnost „seká se to" se nedá
+reprodukovat vůbec.
+
+**Trhání při scrollu.** Každý skrytý blok měl `will-change: opacity, transform`.
+Vypadá to jako optimalizace — říkáme prohlížeči dopředu, co se bude animovat.
+Jenže na /lokalita je takových bloků 28, na /o-nas 30, a každý dostal vlastní
+kompozitorovou vrstvu, která při odhalení zase zanikla. To přeskládávání vrstev
+stálo víc než animace samotná: 7 dlouhých úloh na stránku, nejdelší 540 ms.
+Po odstranění nula. Přechod `opacity` a `transform` se kompozituje i bez toho.
+
+**Skok patičky na /rezervace.** `loading.tsx` ukazoval logo doprostřed
+obrazovky — výška jedné obrazovky, zatímco hotová stránka má 2 038 px. Jakmile
+dorazila obsazenost z databáze, patička spadla o 561 px. Posun rozvržení 0,25,
+dvaapůlnásobek limitu. Kostra teď drží rozvržení skutečné stránky: stejné
+záhlaví, průvodce na stejném místě.
+
+**Průvodce se vykresloval až na klientu.** Bral `?domek=` přes
+`useSearchParams()`. Ten hook uvnitř `Suspense` znamená, že server pošle
+fallback a skutečný obsah doskočí až po hydrataci. Parametr chodí propem ze
+serveru — stránka je stejně `force-dynamic`, takže ho server zná. Hydratační
+pojistka zůstala jen kolem kalendáře, jediného místa závislého na `new Date()`.
+
+Výsledek: LCP 248–364 ms (mimo první studené načtení domovské stránky),
+posun rozvržení nejvýš 0,016, dlouhé úlohy nejvýš jedna na stránku a jen při
+hydrataci. Žádný vodorovný přetok, žádná chyba v konzoli.
+
+### Audit A2 — přístupnost
+
+**Osnova nadpisů.** Na /domky šla h1 → h3. Karty domků měly h3, ale žádná h2
+nad nimi nebyla. Čtečka obrazovky projíždí osnovu jako obsah knihy — přeskočená
+úroveň v ní vypadá jako chybějící kapitola. Karta bere úroveň propem. Jména
+domků v porovnávací tabulce byla taky h3, přitom jsou to záhlaví sloupců.
+
+**Dotykové cíle.** Odkazy v patičce a textové odkazy typu „Prohlédnout fotky"
+měly výšku řádku, 20 px. Pod 24 px se na telefonu trefuje špatně a WCAG 2.5.8
+to bere jako chybu. Vizuálně se nezměnilo nic.
+
+Po opravách napříč 24 stránkami žádný nález — obrázky mají popisy, ovládací
+prvky názvy, formulářová pole popisky.
+
+### Brána Luny propouští i malé tvrdé změny
+
+Propálená díra od cigarety je malá a drahá zároveň. Brána rozhodovala jen podle
+plochy, takže díra o velikosti dvou bloků propadla mezi šum a model se na ni
+vůbec nezeptal. Teď rozhoduje i hloubka propadu podobnosti: šum se drží těsně
+pod prahem, propálenina spadne hluboko. Na 23 párech se brána otevřela 19×
+místo 15× a kontrolní snímky zůstaly čisté.
+
+Ukázková sada přegenerovaná na gpt-image-2. Na 18 párech se skutečně
+vykresleným poškozením: 15 nalezeno, 2 označeny jako nepořádek, 1 přehlédnuta.
+**Nula planých poplachů na 5 nezměněných párech.**
+
+### Nástroje, které po auditu zůstaly
+
+`scripts/qa-shots.mjs` umí měřit posun rozvržení i s viníkem, dlouhé úlohy
+s časem vzniku, chyby konzole a přístupnost. Opakuje měření a hlásí medián —
+jedno měření je při škrceném CPU šum. Kontroluje i to, že stránka vůbec dostala
+styly: starý `next start` nad novým buildem servíruje HTML odkazující na CSS,
+které už na disku není, a měření pak vypadá jako úspěšná optimalizace.
+
+**93 testů prochází.**
