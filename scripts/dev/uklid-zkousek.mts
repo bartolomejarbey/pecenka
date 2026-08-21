@@ -42,6 +42,13 @@ if (!OPRAVDU) {
 
 for (const k of kandidati) {
   await transakce(async (tx) => {
+    // Úkoly ke stornované rezervaci nemají na koho čekat. Bez tohohle by
+    // zůstaly viset v ranním souhrnu a dělaly z něj nečitelný seznam.
+    await tx.execute(sql`
+      UPDATE tasks SET resolved_at = now(),
+                       resolution_note = 'Zkušební rezervace stornována.'
+       WHERE reservation_id = ${k.id}::uuid AND resolved_at IS NULL
+    `);
     await tx.execute(sql`
       UPDATE reservation_units SET status = 'cancelled'::reservation_status
        WHERE reservation_id = ${k.id}::uuid

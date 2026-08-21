@@ -268,7 +268,9 @@ export async function vyhodnotInspekci(inspekceId: string): Promise<VysledekInsp
       INSERT INTO damage_cases (reservation_id, inspection_id, zone_key,
                                 proposed_amount_cents, finding_ids)
       SELECT i.reservation_id, i.id, ${z.klic}, ${Math.round(z.odhadKc.max * 100)}, '{}'::uuid[]
-        FROM inspections i WHERE i.id = ${inspekceId}::uuid
+        FROM inspections i
+        LEFT JOIN units u ON u.slug = i.unit_slug
+       WHERE i.id = ${inspekceId}::uuid
     `);
   }
 
@@ -276,9 +278,12 @@ export async function vyhodnotInspekci(inspekceId: string): Promise<VysledekInsp
     await radky(sql`
       INSERT INTO tasks (kind, severity, reservation_id, inspection_id, title, detail)
       SELECT 'luna_review', 'warn', i.reservation_id, i.id,
-             'Fotoprotokol ke schválení — ' || i.unit_slug,
+             -- Název domku, ne slug: úkol čte člověk a ten zná „Achát".
+             'Fotoprotokol ke schválení — ' || coalesce(u.name, i.unit_slug),
              ${`Luna našla ${kPosouzeni.length} ${kPosouzeni.length === 1 ? "zónu" : "zón"} k posouzení. Rozhodnutí je na tobě.`}
-        FROM inspections i WHERE i.id = ${inspekceId}::uuid
+        FROM inspections i
+        LEFT JOIN units u ON u.slug = i.unit_slug
+       WHERE i.id = ${inspekceId}::uuid
     `);
   }
 

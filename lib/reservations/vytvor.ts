@@ -3,7 +3,7 @@ import "server-only";
 import { sql } from "drizzle-orm";
 import { jePrekryvTerminu, radkyT, transakce, type Spousteni } from "@/lib/db/client";
 import { hledaciText } from "@/lib/db/text";
-import { addDays, calcPrice, startOfDay, toKey, validateRange, type Cenik } from "@/lib/booking";
+import { addDays, calcPrice, formatCzDate, startOfDay, toKey, validateRange, type Cenik } from "@/lib/booking";
 import { sestavKod, sestavVs } from "./vs";
 
 /**
@@ -62,7 +62,7 @@ const PRAH_HOLD_HODIN = 48;
 /** Jak dlouho držíme termín na zaplacení zálohy. */
 const DRZENI_HODIN = 72;
 
-type RadekJednotky = { id: string; slug: string; is_virtual: boolean };
+type RadekJednotky = { id: string; slug: string; nazev: string | null; is_virtual: boolean };
 type RadekCeny = {
   date: string;
   price_cents: string | number;
@@ -129,7 +129,7 @@ async function zaloz(
   /* ----- 1. Jednotka a její fyzické domky ----- */
   const [jednotka] = await radkyT<RadekJednotky>(
     tx,
-    sql`SELECT id, slug, is_virtual FROM units WHERE slug = ${vstup.domek} AND active`,
+    sql`SELECT id, slug, name AS nazev, is_virtual FROM units WHERE slug = ${vstup.domek} AND active`,
   );
   if (!jednotka) return chyba("neznamy_domek", "Takový domek neznáme.");
 
@@ -326,7 +326,8 @@ async function zaloz(
             ${stav === "hold" ? "info" : "warn"},
             ${rezervace.id},
             ${stav === "hold" ? `Nová rezervace ${kod}` : `Potvrdit poptávku ${kod}`},
-            ${`${jednotka.slug} · ${toKey(prijezd)} → ${toKey(odjezd)} · ${vstup.host.jmeno}`},
+            -- Detail čte člověk: název domku a české datum, ne slug a ISO.
+            ${`${jednotka.nazev ?? jednotka.slug} · ${formatCzDate(prijezd)} – ${formatCzDate(odjezd)} · ${vstup.host.jmeno}`},
             ${(drziDo ?? addHours(new Date(), 24)).toISOString()}::timestamptz)
   `);
 

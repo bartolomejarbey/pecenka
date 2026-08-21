@@ -115,6 +115,9 @@ function dekodujPredmet(hlavicka) {
 function uloz(od, komu, telo) {
   const n = String(++poradi).padStart(3, "0");
   const soubor = path.join(OUT, `${n}.eml`);
+  // Adresář se zakládá při každém zápisu: při zkoušení se maže mezi běhy
+  // a server by na tom jinak spadl uprostřed práce.
+  fs.mkdirSync(OUT, { recursive: true });
   fs.writeFileSync(soubor, telo);
   const predmet = dekodujPredmet(
     /^Subject:\s*(.+(?:\n[ \t].+)*)/m.exec(telo)?.[1]?.replace(/\n[ \t]+/g, "") ?? "(bez předmětu)",
