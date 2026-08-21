@@ -32,6 +32,16 @@ const BLOK = 16;
 const PRAH_BLOKU = 0.72;
 /** Menší souvislá oblast než tohle je šum, ne nález. */
 const MIN_PODIL_PLOCHY = 0.004;
+/**
+ * Malá, ale tvrdá změna projde i pod plošným prahem.
+ *
+ * Propálená díra od cigarety, oštípnutý roh, prasklina — všechno jsou drobné
+ * plochy s prudkým přechodem. Kdyby rozhodovala jen velikost, spadly by mezi
+ * šum, ačkoliv jsou dražší než leccos velkého. Rozlišuje je hloubka propadu
+ * podobnosti: šum se drží těsně pod prahem, skutečná změna spadne hluboko.
+ */
+const MIN_PODIL_TVRDE = 0.0012;
+const PRAH_TVRDE = 0.42;
 
 export type PripravenaFotka = {
   /** JPEG bez metadat, delší hrana 1092 px. */
@@ -256,9 +266,11 @@ export async function porovnej(pred: Buffer, po: Buffer): Promise<Porovnani> {
   }
   const podobnost = soucet / mapa.length;
 
-  const oblasti = slucOblasti(mapa, blokuX, blokuY).filter(
-    (o) => (o.w * o.h) / (blokuX * blokuY) >= MIN_PODIL_PLOCHY,
-  );
+  const oblasti = slucOblasti(mapa, blokuX, blokuY).filter((o) => {
+    const podil = (o.w * o.h) / (blokuX * blokuY);
+    if (podil >= MIN_PODIL_PLOCHY) return true;
+    return podil >= MIN_PODIL_TVRDE && o.dno <= PRAH_TVRDE;
+  });
 
   const otisky = vzdalenostOtisku(await dhash(pred), await dhash(po));
   const zarovnani: Porovnani["zarovnani"] =
@@ -282,19 +294,20 @@ export async function porovnej(pred: Buffer, po: Buffer): Promise<Porovnani> {
 }
 
 /** Sousedící podezřelé bloky spojí do obdélníků. */
+/** `dno` je nejnižší podobnost v oblasti — jak tvrdý ten přechod je. */
 function slucOblasti(
   mapa: Float64Array,
   sirka: number,
   vyska: number,
-): { x: number; y: number; w: number; h: number }[] {
+): { x: number; y: number; w: number; h: number; dno: number }[] {
   const videno = new Uint8Array(mapa.length);
-  const out: { x: number; y: number; w: number; h: number }[] = [];
+  const out: { x: number; y: number; w: number; h: number; dno: number }[] = [];
 
   for (let y = 0; y < vyska; y++) {
     for (let x = 0; x < sirka; x++) {
       const i = y * sirka + x;
       if (videno[i] || mapa[i] >= PRAH_BLOKU) continue;
-      let minX = x, maxX = x, minY = y, maxY = y;
+      let minX = x, maxX = x, minY = y, maxY = y, dno = mapa[i];
       const fronta = [i];
       videno[i] = 1;
       while (fronta.length) {
@@ -303,6 +316,7 @@ function slucOblasti(
         const jy = Math.floor(j / sirka);
         minX = Math.min(minX, jx); maxX = Math.max(maxX, jx);
         minY = Math.min(minY, jy); maxY = Math.max(maxY, jy);
+        dno = Math.min(dno, mapa[j]);
         for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
           const nx = jx + dx;
           const ny = jy + dy;
@@ -313,7 +327,7 @@ function slucOblasti(
           fronta.push(k);
         }
       }
-      out.push({ x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 });
+      out.push({ x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1, dno });
     }
   }
   return out;

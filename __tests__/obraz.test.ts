@@ -130,4 +130,46 @@ describe("porovnání před a po", () => {
     const v = await porovnej(interier, tecka);
     expect(v.oblasti).toHaveLength(0);
   });
+
+  /**
+   * Propálená díra od cigarety je malá a drahá zároveň.
+   *
+   * Brána původně rozhodovala jen podle plochy, takže díra o velikosti dvou
+   * bloků propadla mezi šum a model se na ni vůbec nezeptal. Rozhoduje proto
+   * i hloubka propadu podobnosti: šum se drží těsně pod prahem, propálenina
+   * spadne hluboko. Test hlídá obě strany — ať se práh neutáhne zpátky, ani
+   * nerozvolní tak, že projde každý stín.
+   */
+  describe("malá, ale tvrdá změna", () => {
+    /** Ostrý tmavý bod = propálenina, oštípnutý roh, prasklina. */
+    async function bod(r: number, barva: string, kryti: number): Promise<number> {
+      const m = await sharp(interier).metadata();
+      const W = m.width!;
+      const H = m.height!;
+      const svg = Buffer.from(
+        `<svg width="${W}" height="${H}">
+           <ellipse cx="${0.4 * W}" cy="${0.55 * H}" rx="${r * W}" ry="${r * W}"
+                    fill="${barva}" opacity="${kryti}"/>
+         </svg>`,
+      );
+      const po = await sharp(interier).composite([{ input: svg }]).jpeg({ quality: 88 }).toBuffer();
+      return (await porovnej(interier, po)).oblasti.length;
+    }
+
+    it("ostrý bod velikosti propáleniny se najde", async () => {
+      expect(await bod(0.009, "#100804", 1)).toBeGreaterThanOrEqual(1);
+    });
+
+    it("stejně velký měkký stín se nenajde", async () => {
+      expect(await bod(0.009, "#6b6f68", 0.22)).toBe(0);
+    });
+
+    it("ani větší měkký stín se nenajde", async () => {
+      expect(await bod(0.02, "#6b6f68", 0.22)).toBe(0);
+    });
+
+    it("bod pod hranicí rozlišení se nenajde ani ostrý", async () => {
+      expect(await bod(0.004, "#100804", 1)).toBe(0);
+    });
+  });
 });

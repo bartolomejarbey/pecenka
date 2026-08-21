@@ -21,7 +21,13 @@ const OUT = process.argv[2] ?? "/tmp/luna-showcase";
 fs.mkdirSync(path.join(OUT, "fotky"), { recursive: true });
 
 const KLIC = process.env.OPENAI_API_KEY!;
-const MODEL_OBRAZ = "gpt-image-1";
+/**
+ * gpt-image-2 referenční fotku udrží (~92 % věrnosti), ale jen ve výchozí
+ * kvalitě a s krátkým promptem. `quality: "high"` scénu překreslí (spadne
+ * na ~64 %) a ukecaný prompt typu „photorealistic edit of this exact room"
+ * ho svede k překomponování záběru. Proto krátce a s „Change nothing else".
+ */
+const MODEL_OBRAZ = "gpt-image-2";
 
 type Scenar = {
   id: string;
@@ -57,28 +63,28 @@ const SCENARE: Scenar[] = [
   // ===== sotva viditelné =====
   { id: "s1", zdroj: OBYVAK, zona: ZONY.seating, miraPoskozeni: "sotva viditelné",
     popis: "Malá světlá skvrna na sedáku",
-    prompt: "Add a small pale watermark stain, about 8 cm across, on the seat cushion of the nearest armchair. Subtle, slightly lighter than the fabric, with a faint darker ring at the edge. Change nothing else." },
+    prompt: "Add a clearly visible pale dried water stain with a darker tide-mark ring on the seat cushion of the nearest armchair, about 15 cm wide. Keep the rest of the photo identical." },
   { id: "s2", zdroj: OBYVAK, zona: ZONY.floor, miraPoskozeni: "sotva viditelné",
     popis: "Jemný škrábanec ve vinylu",
-    prompt: "Add a thin shallow scratch on the vinyl floor in the foreground, about 15 cm long, barely visible, slightly lighter than the surrounding floor. Change nothing else." },
+    prompt: "Add a visible light-coloured scratch line across the grey vinyl floor in the foreground, about 25 cm long and 2 mm wide, lighter than the floor around it. Keep the rest of the photo identical." },
   { id: "s3", zdroj: KUCHYNE, zona: ZONY.kitchen, miraPoskozeni: "sotva viditelné",
     popis: "Drobné oděrky na pracovní desce",
-    prompt: "Add a few faint knife scuff marks on the kitchen worktop surface, short and shallow, barely noticeable. Change nothing else." },
+    prompt: "Add a group of visible knife cut marks and scratches on the kitchen worktop surface, several short lines crossing each other. Keep the rest of the photo identical." },
   { id: "s4", zdroj: KOUPELNA, zona: ZONY.bathroom, miraPoskozeni: "sotva viditelné",
     popis: "Odchlíplý roh silikonu",
-    prompt: "Add a small section of silicone sealant peeling away at the bottom corner of the shower, about 5 cm, slightly lifted and discoloured. Change nothing else." },
+    prompt: "Show the white silicone sealant along the bottom of the shower peeling away and hanging loose over a length of about 15 cm, with a dark gap behind it. Keep the rest of the photo identical." },
   { id: "s5", zdroj: PATRO, zona: ZONY.loft, miraPoskozeni: "sotva viditelné",
     popis: "Odřený lak na schůdku",
-    prompt: "Add a small patch of worn-off finish on the edge of the wooden step, about 6 cm, showing lighter bare wood underneath. Change nothing else." },
+    prompt: "Show the wooden step of the ladder with its finish worn through in a large patch, exposing pale raw wood, about 15 cm across. Keep the rest of the photo identical." },
   { id: "s6", zdroj: OBYVAK, zona: ZONY.seating, miraPoskozeni: "sotva viditelné",
     popis: "Zataženo vlákno v čalounění",
-    prompt: "Add a small pulled thread and slight fabric snag on the armrest of the nearest armchair, about 4 cm. Change nothing else." },
+    prompt: "Show a section of the armchair upholstery with pulled loops and a visible snagged run in the fabric, about 12 cm long. Keep the rest of the photo identical." },
   { id: "s7", zdroj: KUCHYNE, zona: ZONY.kitchen, miraPoskozeni: "sotva viditelné",
     popis: "Malý flek pod dřezem",
-    prompt: "Add a small pale water stain on the cabinet front just below the sink, about 10 cm, slightly darker wood. Change nothing else." },
+    prompt: "Show the cabinet front below the kitchen sink with a dark water damage stain and slightly swollen, lifted veneer, about 20 cm wide. Keep the rest of the photo identical." },
   { id: "s8", zdroj: OBYVAK, zona: ZONY.window, miraPoskozeni: "sotva viditelné",
     popis: "Vlasová prasklina v rohu skla",
-    prompt: "Add a very fine hairline crack in the bottom corner of the large window pane, about 7 cm, only visible on close inspection. Change nothing else." },
+    prompt: "Add a visible crack line in the glass of the large window, running about 25 cm from the bottom corner, thin but clearly visible against the view. Keep the rest of the photo identical." },
 
   // ===== zjevné =====
   { id: "z1", zdroj: OBYVAK, zona: ZONY.seating, miraPoskozeni: "zjevné",
@@ -86,7 +92,7 @@ const SCENARE: Scenar[] = [
     prompt: "Add a large dark brown coffee stain soaked deep into the orange fabric of the nearest armchair seat, about 25 cm across, irregular edges, clearly wet-stained. Change nothing else." },
   { id: "z2", zdroj: OBYVAK, zona: ZONY.seating, miraPoskozeni: "zjevné",
     popis: "Propálená díra v čalounění",
-    prompt: "Add a cigarette burn hole in the armchair upholstery, about 3 cm wide, with charred blackened edges and exposed foam inside. Change nothing else." },
+    prompt: "Show a burn hole in the armchair seat upholstery, about 5 cm wide, with black charred edges and pale foam visible inside the hole. Keep the rest of the photo identical." },
   { id: "z3", zdroj: OBYVAK, zona: ZONY.floor, miraPoskozeni: "zjevné",
     popis: "Hluboká rýha v podlaze",
     prompt: "Add a deep gouge in the vinyl floor, about 40 cm long, with the pale sub-layer exposed and curled shavings at one end. Change nothing else." },
@@ -107,10 +113,10 @@ const SCENARE: Scenar[] = [
     prompt: "Remove the shower holder from the wall, leaving two visible screw holes and a lighter patch where it was mounted. Change nothing else." },
   { id: "z9", zdroj: PATRO, zona: ZONY.loft, miraPoskozeni: "zjevné",
     popis: "Uvolněné zábradlí",
-    prompt: "Show the loft railing detached at one end, hanging loose with visible screw holes in the wood. Change nothing else." },
+    prompt: "Show the loft railing broken: one horizontal rail snapped and hanging down at an angle, with splintered wood at the break. Keep the rest of the photo identical." },
   { id: "z10", zdroj: PATRO, zona: ZONY.loft, miraPoskozeni: "zjevné",
     popis: "Velká skvrna na matraci",
-    prompt: "Add a large dark stain soaked into the mattress, about 30 cm across, clearly visible against the pale bedding. Change nothing else." },
+    prompt: "Show the mattress with the bedding pulled back, revealing a large dark brown stain soaked into the mattress surface, about 35 cm across. Keep the rest of the photo identical." },
   { id: "z11", zdroj: OBYVAK, zona: ZONY.seating, miraPoskozeni: "zjevné",
     popis: "Ulomená noha stolku",
     prompt: "Show the small side table with one leg broken off, the table tilting to one side, the broken leg lying on the floor beside it. Change nothing else." },
@@ -129,8 +135,7 @@ async function vygeneruj(s: Scenar, zaklad: Buffer, pokusu = 3): Promise<Buffer 
       form.append("model", MODEL_OBRAZ);
       form.append("prompt", s.prompt);
       form.append("size", "1024x1024");
-      form.append("input_fidelity", "high");
-      form.append("image", new Blob([zaklad], { type: "image/png" }), "z.png");
+          form.append("image", new Blob([zaklad], { type: "image/png" }), "z.png");
       const o = await fetch("https://api.openai.com/v1/images/edits", {
         method: "POST",
         headers: { Authorization: `Bearer ${KLIC}` },
@@ -193,9 +198,36 @@ console.log("\nvyhodnocuji Lunou…");
 const vysledky: unknown[] = [];
 let naklad = 0;
 
+// Každý scénář se ukládá zvlášť. Běh trvá desítky minut a jeden síťový
+// timeout uprostřed by jinak zahodil všechno, co už model zaplaceně zhodnotil.
+const CACHE = path.join(OUT, "hodnoceni");
+fs.mkdirSync(CACHE, { recursive: true });
+
+/** Síť k OpenAI občas spadne na ETIMEDOUT. Zkusíme to znovu, ne od začátku. */
+async function odolne<T>(co: () => Promise<T>, popis: string): Promise<T | null> {
+  for (let pokus = 1; pokus <= 3; pokus++) {
+    try { return await co(); }
+    catch (e) {
+      const d = pokus * 15_000;
+      console.log(`      ${popis}: ${(e as Error).message} — za ${d / 1000} s znovu (${pokus}/3)`);
+      await new Promise((r) => setTimeout(r, d));
+    }
+  }
+  return null;
+}
+
 for (const s of SCENARE) {
   const po = varianty.get(s.id);
   if (!po) continue;
+
+  const cesta = path.join(CACHE, `${s.id}.json`);
+  if (fs.existsSync(cesta)) {
+    const d = JSON.parse(fs.readFileSync(cesta, "utf8"));
+    vysledky.push(d);
+    naklad += (d.luna?.cenaHalere ?? 0) as number;
+    console.log(`  ${s.id.padEnd(4)} ${s.popis.padEnd(32)} z dřívějška`);
+    continue;
+  }
   const pred = (await pripravFotku(zakladny.get(s.zdroj)!)).data;
   const poP = (await pripravFotku(po)).data;
 
@@ -216,6 +248,7 @@ for (const s of SCENARE) {
     zaznam.branaZavrena = true;
     zaznam.luna = null;
     vysledky.push(zaznam);
+    fs.writeFileSync(cesta, JSON.stringify(zaznam, null, 1));
     console.log(`  ${s.id.padEnd(4)} ${s.popis.padEnd(32)} brána zavřena`);
     continue;
   }
@@ -231,16 +264,16 @@ for (const s of SCENARE) {
     ...pary.flatMap(([a, b], i) => [{ data: a, popis: `r${i}` }, { data: b, popis: `p${i}` }]),
   ];
 
-  const o = await zeptejSe(
+  const o = await odolne(() => zeptejSe(
     zpravaProZonu(s.zona, { rozdilJasu: g.rozdilJasu, podobnost: g.podobnost, zarovnani: g.zarovnani, vyrezy: mista }),
     obrazky, s.zona.klic,
-  );
+  ), s.id);
   if (!o) { vysledky.push(zaznam); continue; }
   naklad += o.uzitek.cenaHalere;
 
   let protiargument: string | null = null;
   if (["damage_minor", "damage_major", "missing"].includes(o.nalez.severity)) {
-    const op = await zeptejSe(zpravaProtiargument(s.zona, o.nalez.what_changed), obrazky, s.zona.klic);
+    const op = await odolne(() => zeptejSe(zpravaProtiargument(s.zona, o.nalez.what_changed), obrazky, s.zona.klic), `${s.id} protiargument`);
     if (op) { protiargument = op.nalez.what_changed; naklad += op.uzitek.cenaHalere; }
   }
 
@@ -260,6 +293,7 @@ for (const s of SCENARE) {
     cenaHalere: o.uzitek.cenaHalere,
   };
   vysledky.push(zaznam);
+  fs.writeFileSync(cesta, JSON.stringify(zaznam, null, 1));
   console.log(`  ${s.id.padEnd(4)} ${s.popis.padEnd(32)} ${o.nalez.severity.padEnd(14)} ${(o.nalez.confidence * 100).toFixed(0)} %`);
 }
 
