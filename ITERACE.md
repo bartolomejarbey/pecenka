@@ -412,3 +412,61 @@ styly: starý `next start` nad novým buildem servíruje HTML odkazující na CS
 které už na disku není, a měření pak vypadá jako úspěšná optimalizace.
 
 **93 testů prochází.**
+
+## Kolo 11 — dotažení naostro
+
+### Fakturační údaje jdou vyplnit
+Nastavení dosud jen ukazovalo, co chybí — „doplnit IČO", „doplnit účet" — ale
+nebylo to kde doplnit. Provozovatel viděl seznam, se kterým nemohl nic dělat.
+
+IČO i číslo účtu se kontrolují na kontrolní číslici. IČO s překlepem doputuje
+na faktuře k finančnímu úřadu, účet s překlepem pošle zálohu cizímu člověku.
+Účet stačí zadat v běžném tvaru `1920001453/0800`, IBAN i BIC se dopočítají —
+provozovatel svůj účet v IBAN tvaru nezná, ale QR platba ho vyžaduje.
+
+Váhy modulo 11 se u tuzemského účtu přiřazují **zprava**, ne zleva. Otočené
+projdou náhodou asi desetině čísel, takže by chyba prošla testem na jednom účtu.
+
+### Host se po zaplacení dostane do portálu
+`zalozPristup` **nevolalo nic**. Host zaplatil zálohu, rezervace se potvrdila
+a do portálu se nikdy nedostal, protože žádný přístup nevznikl. Fungovala jen
+jedna ukázková rezervace, které přístup založil seed — proto to dosavadní
+zkoušení nechytilo.
+
+Portál se teď otevře při zaplacení zálohy i při ručním potvrzení; ruční
+potvrzení je pro hosta totéž, majitel jen dostal peníze jinudy.
+
+### Sharp se na Vercelu nenačítal
+**Příjem fotek naostro nefungoval.** `npm install` stahuje binárky jen pro
+platformu, na které běží — vývoj je na macOS, Vercel na linux-x64, takže
+v nasazení chyběla libvips. Lokálně to fungovalo bez jediné chyby.
+
+Nestačilo binárky deklarovat. Sharp je nativní modul: musí ven z bundle
+(`serverExternalPackages`) a jeho `.so` se musí přibalit ručně
+(`outputFileTracingIncludes`), protože trasování souborů je samo nenajde.
+
+### Vyhodnocení doběhne i v serverless prostředí
+Analýza se pouštěla přes `void` po odeslání odpovědi. Serverless běh se po
+odpovědi může zmrazit — protokol by zůstal viset ve stavu „analyzing". Teď
+přes `waitUntil`, pojistkou je cron `/api/cron/vyhodnoceni`, který každých
+patnáct minut dotáhne protokoly starší než deset minut.
+
+Ověřeno proti produkci: vyhodnocení doběhne do `needs_review` za ~63 sekund.
+
+### Průchod celým tokem
+`npm run test:tok` projde přes skutečný běžící web: rezervace přes veřejné API,
+pokus prodat tentýž termín podruhé, přihlášení majitele, potvrzení, přihlášení
+hosta do portálu, nahrání dvanácti fotek, odeslání protokolu, kontrola
+v administraci a úklid po sobě.
+
+**Tenhle průchod našel obojí** — chybějící přístup do portálu i nefunkční sharp
+v produkci. Každý kus zvlášť fungoval, chyba byla na spojích. Jednotkové testy
+by ani jedno nenašly.
+
+### Ukázka kontroly stavu je stránka na webu
+`/kontrola-stavu` — podstránka s navigací a paletou Sedmého lesa, sestavená
+z dat v repozitáři. Do hlavní navigace nepatří: host, který si vybírá pobyt,
+nemá jako druhou stránku číst, jak se pozná, co v domku rozbil. Odkaz je
+v administraci u fronty protokolů.
+
+**104 testů prochází.**
