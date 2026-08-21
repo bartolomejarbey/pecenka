@@ -4,6 +4,9 @@ import { vyzadujPrihlaseni } from "@/lib/auth/dal";
 import { nactiKalendar, type Pruh } from "@/lib/admin/kalendar";
 import { formatHalere } from "@/lib/booking";
 import Shell from "@/components/admin/Shell";
+import { sql } from "drizzle-orm";
+import { radky } from "@/lib/db/client";
+import Upravy, { type Zavreno } from "./upravy";
 
 export const metadata: Metadata = { title: "Kalendář", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -19,6 +22,16 @@ const DNY_ZKRATKY = ["ne", "po", "út", "st", "čt", "pá", "so"];
 export default async function AdminKalendar() {
   const kdo = await vyzadujPrihlaseni();
   const k = await nactiKalendar(60);
+
+  // Zavřené termíny od dneška dál — minulé už nikoho nezajímají.
+  const zavreno = await radky<Zavreno>(sql`
+    SELECT cb.id::text AS id, u.slug AS domek, u.name AS "domekNazev",
+           cb.date_from::text AS od, cb.date_to::text AS "do",
+           cb.kind AS druh, cb.reason AS duvod
+      FROM calendar_blocks cb JOIN units u ON u.id = cb.unit_id
+     WHERE cb.date_to >= CURRENT_DATE
+     ORDER BY cb.date_from, u.sort_order
+  `);
   const indexDne = new Map(k.dny.map((d, i) => [d, i]));
 
   /** Pruh převedený na pozici v mřížce; ořízne se na zobrazené okno. */
@@ -31,6 +44,8 @@ export default async function AdminKalendar() {
   return (
     <Shell kdo={kdo} aktivni="/admin/kalendar" nadpis="Kalendář">
       <Legenda />
+
+      <Upravy zavreno={zavreno} />
 
       {/* Mobil: svislý pás dnů */}
       <div className="mt-5 lg:hidden">

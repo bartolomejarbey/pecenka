@@ -18,5 +18,10 @@ export default defineConfig({
     hookTimeout: 60_000,
     // Testy nad databází sdílejí jeden adresář — nesmí běžet paralelně.
     fileParallelism: false,
+    /*
+     * Každý soubor si zakládá vlastní PGlite a pouští do něj migrace i seed.
+     * Když vedle běží vývojový server, stroj to nestihne v limitu a testy
+     * padají na timeout, ne na chybu v kódu. Před `npm test` vypni servery.
+     */
   },
 });

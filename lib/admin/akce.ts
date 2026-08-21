@@ -562,3 +562,177 @@ export async function zalozRezervaci(f: {
         : `Založeno ${v.kod} jako poptávka — příjezd je do 48 hodin, potvrďte ji ručně.`,
   };
 }
+
+/* ===== Kalendář: zavřené termíny a ceny ===== */
+
+const DRUHY_BLOKU: Record<string, string> = {
+  maintenance: "údržba",
+  owner: "vlastní pobyt",
+  closed: "zavřeno",
+};
+
+/**
+ * Zavření termínu.
+ *
+ * Majitel potřebuje domek občas vyřadit — údržba, vlastní pobyt, dovolená.
+ * Bez toho by musel zakládat falešnou rezervaci na sebe, což by pak
+ * strašilo ve statistikách i v obsazenosti.
+ *
+ * Blok drží termín stejně jako rezervace: `vytvorRezervaci` ho kontroluje,
+ * takže se přes něj neprodá ani z webu.
+ */
+export async function zavriTermin(f: {
+  domek: string;
+  od: string;
+  do: string;
+  druh: string;
+  duvod: string;
+}): Promise<Vysledek> {
+  const kdo = await vyzadujMajitele();
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(f.od) || !/^\d{4}-\d{2}-\d{2}$/.test(f.do)) {
+    return { ok: false, chyba: "Vyplňte prosím oba termíny." };
+  }
+  if (f.do <= f.od) return { ok: false, chyba: "Konec musí být po začátku." };
+  if (!DRUHY_BLOKU[f.druh]) return { ok: false, chyba: "Neznámý důvod zavření." };
+
+  try {
+    // Rezervace má přednost — přes zaplacený pobyt se zavírat nedá.
+    const [kolize] = await radky<{ code: string }>(sql`
+      SELECT r.code
+        FROM reservation_units ru
+        JOIN reservations r ON r.id = ru.reservation_id
+        JOIN units u ON u.id = ru.unit_id
+       WHERE u.slug = ${f.domek}
+         AND ru.status IN ('hold','confirmed','checked_in')
+         AND daterange(ru.checkin, ru.checkout, '[)')
+             && daterange(${f.od}::date, ${f.do}::date, '[)')
+       LIMIT 1
+    `);
+    if (kolize) {
+      return { ok: false, chyba: `V tom termínu je rezervace ${kolize.code}. Nejdřív ji vyřešte.` };
+    }
+
+    await radky(sql`
+      INSERT INTO calendar_blocks (unit_id, date_from, date_to, kind, reason, created_by)
+      SELECT id, ${f.od}::date, ${f.do}::date, ${f.druh}, ${f.duvod.trim() || null}, ${kdo.id}
+        FROM units WHERE slug = ${f.domek}
+    `);
+  } catch (e) {
+    if (jePrekryvTerminu(e)) {
+      return { ok: false, chyba: "Část toho termínu už je zavřená." };
+    }
+    console.error("[admin] zavření termínu selhalo:", e);
+    return { ok: false, chyba: "Termín se nepodařilo zavřít." };
+  }
+
+  await zapisDoDeniku({
+    akce: "kalendar.termin_zavren",
+    typEntity: "calendar_block",
+    idEntity: `${f.domek} ${f.od}–${f.do}`,
+    kdo: kdo.id,
+    zmena: { domek: f.domek, od: f.od, do: f.do, druh: f.druh, duvod: f.duvod },
+  });
+  revalidatePath("/admin", "layout");
+  revalidatePath("/rezervace");
+  return { ok: true, zprava: `Zavřeno ${f.od} – ${f.do} (${DRUHY_BLOKU[f.druh]}).` };
+}
+
+/** Zrušení zavření. */
+export async function otevriTermin(id: string): Promise<Vysledek> {
+  const kdo = await vyzadujMajitele();
+  const [b] = await radky<{ date_from: string; date_to: string; slug: string }>(sql`
+    SELECT cb.date_from::text, cb.date_to::text, u.slug
+      FROM calendar_blocks cb JOIN units u ON u.id = cb.unit_id
+     WHERE cb.id = ${id}::uuid
+  `);
+  if (!b) return { ok: false, chyba: "Zavření nenalezeno." };
+
+  await radky(sql`DELETE FROM calendar_blocks WHERE id = ${id}::uuid`);
+  await zapisDoDeniku({
+    akce: "kalendar.termin_otevren",
+    typEntity: "calendar_block",
+    idEntity: id,
+    kdo: kdo.id,
+    zmena: { domek: b.slug, od: b.date_from, do: b.date_to },
+  });
+  revalidatePath("/admin", "layout");
+  revalidatePath("/rezervace");
+  return { ok: true, zprava: `Otevřeno ${b.date_from} – ${b.date_to}.` };
+}
+
+/**
+ * Změna ceny na rozsah dní.
+ *
+ * Ceník je nagenerovaný na dva roky dopředu podle sezón. Ručně přepsaná
+ * cena dostane `source = 'manual'`, aby ji případné přegenerování
+ * nepřepsalo zpátky.
+ */
+export async function zmenCenu(f: {
+  domek: string;
+  od: string;
+  do: string;
+  cenaKc: string;
+  minNoci: string;
+}): Promise<Vysledek> {
+  const kdo = await vyzadujMajitele();
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(f.od) || !/^\d{4}-\d{2}-\d{2}$/.test(f.do)) {
+    return { ok: false, chyba: "Vyplňte prosím oba termíny." };
+  }
+  if (f.do < f.od) return { ok: false, chyba: "Konec musí být po začátku." };
+
+  const cena = Number(f.cenaKc.replace(",", ".").replace(/\s/g, ""));
+  if (!Number.isFinite(cena) || cena < 100 || cena > 100_000) {
+    return { ok: false, chyba: "Cena za noc musí být mezi 100 a 100 000 Kč." };
+  }
+  const minNoci = Number(f.minNoci);
+  if (!Number.isInteger(minNoci) || minNoci < 1 || minNoci > 30) {
+    return { ok: false, chyba: "Minimum nocí musí být 1 až 30." };
+  }
+
+  /*
+   * Zapisuje se i za konec nagenerovaného ceníku.
+   *
+   * Ceník je vygenerovaný dva roky dopředu a jednou dojde. Odmítnout zápis
+   * s tím, že „tam ceník nesahá", by znamenalo, že majitel nemůže nacenit
+   * termín, na který se ho někdo ptá — a ceník si sám neprodlouží.
+   * Chybějící dny se proto rovnou založí.
+   */
+  const [{ n }] = await radky<{ n: number }>(sql`
+    WITH dny AS (
+      SELECT u.id AS unit_id, d::date AS date
+        FROM units u
+        CROSS JOIN generate_series(${f.od}::date, ${f.do}::date, interval '1 day') AS d
+       WHERE u.slug = ${f.domek} AND u.active AND NOT u.is_virtual
+    ), zapis AS (
+      INSERT INTO rate_calendar (unit_id, date, price_cents, min_nights, source)
+      SELECT unit_id, date, ${Math.round(cena * 100)}, ${minNoci}, 'manual' FROM dny
+      ON CONFLICT (unit_id, date) DO UPDATE
+        SET price_cents = EXCLUDED.price_cents,
+            min_nights = EXCLUDED.min_nights,
+            source = 'manual'
+      RETURNING 1
+    )
+    SELECT count(*)::int AS n FROM zapis
+  `);
+
+  if (!n) {
+    return { ok: false, chyba: "Takový domek neznám." };
+  }
+
+  await zapisDoDeniku({
+    akce: "cenik.zmenen",
+    typEntity: "rate_calendar",
+    idEntity: `${f.domek} ${f.od}–${f.do}`,
+    kdo: kdo.id,
+    zmena: { domek: f.domek, od: f.od, do: f.do, cenaKc: cena, minNoci },
+  });
+  revalidatePath("/admin", "layout");
+  revalidatePath("/rezervace");
+  revalidatePath("/cenik");
+  return {
+    ok: true,
+    zprava: `Přepsáno ${n} ${n === 1 ? "den" : n < 5 ? "dny" : "dní"} na ${cena.toLocaleString("cs-CZ")} Kč za noc.`,
+  };
+}

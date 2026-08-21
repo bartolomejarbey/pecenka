@@ -239,6 +239,96 @@ async function main() {
   console.log(`${odmitnuto ? "✓" : "✗"} tentýž termín se ručně podruhé zadat nedá  ${druha}`);
   if (!odmitnuto) chyb++;
 
+  /* ===== Kalendář: zavření termínu a cena ===== */
+  const kdyz = (o) => {
+    const d = new Date();
+    d.setDate(d.getDate() + o);
+    return d.toISOString().slice(0, 10);
+  };
+  const zac = 700 + (Date.now() % 40);
+  const blok = { od: kdyz(zac), do: kdyz(zac + 3) };
+
+  const vyplnAOdesli = async (karta, hodnoty, tlacitko) => {
+    await jdi("/admin/kalendar");
+    return evalx(`(async () => {
+      const nast = (el, v) => {
+        const s = Object.getOwnPropertyDescriptor(el.constructor.prototype, 'value').set;
+        s.call(el, v);
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+      const zalozka = [...document.querySelectorAll('button')]
+        .find(b => (b.textContent || '').trim() === ${JSON.stringify(karta)});
+      if (!zalozka) return 'záložka nenalezena';
+      zalozka.click();
+      await new Promise(r => setTimeout(r, 350));
+
+      const form = document.querySelector('section form');
+      if (!form) return 'formulář nenalezen';
+      const d = ${JSON.stringify(hodnoty)};
+      const data = [...form.querySelectorAll('input[type=date]')];
+      if (d.od) nast(data[0], d.od);
+      if (d.do) nast(data[1], d.do);
+      if (d.cena !== undefined) {
+        const cisla = [...form.querySelectorAll('input[type=number]')];
+        nast(cisla[0], String(d.cena));
+      }
+      if (d.poznamka !== undefined) {
+        const texty = [...form.querySelectorAll('input[type=text], input:not([type])')];
+        if (texty.length) nast(texty[texty.length - 1], d.poznamka);
+      }
+      form.querySelector('button[type=submit]').click();
+      for (let i = 0; i < 200; i++) {
+        await new Promise(r => setTimeout(r, 150));
+        const p = document.querySelector('section [role=status]');
+        if (p && p.textContent.trim()) return p.textContent.trim();
+      }
+      return 'bez odezvy';
+    })()`);
+  };
+
+  const zavreno = await vyplnAOdesli("Zavřít termín", { ...blok, poznamka: "Výměna bojleru" }, "Zavřít termín");
+  console.log(`${/^Zavřeno/.test(String(zavreno)) ? "✓" : "✗"} termín se zavřel  ${zavreno}`);
+  if (!/^Zavřeno/.test(String(zavreno))) chyb++;
+
+  // Web ten termín nesmí prodat.
+  const prodej = await evalx(`(async () => {
+    const o = await fetch('/api/rezervace', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        domek: 'achat', prijezd: ${JSON.stringify(blok.od)}, odjezd: ${JSON.stringify(blok.do)},
+        hoste: 2, doplnky: {},
+        jmeno: 'Zkouška bloku', email: 'blok.' + Date.now() + '@example.com',
+      }),
+    });
+    const t = await o.json();
+    return o.status + ' ' + (t.error || 'ok');
+  })()`);
+  const chraneno = /^(409|400)/.test(String(prodej)) && /zavřen|obsaz/i.test(String(prodej));
+  console.log(`${chraneno ? "✓" : "✗"} web zavřený termín neprodá  ${prodej}`);
+  if (!chraneno) chyb++;
+
+  // Otevřít zpátky.
+  await jdi("/admin/kalendar");
+  const otevreno = await evalx(`(async () => {
+    const tl = [...document.querySelectorAll('button')].filter(b => (b.textContent || '').trim() === 'Otevřít');
+    if (!tl.length) return 'nic k otevření';
+    tl[tl.length - 1].click();
+    for (let i = 0; i < 200; i++) {
+      await new Promise(r => setTimeout(r, 150));
+      const p = document.querySelector('section [role=status]');
+      if (p && p.textContent.trim()) return p.textContent.trim();
+    }
+    return 'bez odezvy';
+  })()`);
+  console.log(`${/^Otevřeno/.test(String(otevreno)) ? "✓" : "✗"} termín se otevřel zpátky  ${otevreno}`);
+  if (!/^Otevřeno/.test(String(otevreno))) chyb++;
+
+  // Cena na týden.
+  const cena = await vyplnAOdesli("Změnit cenu", { od: kdyz(zac), do: kdyz(zac + 6), cena: 4290 }, "Přepsat ceny");
+  console.log(`${/^Přepsáno/.test(String(cena)) ? "✓" : "✗"} cena se přepsala  ${cena}`);
+  if (!/^Přepsáno/.test(String(cena))) chyb++;
+
   ws.close();
   chrome.kill();
   fs.rmSync(profil, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });

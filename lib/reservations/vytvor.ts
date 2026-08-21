@@ -140,6 +140,29 @@ async function zaloz(
       )
     : [{ id: jednotka.id }];
 
+  /* ----- 1b. Zavřené termíny ----- */
+  /*
+   * Blok v kalendáři (údržba, vlastní pobyt, dovolená) drží termín stejně
+   * jako rezervace, ale databázové omezení ho nehlídá — `no_overlap` platí
+   * uvnitř `reservation_units`, ne mezi tabulkami. Bez téhle kontroly by
+   * majitel zavřel domek na údržbu a web ho přesto prodal.
+   */
+  const [blok] = await radkyT<{ duvod: string | null; druh: string }>(
+    tx,
+    sql`SELECT cb.reason AS duvod, cb.kind AS druh
+          FROM calendar_blocks cb
+         WHERE cb.unit_id IN (${sql.join(fyzicke.map((f) => sql`${f.id}::uuid`), sql`, `)})
+           AND daterange(cb.date_from, cb.date_to, '[)')
+               && daterange(${toKey(prijezd)}::date, ${toKey(odjezd)}::date, '[)')
+         LIMIT 1`,
+  );
+  if (blok) {
+    return chyba(
+      "obsazeno",
+      "V tomhle termínu je domek zavřený. Vyberte prosím jiné datum — omlouváme se.",
+    );
+  }
+
   /* ----- 2. Ceník na dané noci ----- */
   const ceny = await radkyT<RadekCeny>(
     tx,

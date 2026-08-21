@@ -312,3 +312,57 @@ describe("vypršení držení termínu", () => {
     expect(await uvolniVyprseleDrzeni()).toEqual([]);
   });
 });
+
+describe("zavřené termíny", () => {
+  /**
+   * Blok v kalendáři drží termín stejně jako rezervace, ale databázové
+   * omezení ho nehlídá — `no_overlap` platí uvnitř `reservation_units`,
+   * ne mezi tabulkami. Bez kontroly by majitel zavřel domek na údržbu
+   * a web ho přesto prodal.
+   */
+  it("na zavřený termín se rezervovat nedá", async () => {
+    const od = za(120);
+    const doKdy = za(124);
+    const klic = (d: Date) => d.toISOString().slice(0, 10);
+
+    await db.radky(db.sql`
+      INSERT INTO calendar_blocks (unit_id, date_from, date_to, kind, reason, created_by)
+      SELECT id, ${klic(od)}::date, ${klic(doKdy)}::date, 'maintenance', 'Výměna bojleru', 'test'
+        FROM units WHERE slug = 'achat'
+    `);
+
+    const v = await db.vytvorRezervaci({
+      domek: "achat",
+      prijezd: za(121),
+      odjezd: za(123),
+      dospeli: 2,
+      doplnky: {},
+      host,
+    });
+
+    expect(v.ok).toBe(false);
+    if (!v.ok) expect(v.duvod).toBe("obsazeno");
+
+    // Vedle bloku se rezervovat dá — nesmí to zavřít víc, než je zavřené.
+    const vedle = await db.vytvorRezervaci({
+      domek: "achat",
+      prijezd: za(126),
+      odjezd: za(128),
+      dospeli: 2,
+      doplnky: {},
+      host,
+    });
+    expect(vedle.ok, vedle.ok ? "" : vedle.zprava).toBe(true);
+
+    // A druhý domek zavřený není.
+    const druhy = await db.vytvorRezervaci({
+      domek: "mech",
+      prijezd: za(121),
+      odjezd: za(123),
+      dospeli: 2,
+      doplnky: {},
+      host,
+    });
+    expect(druhy.ok, druhy.ok ? "" : druhy.zprava).toBe(true);
+  });
+});
