@@ -66,7 +66,7 @@ export default function Practical() {
               <div className="mt-auto pt-10">
                 <Link
                   href="/lokalita"
-                  className="group inline-flex items-center gap-2 text-[15px] font-semibold text-ember transition-colors duration-300 hover:text-ember-soft"
+                  className="group inline-flex items-center gap-2 py-1 text-[15px] font-semibold text-ember transition-colors duration-300 hover:text-ember-soft"
                 >
                   Kde nás najdete
                   <ArrowIcon className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />

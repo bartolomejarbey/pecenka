@@ -6,8 +6,24 @@ import { PRICING } from "@/lib/content";
 import { ArrowIcon } from "./ui";
 import Reveal from "./Reveal";
 
-/** Karta domku — homepage i přehled /domky. */
-export default function HouseCard({ house, index = 0 }: { house: House; index?: number }) {
+/**
+ * Karta domku — homepage i přehled /domky.
+ *
+ * `uroven` říká, jak hluboko nadpis v osnově sedí. Na homepage je nad kartami
+ * `h2` sekce, takže patří `h3`. Na /domky nad nimi žádná sekce není a karty
+ * jsou hlavní obsah stránky — tam `h2`. Čtečka obrazovky projíždí osnovu
+ * nadpisů; přeskočená úroveň v ní vypadá jako chybějící kapitola.
+ */
+export default function HouseCard({
+  house,
+  index = 0,
+  uroven = "h3",
+}: {
+  house: House;
+  index?: number;
+  uroven?: "h2" | "h3";
+}) {
+  const Nadpis = uroven;
   return (
     <Reveal i={index}>
       <Link
@@ -24,9 +40,9 @@ export default function HouseCard({ house, index = 0 }: { house: House; index?: 
           />
           <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-night/80 to-transparent" />
           <div className="absolute bottom-5 left-6 right-6 flex items-end justify-between">
-            <h3 className="font-display text-4xl font-light text-linen md:text-5xl">
+            <Nadpis className="font-display text-4xl font-light text-linen md:text-5xl">
               {house.name}
-            </h3>
+            </Nadpis>
             <span className="rounded-full border border-linen/20 bg-night/70 px-4 py-1.5 text-[13px] font-medium text-linen">
               {house.capacity}
             </span>

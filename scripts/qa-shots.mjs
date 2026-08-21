@@ -328,6 +328,65 @@ async function main() {
             stylyChybi: [...document.styleSheets].reduce((n, ss) => {
               try { return n + ss.cssRules.length; } catch { return n; }
             }, 0) < 50,
+            /*
+             * Přístupnost. Ne úplný audit — vybrané věci, které se dají
+             * změřit spolehlivě a které na téhle stránce reálně hrozí:
+             * obrázek bez popisu, ovládací prvek bez názvu, přeskočená
+             * úroveň nadpisu, málo kontrastní text, malý cíl na dotyk.
+             */
+            pristupnost: (() => {
+              const chyby = [];
+              const popis = (el) => {
+                const cn = typeof el.className === 'string' ? el.className : '';
+                return el.tagName.toLowerCase() + (cn ? '.' + cn.trim().split(/\s+/)[0] : '');
+              };
+
+              for (const img of document.querySelectorAll('img')) {
+                if (img.alt === null || img.alt === undefined)
+                  chyby.push('obrázek bez alt: ' + (img.currentSrc || img.src).split('/').pop());
+              }
+
+              for (const el of document.querySelectorAll('a, button, [role="button"]')) {
+                const r = el.getBoundingClientRect();
+                if (!r.width || !r.height) continue;
+                const jmeno = (el.innerText || '').trim() || el.getAttribute('aria-label')
+                  || el.getAttribute('title') || el.querySelector('img')?.alt || '';
+                if (!jmeno) chyby.push('ovládací prvek bez názvu: ' + popis(el));
+              }
+
+              for (const pole of document.querySelectorAll('input, select, textarea')) {
+                if (pole.type === 'hidden') continue;
+                const jmeno = pole.labels?.length || pole.getAttribute('aria-label')
+                  || pole.getAttribute('aria-labelledby') || pole.getAttribute('title');
+                if (!jmeno) chyby.push('pole bez popisku: ' + (pole.name || pole.id || pole.type));
+              }
+
+              let posledni = 0;
+              for (const h of document.querySelectorAll('h1, h2, h3, h4, h5, h6')) {
+                const u = Number(h.tagName[1]);
+                if (posledni && u > posledni + 1)
+                  chyby.push('skok v nadpisech h' + posledni + ' → h' + u + ': ' + h.innerText.trim().slice(0, 40));
+                posledni = u;
+              }
+              if (document.querySelectorAll('h1').length !== 1)
+                chyby.push('h1 na stránce: ' + document.querySelectorAll('h1').length);
+
+              // Malé cíle na dotyk. Jen na mobilu a jen u samostatných prvků —
+              // odkaz uvnitř věty se podle WCAG posuzuje jinak.
+              if (innerWidth < 700) {
+                for (const el of document.querySelectorAll('a, button')) {
+                  const r = el.getBoundingClientRect();
+                  if (!r.width || !r.height) continue;
+                  // Odkaz „Přeskočit na obsah" je schválně 1×1 a na fokus se
+                  // zvětší — měřit ho v klidovém stavu nedává smysl.
+                  if (el.classList.contains('sr-only')) continue;
+                  const vTextu = el.parentElement && getComputedStyle(el).display === 'inline';
+                  if (!vTextu && (r.width < 24 || r.height < 24))
+                    chyby.push('malý cíl ' + Math.round(r.width) + '×' + Math.round(r.height) + ': ' + popis(el));
+                }
+              }
+              return [...new Set(chyby)].slice(0, 8);
+            })(),
             skryte: [...document.querySelectorAll('[data-reveal]')]
               .filter(el => {
                 const o = getComputedStyle(el);
@@ -416,13 +475,15 @@ async function main() {
     console.log("  Nejspíš běží starý `next start` nad novým buildem. Server restartuj a změř znovu.");
   }
 
-  const spatne = souhrn.filter((r) => r.prekryv?.length || r.skryte || r.chyby?.length || r.cls > 0.05);
+  const spatne = souhrn.filter(
+    (r) => r.prekryv?.length || r.skryte || r.chyby?.length || r.cls > 0.05 || r.pristupnost?.length);
   if (spatne.length) {
     console.log("\nk opravě:");
     for (const r of spatne) {
       if (r.cls > 0.05) console.log(`  ${r.vp} ${r.stranka}: posun rozvržení ${r.cls} — ${(r.clsKdo ?? []).join(", ")}`);
       if (r.prekryv?.length) console.log(`  ${r.vp} ${r.stranka}: vodorovný přetok — ${r.prekryv.join(", ")}`);
       if (r.skryte) console.log(`  ${r.vp} ${r.stranka}: ${r.skryte}× neodhalený [data-reveal]`);
+      for (const a of r.pristupnost ?? []) console.log(`  ${r.vp} ${r.stranka}: ${a}`);
       for (const ch of r.chyby ?? []) console.log(`  ${r.vp} ${r.stranka}: ${String(ch).slice(0, 160)}`);
     }
   } else {

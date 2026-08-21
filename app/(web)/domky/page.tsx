@@ -50,7 +50,7 @@ export default function DomkyPage() {
         <div className="relative z-10 mx-auto max-w-7xl px-5 md:px-8">
           <div className="grid gap-6 md:grid-cols-2 md:gap-8">
             {HOUSES.map((house, i) => (
-              <HouseCard key={house.slug} house={house} index={i} />
+              <HouseCard key={house.slug} house={house} index={i} uroven="h2" />
             ))}
           </div>
         </div>
@@ -74,8 +74,9 @@ export default function DomkyPage() {
               {/* Hlavička tabulky */}
               <div className="grid grid-cols-2 gap-x-6 border-b-2 border-night/15 pb-5 md:grid-cols-[180px_1fr_1fr] md:gap-x-10">
                 <span className="hidden md:block" aria-hidden="true" />
-                <h3 className="font-display text-2xl text-night md:text-3xl">{achat.name}</h3>
-                <h3 className="font-display text-2xl text-night md:text-3xl">{mech.name}</h3>
+                {/* Záhlaví sloupců, ne kapitoly — v osnově nadpisů nemají co dělat. */}
+                <p className="font-display text-2xl text-night md:text-3xl">{achat.name}</p>
+                <p className="font-display text-2xl text-night md:text-3xl">{mech.name}</p>
               </div>
 
               {COMPARISON.map((row) => (

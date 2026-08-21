@@ -23,7 +23,7 @@ export default function Footer() {
                 <li key={h.slug}>
                   <Link
                     href={`/domky/${h.slug}`}
-                    className="text-[15px] text-sage transition-colors hover:text-ember"
+                    className="inline-block py-1 text-[15px] text-sage transition-colors hover:text-ember"
                   >
                     {h.name} — {h.tagline.toLowerCase()}
                   </Link>
@@ -32,7 +32,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/rezervace"
-                  className="text-[15px] text-sage transition-colors hover:text-ember"
+                  className="inline-block py-1 text-[15px] text-sage transition-colors hover:text-ember"
                 >
                   Rezervace termínu
                 </Link>
@@ -40,7 +40,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/darkovy-poukaz"
-                  className="text-[15px] text-sage transition-colors hover:text-ember"
+                  className="inline-block py-1 text-[15px] text-sage transition-colors hover:text-ember"
                 >
                   Dárkový poukaz
                 </Link>
@@ -55,7 +55,7 @@ export default function Footer() {
                 <li key={l.href}>
                   <Link
                     href={l.href}
-                    className="text-[15px] text-sage transition-colors hover:text-ember"
+                    className="inline-block py-1 text-[15px] text-sage transition-colors hover:text-ember"
                   >
                     {l.label}
                   </Link>
@@ -68,14 +68,17 @@ export default function Footer() {
             <p className="kicker mb-4 text-linen/50">Kontakt</p>
             <ul className="space-y-2.5 text-[15px] text-sage">
               <li>
-                <a href={`mailto:${SITE.email}`} className="transition-colors hover:text-ember">
+                <a
+                  href={`mailto:${SITE.email}`}
+                  className="inline-block py-1 transition-colors hover:text-ember"
+                >
                   {SITE.email}
                 </a>
               </li>
               <li>
                 <a
                   href={`tel:${SITE.phone.replace(/\s/g, "")}`}
-                  className="transition-colors hover:text-ember"
+                  className="inline-block py-1 transition-colors hover:text-ember"
                 >
                   {SITE.phone}
                 </a>
@@ -85,7 +88,7 @@ export default function Footer() {
                   href={SITE.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="transition-colors hover:text-ember"
+                  className="inline-block py-1 transition-colors hover:text-ember"
                 >
                   Instagram
                 </a>
@@ -103,7 +106,13 @@ export default function Footer() {
           <p>© {new Date().getFullYear()} {SITE.name} · {SITE.domain}</p>
           <div className="flex flex-wrap gap-x-6 gap-y-2">
             {LEGAL_LINKS.map((l) => (
-              <Link key={l.href} href={l.href} className="transition-colors hover:text-linen">
+              <Link
+                key={l.href}
+                href={l.href}
+                /* `py-1` dělá z 20px řádku 28px cíl. Pod 24 px se na telefonu
+                   trefuje špatně a WCAG 2.5.8 to bere jako chybu. */
+                className="inline-block py-1 transition-colors hover:text-linen"
+              >
                 {l.label}
               </Link>
             ))}

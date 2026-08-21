@@ -30,7 +30,7 @@ export default function Houses() {
         <Reveal className="mt-12 text-center">
           <Link
             href="/cenik"
-            className="group inline-flex items-center gap-2 text-[15px] font-semibold text-linen/75 transition-colors duration-300 hover:text-ember"
+            className="group inline-flex items-center gap-2 py-1 text-[15px] font-semibold text-linen/75 transition-colors duration-300 hover:text-ember"
           >
             Kompletní ceník
             <ArrowIcon className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />

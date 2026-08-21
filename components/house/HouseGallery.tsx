@@ -50,7 +50,7 @@ export default function HouseGallery({ house }: { house: House }) {
           <Reveal i={1}>
             <Link
               href="/galerie"
-              className="group flex items-center gap-2 text-sm font-semibold text-ember transition-colors duration-300 hover:text-ember-soft"
+              className="group flex items-center gap-2 py-1 text-sm font-semibold text-ember transition-colors duration-300 hover:text-ember-soft"
             >
               Celá galerie
               <ArrowIcon className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
