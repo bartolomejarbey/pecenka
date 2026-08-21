@@ -23,6 +23,19 @@ const arg = (name, def) => {
 };
 const BASE = arg("--url", "http://127.0.0.1:3000");
 const MOTION = process.argv.includes("--motion");
+/**
+ * Škrcení CPU. Bez něj je na vývojářském Macu všechno pod 200 ms a jank se
+ * neukáže — ten se pozná až na telefonu za pět tisíc. 4× je zhruba střední
+ * Android, 6× ten nejpomalejší, co ještě někdo používá.
+ */
+const CPU = Number(arg("--cpu", "1"));
+/** Filtr stránek, např. `--jen "cenik|lokalita"`. */
+const JEN = arg("--jen", null);
+/**
+ * Kolikrát každou stránku změřit. Jedno měření je při škrceném CPU šum —
+ * dlouhé úlohy se mezi běhy liší i dvojnásobně. Reportuje se medián.
+ */
+const OPAKOVAT = Number(arg("--opakovat", "1"));
 
 const SHELL = path.join(
   os.homedir(),
@@ -124,10 +137,80 @@ async function main() {
   await s("Page.enable");
   await s("Runtime.enable");
   await s("Network.enable");
+  if (CPU > 1) await s("Emulation.setCPUThrottlingRate", { rate: CPU });
+  /*
+   * Cache vypnutá. S teplou cache dorazí obrázky okamžitě a posuny rozvržení
+   * zmizí — měřilo by se tak jen druhé načtení stránky, které nikoho netrápí.
+   * `--cache` ji zapne zpátky, když je potřeba měřit opakovanou návštěvu.
+   */
+  if (!process.argv.includes("--cache")) await s("Network.setCacheDisabled", { cacheDisabled: true });
   if (!MOTION) await s("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
   // Lišta cookies by zakrývala spodek každého snímku — odbavíme ji před načtením.
+  // Zároveň se rovnou nasadí sběr posunů rozvržení a dlouhých úloh: obojí musí
+  // běžet od první snímky, po `load` už je pozdě.
   await s("Page.addScriptToEvaluateOnNewDocument", {
-    source: "try{localStorage.setItem('sedmyles-cookies','ack')}catch(e){}",
+    source: `
+      try{localStorage.setItem('sedmyles-cookies','ack')}catch(e){}
+      window.__cls = 0; window.__dlouhe = [];
+      try {
+        new PerformanceObserver((l) => {
+          for (const z of l.getEntries()) {
+            if (z.hadRecentInput) continue;
+            window.__cls += z.value;
+            // Kdo skáče. Bez toho je CLS jen číslo, které se nedá opravit.
+            const zdroje = (z.sources || []).map((s) => {
+              const el = s.node;
+              if (!el || !el.tagName) return '?';
+              const cn = typeof el.className === 'string' ? el.className : '';
+              const a = s.previousRect || {}, b = s.currentRect || {};
+              const jmeno = el.tagName.toLowerCase() + (cn ? '.' + cn.trim().split(/\s+/).slice(0,2).join('.') : '');
+              if (a.top === undefined) return jmeno;
+              return jmeno + ' y ' + Math.round(a.top) + '->' + Math.round(b.top)
+                + ' h ' + Math.round(a.height) + '->' + Math.round(b.height);
+            });
+            (window.__clsKdo ||= []).push(
+              z.value.toFixed(3) + " v " + Math.round(z.startTime) + " ms: " +
+              (zdroje.length ? zdroje.join(" + ") : "bez zdroje"));
+          }
+        }).observe({ type: 'layout-shift', buffered: true });
+      } catch(e) {}
+      try {
+        new PerformanceObserver((l) => {
+          // Čas vzniku rozlišuje hydrataci (hned po načtení) od scrollu.
+          for (const z of l.getEntries())
+            window.__dlouhe.push({ ms: Math.round(z.duration), kdy: Math.round(z.startTime) });
+        }).observe({ type: 'longtask', buffered: true });
+      } catch(e) {}
+      // LCP se dá přečíst jen přes observer, getEntriesByType ji nevrací.
+      window.__lcp = null;
+      try {
+        new PerformanceObserver((l) => {
+          const z = l.getEntries().pop();
+          if (z) window.__lcp = Math.round(z.startTime);
+        }).observe({ type: 'largest-contentful-paint', buffered: true });
+      } catch(e) {}
+    `,
+  });
+
+  // Chyby v konzoli sbíráme průběžně; klíč je adresa stránky, kterou zrovna měříme.
+  let aktualni = "";
+  const chyby = new Map();
+  const zapis = (text) => {
+    if (!text) return;
+    const k = chyby.get(aktualni) ?? [];
+    if (k.length < 6 && !k.includes(text)) k.push(text);
+    chyby.set(aktualni, k);
+  };
+  ws.addEventListener("message", (ev) => {
+    let z;
+    try { z = JSON.parse(ev.data); } catch { return; }
+    if (z.method === "Runtime.exceptionThrown") {
+      const d = z.params?.exceptionDetails;
+      zapis(d?.exception?.description ?? d?.text);
+    }
+    if (z.method === "Runtime.consoleAPICalled" && z.params?.type === "error") {
+      zapis(z.params.args?.map((a) => a.value ?? a.description ?? a.type).join(" "));
+    }
   });
 
   const zprava = [];
@@ -141,7 +224,10 @@ async function main() {
     });
 
     for (const [name, cesta] of PAGES) {
+      if (JEN && !new RegExp(JEN).test(name)) continue;
+      for (let opak = 0; opak < OPAKOVAT; opak++) {
       const t0 = Date.now();
+      aktualni = `${vp.name} ${cesta}`;
       await s("Page.navigate", { url: BASE + cesta });
       // počkat na load event
       await new Promise((res) => {
@@ -157,7 +243,29 @@ async function main() {
           } catch {}
         }, 120);
       });
-      await spat(MOTION ? 1400 : 450);
+      if (MOTION) {
+        /*
+         * LCP se zastaví až první interakcí — programový scroll se za ni
+         * nepočítá, takže by ji přepsal kterýkoli větší obrázek dole na
+         * stránce. Zafixujeme ji tady, před projetím.
+         */
+        await s("Runtime.evaluate", { expression: "window.__lcpDoScrollu = window.__lcp" });
+        // Projet stránku dolů a zpět. Reveal běží při scrollu — bez projetí
+        // by se dlouhé úlohy z odhalování nikdy nezměřily.
+        await s("Runtime.evaluate", {
+          expression: `(async () => {
+            const krok = innerHeight * 0.8;
+            for (let y = 0; y < document.body.scrollHeight; y += krok) {
+              scrollTo(0, y);
+              await new Promise(r => setTimeout(r, 90));
+            }
+            scrollTo(0, 0);
+            await new Promise(r => setTimeout(r, 250));
+          })()`,
+          awaitPromise: true,
+        });
+      }
+      await spat(MOTION ? 600 : 450);
 
       const metriky = await s("Runtime.evaluate", {
         expression: `(() => {
@@ -169,7 +277,7 @@ async function main() {
             dcl: Math.round(n.domContentLoadedEventEnd || 0),
             load: Math.round(n.loadEventEnd || 0),
             fcp: fcp ? Math.round(fcp.startTime) : null,
-            lcp: lcp ? Math.round(lcp.startTime) : null,
+            lcp: window.__lcpDoScrollu ?? window.__lcp,
             pozadavku: res.length,
             js: Math.round(res.filter(r => r.initiatorType === 'script' || r.name.endsWith('.js')).reduce((a,r)=>a+(r.transferSize||0),0)/1024),
             obrazky: Math.round(res.filter(r => r.initiatorType === 'img').reduce((a,r)=>a+(r.transferSize||0),0)/1024),
@@ -187,7 +295,11 @@ async function main() {
               };
               const popis = (el) => {
                 const cn = typeof el.className === 'string' ? el.className : (el.getAttribute('class') || '');
-                return el.tagName.toLowerCase() + (cn ? '.' + cn.trim().split(/\s+/).slice(0,3).join('.') : '');
+                const a = s.previousRect || {}, b = s.currentRect || {};
+              const jmeno = el.tagName.toLowerCase() + (cn ? '.' + cn.trim().split(/\s+/).slice(0,2).join('.') : '');
+              if (a.top === undefined) return jmeno;
+              return jmeno + ' y ' + Math.round(a.top) + '->' + Math.round(b.top)
+                + ' h ' + Math.round(a.height) + '->' + Math.round(b.height);
               };
               return [...document.querySelectorAll('body *')]
                 .filter(el => {
@@ -196,7 +308,39 @@ async function main() {
                 })
                 .slice(0, 5).map(popis);
             })(),
-            skryte: document.querySelectorAll('[data-reveal]:not([data-revealed])').length,
+            /*
+             * Neviditelný obsah, ne „neoznačený".
+             *
+             * Původně se počítaly elementy bez \`data-revealed\`. Jenže při
+             * prefers-reduced-motion je CSS nechá viditelné a atribut nikdy
+             * nedostanou — hlásilo to desítky chyb, kde žádná nebyla. Zajímá
+             * nás jediné: zůstalo něco po načtení průhledné?
+             */
+            /*
+             * Dorazily styly?
+             *
+             * Když běží starý next start nad novým buildem, servíruje HTML
+             * odkazující na CSS, které už na disku není. Stránka se načte,
+             * nic nespadne, jen je celá bez stylů — a měření pak hlásí
+             * nulový jank a čtyřnásobnou výšku. Bez téhle kontroly to vypadá
+             * jako úspěšná optimalizace.
+             */
+            stylyChybi: [...document.styleSheets].reduce((n, ss) => {
+              try { return n + ss.cssRules.length; } catch { return n; }
+            }, 0) < 50,
+            skryte: [...document.querySelectorAll('[data-reveal]')]
+              .filter(el => {
+                const o = getComputedStyle(el);
+                if (o.opacity !== '0' && o.visibility !== 'hidden') return false;
+                const r = el.getBoundingClientRect();
+                return r.top < window.innerHeight * 0.9; // jen to, co má být vidět hned
+              }).length,
+            // Posun rozvržení a dlouhé úlohy — tohle je „seká se to" v číslech.
+            cls: Math.round((window.__cls || 0) * 1000) / 1000,
+            clsKdo: [...new Set(window.__clsKdo || [])].slice(0, 5),
+            dlouhe: (window.__dlouhe || []).filter(d => d.ms >= 50),
+            // Hydratace je všechno do dvou sekund od začátku; potom už scrolluje.
+            dlouheHydratace: (window.__dlouhe || []).filter(d => d.ms >= 50 && d.kdy < 2000).length,
           });
         })()`,
         returnByValue: true,
@@ -215,15 +359,78 @@ async function main() {
       });
       fs.writeFileSync(path.join(OUT, `${vp.tag}-${name}-full.jpg`), Buffer.from(full.data, "base64"));
 
-      zprava.push({ vp: vp.tag, stranka: name, msCelkem: Date.now() - t0, ...m });
+      zprava.push({
+        vp: vp.tag, stranka: name, msCelkem: Date.now() - t0, ...m,
+        chyby: chyby.get(aktualni) ?? [],
+      });
+      }
     }
   }
 
   fs.writeFileSync(path.join(OUT, "metriky.json"), JSON.stringify(zprava, null, 1));
-  console.log(JSON.stringify(zprava, null, 1));
+
+  /** Medián — průměr by jeden ojedinělý výkyv posunul celý. */
+  const median = (xs) => {
+    const a = xs.filter((x) => typeof x === "number").sort((x, y) => x - y);
+    return a.length ? a[Math.floor(a.length / 2)] : null;
+  };
+  const shrnute = [];
+  for (const r of zprava) {
+    const klic = r.vp + " " + r.stranka;
+    let z = shrnute.find((x) => x.klic === klic);
+    if (!z) { z = { klic, vzorky: [] }; shrnute.push(z); }
+    z.vzorky.push(r);
+  }
+  const souhrn = shrnute.map(({ vzorky }) => {
+    const p = vzorky[0];
+    const dlouhe = vzorky.map((v) => v.dlouhe ?? []);
+    return {
+      ...p,
+      lcp: median(vzorky.map((v) => v.lcp)),
+      cls: median(vzorky.map((v) => v.cls)),
+      // Medián počtu i nejhoršího z běhů — jedno bez druhého klame.
+      dlouhe: dlouhe[Math.floor(dlouhe.length / 2)],
+      dlouhychMed: median(dlouhe.map((d) => d.length)),
+      nejdelsi: Math.max(0, ...dlouhe.flat().map((d) => d.ms)),
+      hydratace: median(vzorky.map((v) => v.dlouheHydratace)),
+      behu: vzorky.length,
+    };
+  });
+
+  // Souhrn do terminálu. Vypisuje se to, co může být špatně — ne všechno.
+  const hlavicka = ["viewport", "stránka", "LCP", "CLS", "dlouhé úlohy", "z toho start", "obr kB", "výška"];
+  const radky = souhrn.map((r) => [
+    r.vp, r.stranka, r.lcp ?? "—", r.cls?.toFixed(3) ?? "—",
+    r.dlouhychMed ? `${r.dlouhychMed}× nejdelší ${r.nejdelsi} ms` : "0",
+    r.hydratace ?? 0, r.obrazky, r.vyska,
+  ]);
+  const sirky = hlavicka.map((h, i) =>
+    Math.max(String(h).length, ...radky.map((r) => String(r[i]).length)));
+  const radek = (r) => r.map((c, i) => String(c).padEnd(sirky[i])).join("  ");
+  console.log("\n" + radek(hlavicka) + "\n" + sirky.map((w) => "-".repeat(w)).join("  "));
+  for (const r of radky) console.log(radek(r));
+
+  const bezStylu = souhrn.filter((r) => r.stylyChybi);
+  if (bezStylu.length) {
+    console.log(`\nPOZOR: ${bezStylu.length} stránek se načetlo bez stylů — čísla výš nic neznamenají.`);
+    console.log("  Nejspíš běží starý `next start` nad novým buildem. Server restartuj a změř znovu.");
+  }
+
+  const spatne = souhrn.filter((r) => r.prekryv?.length || r.skryte || r.chyby?.length || r.cls > 0.05);
+  if (spatne.length) {
+    console.log("\nk opravě:");
+    for (const r of spatne) {
+      if (r.cls > 0.05) console.log(`  ${r.vp} ${r.stranka}: posun rozvržení ${r.cls} — ${(r.clsKdo ?? []).join(", ")}`);
+      if (r.prekryv?.length) console.log(`  ${r.vp} ${r.stranka}: vodorovný přetok — ${r.prekryv.join(", ")}`);
+      if (r.skryte) console.log(`  ${r.vp} ${r.stranka}: ${r.skryte}× neodhalený [data-reveal]`);
+      for (const ch of r.chyby ?? []) console.log(`  ${r.vp} ${r.stranka}: ${String(ch).slice(0, 160)}`);
+    }
+  } else {
+    console.log("\nžádný přetok, skrytý obsah ani chyba v konzoli");
+  }
   ws.close();
   chrome.kill();
-  fs.rmSync(profil, { recursive: true, force: true });
+  fs.rmSync(profil, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 }
 
 main().catch((e) => {

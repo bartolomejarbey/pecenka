@@ -135,7 +135,7 @@ async function vygeneruj(s: Scenar, zaklad: Buffer, pokusu = 3): Promise<Buffer 
       form.append("model", MODEL_OBRAZ);
       form.append("prompt", s.prompt);
       form.append("size", "1024x1024");
-          form.append("image", new Blob([zaklad], { type: "image/png" }), "z.png");
+      form.append("image", new Blob([new Uint8Array(zaklad)], { type: "image/png" }), "z.png");
       const o = await fetch("https://api.openai.com/v1/images/edits", {
         method: "POST",
         headers: { Authorization: `Bearer ${KLIC}` },

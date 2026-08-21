@@ -1,6 +1,5 @@
 /**
- * Kostra rezervačního průvodce — zobrazuje se jako Suspense fallback
- * a do doby, než se na klientu připojí logika s daty (hydratační bezpečnost).
+ * Kostra rezervačního průvodce — Suspense fallback pro celý průvodce.
  */
 export default function WizardSkeleton() {
   return (
@@ -26,6 +25,35 @@ export default function WizardSkeleton() {
       </div>
       <div className="mt-10 flex justify-end">
         <div className="h-12 w-44 rounded-full bg-pine" />
+      </div>
+    </div>
+  );
+}
+
+
+/**
+ * Kostra kalendáře. Drží přesně tu výšku, kterou pak zabere skutečný
+ * kalendář, aby se při hydrataci nehnul zbytek stránky. Dva měsíce vedle
+ * sebe na desktopu, jeden na mobilu — stejně jako `Calendar`.
+ */
+export function CalendarSkeleton() {
+  return (
+    <div className="animate-pulse" aria-hidden="true">
+      <div className="mb-5 flex items-center justify-between">
+        <div className="h-10 w-10 rounded-full bg-pine" />
+        <div className="h-4 w-40 rounded-full bg-pine" />
+        <div className="h-10 w-10 rounded-full bg-pine" />
+      </div>
+      <div className="grid gap-8 md:grid-cols-2">
+        {[0, 1].map((m) => (
+          <div key={m} className={m === 1 ? "hidden md:block" : undefined}>
+            <div className="grid grid-cols-7 gap-1.5">
+              {Array.from({ length: 42 }, (_, i) => (
+                <div key={i} className="aspect-square rounded-lg bg-pine/60" />
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

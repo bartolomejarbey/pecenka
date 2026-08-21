@@ -34,7 +34,7 @@ for (const v of VARIANTY) {
   form.append("prompt", PROMPT);
   form.append("size", "1024x1024");
   for (const [k, val] of Object.entries(v.extra ?? {})) form.append(k, val);
-  form.append("image", new Blob([zaklad], { type: "image/png" }), "z.png");
+  form.append("image", new Blob([new Uint8Array(zaklad)], { type: "image/png" }), "z.png");
 
   const t = Date.now();
   try {

@@ -162,12 +162,15 @@ html[data-reveal-armed] [data-reveal] {
     opacity 0.6s var(--ease-out-expo),
     transform 0.6s var(--ease-out-expo);
   transition-delay: calc(var(--reveal-i, 0) * 70ms);
-  will-change: opacity, transform;
+  /* Bez `will-change`. Sváděl by k němu: „animujeme transform, řekněme to
+     prohlížeči dopředu." Jenže tady je na stránce až čtyřicet skrytých bloků
+     naráz a každý by dostal vlastní kompozitorovou vrstvu — a při odhalení
+     zase zanikl. To přeskládávání vrstev bylo při scrollu dražší než animace
+     samotná. Přechod opacity a transform se kompozituje i bez toho. */
 }
 html[data-reveal-armed] [data-reveal][data-revealed] {
   opacity: 1;
   transform: none;
-  will-change: auto;
 }
 
 /* Vstupní animace hero — jen na první obrazovce, bez JS. */

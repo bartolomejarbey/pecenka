@@ -23,7 +23,14 @@ export const metadata = pageMeta({
   path: "/rezervace",
 });
 
-export default async function RezervacePage() {
+export default async function RezervacePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const { domek } = await searchParams;
+  const predvolenyDomek = domek === "achat" || domek === "mech" ? domek : null;
+
   const { dostupnost, ceniky } = await nactiRezervacniData(["achat", "mech"]);
   const data = Object.fromEntries(
     (["achat", "mech"] as const).map((s) => [
@@ -53,7 +60,7 @@ export default async function RezervacePage() {
       >
         <div className="relative z-10 mx-auto max-w-7xl px-5 md:px-8">
           <Suspense fallback={<WizardSkeleton />}>
-            <BookingWizard data={data} />
+            <BookingWizard data={data} predvolenyDomek={predvolenyDomek} />
           </Suspense>
 
           <ul className="mt-9 flex flex-wrap items-center justify-center gap-x-9 gap-y-3 text-sm text-sage">

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { HOUSES } from "@/lib/content";
 import {
   calcPrice,
@@ -21,7 +20,7 @@ import Calendar from "./Calendar";
 import AddonsStep from "./AddonsStep";
 import ContactStep, { type Contact } from "./ContactStep";
 import Summary from "./Summary";
-import WizardSkeleton from "./WizardSkeleton";
+import { CalendarSkeleton } from "./WizardSkeleton";
 import { nightsLabel } from "./format";
 
 type Step = 1 | 2 | 3 | 4;
@@ -59,15 +58,24 @@ function StepHeading({ title, sub }: { title: string; sub?: string }) {
  * vyráběl sám z konstant a determinovaného generátoru; jakmile na web přijdou
  * skutečné rezervace, je to rozdíl mezi „volno" a dvojím prodejem.
  */
-export default function BookingWizard({ data }: { data: Record<string, DataDomku> }) {
-  const searchParams = useSearchParams();
-
+/**
+ * `predvolenyDomek` chodí propem ze serveru, ne z `useSearchParams()`.
+ *
+ * Ten hook uvnitř Suspense znamená, že server vykreslí fallback a skutečný
+ * průvodce doskočí až na klientu. Na krátké stránce to patičku uvrhlo o 561
+ * pixelů níž — posun rozvržení 0,25, dvaapůlnásobek limitu. Stránka je stejně
+ * `force-dynamic`, takže parametr zná už server.
+ */
+export default function BookingWizard({
+  data,
+  predvolenyDomek = null,
+}: {
+  data: Record<string, DataDomku>;
+  predvolenyDomek?: HouseSlug | null;
+}) {
   const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState<Step>(1);
-  const [house, setHouse] = useState<HouseSlug | null>(() => {
-    const param = searchParams.get("domek");
-    return param === "achat" || param === "mech" ? param : null;
-  });
+  const [house, setHouse] = useState<HouseSlug | null>(predvolenyDomek);
   const [range, setRange] = useState<Range>({ from: null, to: null });
   const [guests, setGuests] = useState(2);
   const [addons, setAddons] = useState<AddonSelection>({});
@@ -84,7 +92,15 @@ export default function BookingWizard({ data }: { data: Record<string, DataDomku
 
   const topRef = useRef<HTMLDivElement>(null);
 
-  // Hydratační bezpečnost — veškerá logika s daty se počítá až na klientu.
+  /*
+   * Hydratační pojistka jen pro kalendář.
+   *
+   * Dřív se za ní schovával celý průvodce: server poslal kostru, po hydrataci
+   * ji nahradil skutečný krok 1 a patička skočila o dvě stě pixelů (posun
+   * rozvržení 0,21 — nad limitem). Přitom na aktuálním čase závisí jediná
+   * věc, `new Date()` v kalendáři, a ten je až v kroku 2. Výběr domku je
+   * statický, může přijít ze serveru rovnou vykreslený.
+   */
   useEffect(() => setMounted(true), []);
 
   // Při změně kroku se vrátit k začátku průvodce, pokud uživatel odscrolloval.
@@ -202,8 +218,6 @@ export default function BookingWizard({ data }: { data: Record<string, DataDomku
     }
   }
 
-  if (!mounted) return <WizardSkeleton />;
-
   /* ===== Úspěšné odeslání — nahradí celý průvodce ===== */
   if (status === "sent") {
     return (
@@ -319,12 +333,16 @@ export default function BookingWizard({ data }: { data: Record<string, DataDomku
                   title="Kdy chcete zmizet?"
                   sub={`Domek ${houseData?.name ?? ""} · minimálně 2 noci. Přeškrtnuté dny jsou obsazené — první klik vybere příjezd, druhý odjezd.`}
                 />
-                <Calendar
-                  booked={booked}
-                  from={range.from}
-                  to={range.to}
-                  onSelect={handleDaySelect}
-                />
+                {mounted ? (
+                  <Calendar
+                    booked={booked}
+                    from={range.from}
+                    to={range.to}
+                    onSelect={handleDaySelect}
+                  />
+                ) : (
+                  <CalendarSkeleton />
+                )}
 
                 <div className="mt-7 min-h-12" aria-live="polite">
                   {range.from && !range.to && !rangeError && (
