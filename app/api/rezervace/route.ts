@@ -52,12 +52,24 @@ const LIMIT = 5;
 const OKNO_MS = 10 * 60 * 1000;
 const pokusy = new Map<string, number[]>();
 
+/**
+ * Odmítnutý pokus se nepočítá.
+ *
+ * Původně se do okna zapisoval každý příchod včetně těch, které se rovnou
+ * odmítly. Kdo narazil na strop a zkusil to znovu, tím okno posunul —
+ * a už se z něj nedostal. Host, který se ukliká, by čekal donekonečna
+ * a nevěděl proč.
+ */
 function prekrocilLimit(ip: string): boolean {
   const ted = Date.now();
   const seznam = (pokusy.get(ip) ?? []).filter((t) => ted - t < OKNO_MS);
+  if (seznam.length >= LIMIT) {
+    pokusy.set(ip, seznam);
+    return true;
+  }
   seznam.push(ted);
   pokusy.set(ip, seznam);
-  return seznam.length > LIMIT;
+  return false;
 }
 
 /**

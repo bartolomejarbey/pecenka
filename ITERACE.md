@@ -470,3 +470,42 @@ nemá jako druhou stránku číst, jak se pozná, co v domku rozbil. Odkaz je
 v administraci u fronty protokolů.
 
 **104 testů prochází.**
+
+## Kolo 12 — doklady a pošta
+
+### Doklad se dá otevřít, vytisknout a přijde hostovi
+Faktury existovaly jen jako řádky v databázi. Vystavit šly, ale předat hostovi
+ne — v peněžní cestě to byla poslední díra.
+
+`/doklad/[id]` je tisková stránka: světlý list, rozměry v milimetrech,
+`@page A4`, řádky položek se nelámou přes stránky. **PDF negeneruje server,
+vytiskne ho prohlížeč** — je to o jednu knihovnu a jeden vložený font méně
+a výsledek je stejný. Odkaz nese podpis, který kontroluje proxy ještě před
+vykreslením.
+
+Doklad se posílá hned při vystavení, mimo hlavní cestu. U dobropisu se
+neúčtuje, ale vrací — „k úhradě −10 470 Kč" by hosta mátlo, i když je to
+matematicky totéž.
+
+### Po akci se stránka nepřekreslila
+Serverové akce volaly `revalidatePath`, čímž vyprázdnily mezipaměť, ale
+otevřenou stránku nikdo nepřekreslil. **Majitel vystavil fakturu a neviděl ji,
+potvrdil rezervaci a viděl dál původní stav, odklikl platbu a ta zůstala
+v seznamu čekajících** — kde ji šlo odkliknout podruhé. Chybělo
+`router.refresh()` po úspěšné akci.
+
+### Domek se jmenoval „achat"
+Slug z formuláře prosakoval na doklad i do předmětu e-mailu majiteli. Host
+zná domek jako „Achát".
+
+### Zachytávací SMTP
+E-maily jsou poslední kus, který se dá ověřit jen tak, že se skutečně odešlou.
+`npm run posta:zkouska` je přijme, uloží a vypíše. Ověřeno, že po celém
+průchodu dorazí čtyři: majiteli o rezervaci, hostovi potvrzení se zálohou,
+přístup do portálu a doklad.
+
+### Poctivěji o omezení pokusů
+Počítadlo pokusů z jedné IP žije v paměti procesu. V nasazení běží víc instancí
+a každá si počítá zvlášť, takže skutečný strop je násobkem instancí. Proti
+nepozornému opakování to stačí, proti odhodlanému robotovi ne — skutečnou
+pojistkou proti dvojímu prodeji je databázové omezení, ne tohle.
