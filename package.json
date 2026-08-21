@@ -13,6 +13,7 @@
     "db:seed": "node scripts/db-seed.mjs",
     "test": "vitest run",
     "test:admin": "node scripts/dev/admin-e2e.mjs",
+    "test:tok": "node --import ./scripts/dev/bez-server-only.mjs scripts/dev/tok-e2e.mts",
     "qa": "node scripts/qa-shots.mjs",
     "test:watch": "vitest",
     "admin:create": "node scripts/create-admin.mts",

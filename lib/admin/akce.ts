@@ -6,6 +6,8 @@ import { radky, radkyT, transakce, jePrekryvTerminu, type Spousteni } from "@/li
 import { zapisDoDeniku } from "@/lib/auth/audit";
 import { vyzadujMajitele, vyzadujPrihlaseni } from "@/lib/auth/dal";
 import { icoSedi, naIban } from "./firma";
+import { zalozPristup } from "@/lib/portal/pristup";
+import { posliPristupDoPortalu } from "@/lib/mail/pobyt";
 
 /**
  * Akce administrace.
@@ -98,6 +100,12 @@ export async function potvrdRezervaci(kod: string): Promise<Vysledek> {
     });
 
     if (!vysledek.ok) return vysledek;
+
+    // Ruční potvrzení je pro hosta totéž jako zaplacená záloha — majitel
+    // dostal peníze jinudy (hotově, převodem mimo systém). Portál se otevře
+    // stejně, jinak by přístup dostali jen ti, u kterých se klikne na platbu.
+    await otevriPortal(vysledek.id);
+
     await zapisDoDeniku({
       akce: "rezervace.potvrzena",
       typEntity: "reservation",
@@ -150,6 +158,12 @@ export async function oznacZaplaceno(platbaId: string): Promise<Vysledek> {
     });
 
     if (!id) return { ok: false, chyba: "Platba nenalezena." };
+
+    // Zaplacená záloha je jediný okamžik, kdy má smysl otevřít hostovi portál.
+    // Běží až po commitu transakce: kdyby hašování kódu nebo pošta selhaly,
+    // platba je zapsaná a majitel může přístup poslat znovu.
+    await otevriPortal(id);
+
     await zapisDoDeniku({
       akce: "platba.oznacena_zaplacena",
       typEntity: "reservation",
@@ -162,6 +176,60 @@ export async function oznacZaplaceno(platbaId: string): Promise<Vysledek> {
   } catch (e) {
     console.error("[admin] označení platby selhalo:", e);
     return { ok: false, chyba: "Platbu se nepodařilo zapsat." };
+  }
+}
+
+/**
+ * Otevření portálu hosta po zaplacení zálohy.
+ *
+ * Dřív se `zalozPristup` nevolalo odnikud — host zaplatil, rezervace se
+ * potvrdila a do portálu se nikdy nedostal, protože žádný přístup nevznikl.
+ * Kód je odvozený z variabilního symbolu, takže opakované volání dá tentýž
+ * kód a e-mail poslaný podruhé pořád platí.
+ */
+async function otevriPortal(rezervaceId: string): Promise<void> {
+  try {
+    const [r] = await radky<{
+      status: string;
+      code: string;
+      variable_symbol: string;
+      checkin: string;
+      checkout: string;
+      email: string | null;
+      jmeno: string | null;
+      domek: string | null;
+    }>(sql`
+      SELECT r.status::text AS status, r.code, r.variable_symbol,
+             r.checkin::text AS checkin, r.checkout::text AS checkout,
+             u.name AS domek,
+             (SELECT g.email FROM reservation_guests rg JOIN guests g ON g.id = rg.guest_id
+               WHERE rg.reservation_id = r.id AND rg.role = 'payer' LIMIT 1) AS email,
+             (SELECT btrim(coalesce(g.first_name,'') || ' ' || coalesce(g.last_name,''))
+                FROM reservation_guests rg JOIN guests g ON g.id = rg.guest_id
+               WHERE rg.reservation_id = r.id AND rg.role = 'payer' LIMIT 1) AS jmeno
+        FROM reservations r
+        JOIN units u ON u.id = r.unit_id
+       WHERE r.id = ${rezervaceId}::uuid
+    `);
+
+    if (!r || r.status !== "confirmed") return;
+
+    const kod = await zalozPristup(rezervaceId);
+    if (!r.email) return;
+
+    await posliPristupDoPortalu({
+      komu: r.email,
+      jmeno: r.jmeno || "hoste",
+      kodRezervace: r.code,
+      vs: r.variable_symbol,
+      kodPristupu: kod,
+      domek: r.domek ?? "tiny house",
+      prijezd: new Date(r.checkin),
+      odjezd: new Date(r.checkout),
+    });
+  } catch (e) {
+    // Portál se dá otevřít znovu, platba se přepisovat nemá.
+    console.error("[admin] otevření portálu hosta selhalo:", e);
   }
 }
 
