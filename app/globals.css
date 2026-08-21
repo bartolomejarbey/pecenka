@@ -16,6 +16,14 @@
   --color-ember-soft: #e8b07a; /* hover akcentu */
   --color-ember-deep: #96581f; /* akcent na světlém podkladu (AA kontrast na mist) */
 
+  /* Stavové barvy — oddělené od akcentu schválně. Ember znamená „sem se
+     dívej", ne „tohle je v pořádku"; kdyby dělal obojí, přestane fungovat
+     obojí. Používají se jen tam, kde stav něco znamená: nález v protokolu,
+     výsledek kontroly. */
+  --color-ok: #7fa287; /* v pořádku, bez nálezu */
+  --color-stred: #d9b04e; /* pozor, vyžaduje pohled */
+  --color-vazne: #d97070; /* problém */
+
   --font-display: var(--font-fraunces);
   --font-sans: var(--font-hanken);
 

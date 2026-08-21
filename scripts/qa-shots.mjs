@@ -44,6 +44,7 @@ const SHELL = path.join(
 
 const PAGES = [
   ["home", "/"],
+  ["kontrola", "/kontrola-stavu"],
   ["domky", "/domky"],
   ["achat", "/domky/achat"],
   ["mech", "/domky/mech"],

@@ -1,0 +1,500 @@
+{
+ "cisla": [
+  {
+   "hodnota": "23",
+   "popis": "případů"
+  },
+  {
+   "hodnota": "5",
+   "popis": "nezměněných párů"
+  },
+  {
+   "hodnota": "10/12",
+   "popis": "zjevných poškození nalezeno"
+  },
+  {
+   "hodnota": "5/6",
+   "popis": "jemných poškození nalezeno"
+  },
+  {
+   "hodnota": "0",
+   "popis": "planých poplachů"
+  },
+  {
+   "hodnota": "3.0 Kč",
+   "popis": "za vyhodnocení zóny"
+  }
+ ],
+ "pripady": [
+  {
+   "skupina": "Nezměněné snímky",
+   "stav": "trefa",
+   "nazev": "Beze změny",
+   "meta": "Sedačka a nábytek · obývák · beze změny",
+   "verdikt": "Správně bez nálezu",
+   "pred": "/ukazka/d61feaa7166f.jpg",
+   "po": "/ukazka/85a025b30a51.jpg",
+   "vyrezPred": null,
+   "vyrezPo": null,
+   "brana": "Obrazové porovnání: podobnost 93 % · zarovnání good · rozdíl jasu -4 · podezřelých míst 0",
+   "luna": null
+  },
+  {
+   "skupina": "Nezměněné snímky",
+   "stav": "trefa",
+   "nazev": "Beze změny",
+   "meta": "Kuchyňská linka · kuchyně · beze změny",
+   "verdikt": "Správně bez nálezu",
+   "pred": "/ukazka/2c59139f9ed6.jpg",
+   "po": "/ukazka/4ec9c8a8565d.jpg",
+   "vyrezPred": "/ukazka/776f8defa220.jpg",
+   "vyrezPo": "/ukazka/fecfd4991201.jpg",
+   "brana": "Obrazové porovnání: podobnost 94.8 % · zarovnání good · rozdíl jasu -1 · podezřelých míst 3",
+   "luna": {
+    "ton": "ok",
+    "popis": "Beze změny",
+    "jistota": 97,
+    "rekla": "Na porovnávaných výřezech ani celkových snímcích není patrná žádná nová škoda. Kuchyňská deska, dvířka, obklad i schody vypadají beze změny.",
+    "alternativa": "Drobné rozdíly v celkovém záběru mohou být způsobeny světlem, expozicí nebo nepatrně odlišným úhlem fotografování; nejde o poškození.",
+    "protiargument": null,
+    "odhad": null,
+    "cas": "4.0 s · 1.83 Kč"
+   }
+  },
+  {
+   "skupina": "Nezměněné snímky",
+   "stav": "trefa",
+   "nazev": "Beze změny",
+   "meta": "Koupelna a sprcha · koupelna · beze změny",
+   "verdikt": "Správně bez nálezu",
+   "pred": "/ukazka/d76aa2de2868.jpg",
+   "po": "/ukazka/d85959a57630.jpg",
+   "vyrezPred": null,
+   "vyrezPo": null,
+   "brana": "Obrazové porovnání: podobnost 98.2 % · zarovnání good · rozdíl jasu -1 · podezřelých míst 0",
+   "luna": null
+  },
+  {
+   "skupina": "Nezměněné snímky",
+   "stav": "trefa",
+   "nazev": "Jemný škrábanec ve vinylu",
+   "meta": "Podlaha · obývák · beze změny",
+   "verdikt": "Správně bez nálezu",
+   "pred": "/ukazka/d61feaa7166f.jpg",
+   "po": "/ukazka/baf6838f193a.jpg",
+   "vyrezPred": null,
+   "vyrezPo": null,
+   "brana": "Obrazové porovnání: podobnost 94.7 % · zarovnání good · rozdíl jasu -3 · podezřelých míst 0",
+   "luna": null
+  },
+  {
+   "skupina": "Nezměněné snímky",
+   "stav": "trefa",
+   "nazev": "Odchlíplý roh silikonu",
+   "meta": "Koupelna a sprcha · koupelna · beze změny",
+   "verdikt": "Správně bez nálezu",
+   "pred": "/ukazka/d76aa2de2868.jpg",
+   "po": "/ukazka/264c578e0a4c.jpg",
+   "vyrezPred": null,
+   "vyrezPo": null,
+   "brana": "Obrazové porovnání: podobnost 98.3 % · zarovnání good · rozdíl jasu +0 · podezřelých míst 0",
+   "luna": null
+  },
+  {
+   "skupina": "Sotva viditelné poškození",
+   "stav": "neporadek",
+   "nazev": "Malá světlá skvrna na sedáku",
+   "meta": "Sedačka a nábytek · obývák · jemné",
+   "verdikt": "Vyhodnoceno jako nepořádek",
+   "pred": "/ukazka/d61feaa7166f.jpg",
+   "po": "/ukazka/d94b4a4c1f86.jpg",
+   "vyrezPred": "/ukazka/d673c62ae541.jpg",
+   "vyrezPo": "/ukazka/6910722d52de.jpg",
+   "brana": "Obrazové porovnání: podobnost 93.9 % · zarovnání good · rozdíl jasu -2 · podezřelých míst 1",
+   "luna": {
+    "ton": "nic",
+    "popis": "Nepořádek",
+    "jistota": 86,
+    "rekla": "Na zadní straně předního oranžového křesla je v hostovském snímku nově patrná výrazná kruhová světlejší skvrna. Nejde o díru ani o chybějící část nábytku.",
+    "alternativa": "Může jít o vlhké nebo právě čištěné místo, případně o dočasnou změnu vzhledu čalounění způsobenou odrazem či tlakem; z fotografií nelze potvrdit trvalé poškození vláken.",
+    "protiargument": null,
+    "odhad": null,
+    "cas": "6.2 s · 2.14 Kč"
+   }
+  },
+  {
+   "skupina": "Sotva viditelné poškození",
+   "stav": "trefa",
+   "nazev": "Drobné oděrky na pracovní desce",
+   "meta": "Kuchyňská linka · kuchyně · jemné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/2c59139f9ed6.jpg",
+   "po": "/ukazka/e14850090bfb.jpg",
+   "vyrezPred": "/ukazka/46150e5103a6.jpg",
+   "vyrezPo": "/ukazka/05aad41be397.jpg",
+   "brana": "Obrazové porovnání: podobnost 96.5 % · zarovnání good · rozdíl jasu -1 · podezřelých míst 1",
+   "luna": {
+    "ton": "stred",
+    "popis": "Drobné poškození",
+    "jistota": 82,
+    "rekla": "Na pracovní desce jsou v hostovském snímku nově patrné četné tenké křížící se rýhy v levé až střední části; v referenčním výřezu nejsou zřetelné.",
+    "alternativa": "Škrábance mohou být starší a v referenčním snímku pouze skryté odlišným směrem světla nebo odleskem povrchu. Z fotografií nelze spolehlivě určit, kdy vznikly.",
+    "protiargument": "Křížící se světlé čáry jsou patrné pouze v hostovském snímku, ale jejich nízký kontrast a závislost na odrazu světla na matné pracovní desce mohou odpovídat optickému zvýraznění povrchové struktury nebo stopám po čištění, nikoli novému poškození.",
+    "odhad": "Odhad opravy 1500–4000 Kč",
+    "cas": "6.7 s · 2.38 Kč"
+   }
+  },
+  {
+   "skupina": "Sotva viditelné poškození",
+   "stav": "trefa",
+   "nazev": "Odřený lak na schůdku",
+   "meta": "Spací patro · patro · jemné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/29f973affb2e.jpg",
+   "po": "/ukazka/4ae93b93b721.jpg",
+   "vyrezPred": "/ukazka/0b59944a8069.jpg",
+   "vyrezPo": "/ukazka/eb038bbf4c2d.jpg",
+   "brana": "Obrazové porovnání: podobnost 96.4 % · zarovnání good · rozdíl jasu -1 · podezřelých míst 1",
+   "luna": {
+    "ton": "stred",
+    "popis": "Drobné poškození",
+    "jistota": 86,
+    "rekla": "Na předním dřevěném stupni schůdků je ve snímku od hosta vidět výrazný světlý oděr nebo sedřený povrch, který v referenčním výřezu není patrný.",
+    "alternativa": "Může jít o rozdíl v odlesku, expozici nebo viditelnější kresbu dřeva při mírně odlišném osvětlení; z fotografií nelze zcela vyloučit ani starší oděr.",
+    "protiargument": "Světlý pruh na předním dřevěném stupni není přesvědčivě prokázané nové poškození. Vypadá spíše jako odlišně nasvícená přirozeně světlejší kresba dřeva nebo odraz na hladším místě; podobné zesvětlení je v referenci místy patrné také.",
+    "odhad": "Odhad opravy 300–900 Kč",
+    "cas": "6.0 s · 2.24 Kč"
+   }
+  },
+  {
+   "skupina": "Sotva viditelné poškození",
+   "stav": "trefa",
+   "nazev": "Zataženo vlákno v čalounění",
+   "meta": "Sedačka a nábytek · obývák · jemné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/d61feaa7166f.jpg",
+   "po": "/ukazka/5cd396216af4.jpg",
+   "vyrezPred": "/ukazka/e0593b0d7624.jpg",
+   "vyrezPo": "/ukazka/dcadfb5f22c7.jpg",
+   "brana": "Obrazové porovnání: podobnost 94.4 % · zarovnání good · rozdíl jasu -2 · podezřelých míst 1",
+   "luna": {
+    "ton": "stred",
+    "popis": "Drobné poškození",
+    "jistota": 93,
+    "rekla": "Na zadní straně předního oranžového křesla se oproti referenci objevila svislá světlá nepravidelná stopa, pravděpodobně oděrka nebo vytažená vlákna čalounění. Nejde o díru ani propálení.",
+    "alternativa": "Může jít o dočasně slehlý nebo jinak nasvícený vlas čalounění; z výřezu však stopa působí jako nová povrchová změna.",
+    "protiargument": "Svislá světlá stopa je vidět pouze na druhém snímku, ale může jít o jinak nasvícený nebo tlakem změněný směr vlasu čalounění; fotografie neprokazuje úbytek materiálu ani skutečné poškození.",
+    "odhad": "Odhad opravy 500–1500 Kč",
+    "cas": "6.5 s · 2.10 Kč"
+   }
+  },
+  {
+   "skupina": "Sotva viditelné poškození",
+   "stav": "trefa",
+   "nazev": "Malý flek pod dřezem",
+   "meta": "Kuchyňská linka · kuchyně · jemné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/2c59139f9ed6.jpg",
+   "po": "/ukazka/caeebaf0c7b0.jpg",
+   "vyrezPred": "/ukazka/d739741a9be6.jpg",
+   "vyrezPo": "/ukazka/fff9b10532a7.jpg",
+   "brana": "Obrazové porovnání: podobnost 88.1 % · zarovnání good · rozdíl jasu -1 · podezřelých míst 4",
+   "luna": {
+    "ton": "vazne",
+    "popis": "Výrazné poškození",
+    "jistota": 98,
+    "rekla": "Na předním panelu spodní skříňky pod pracovní deskou je oproti referenci nově rozsáhlé vyštípnutí a odtržení povrchu až k tmavému podkladu. Nejde o běžné opotřebení ani pouhou změnu světla.",
+    "alternativa": "Teoreticky může jít o poškození, které bylo v referenčním záběru zakryté nebo mimo jeho spodní okraj; v dostupném celkovém porovnání však panel v referenci působí neporušeně.",
+    "protiargument": "Protiargument je slabý: tmavý nepravidelný útvar by teoreticky mohl být stín, odraz nebo dočasně zakrytá část čelní plochy, ale jeho roztřepené okraje a odhalený tmavý podklad oproti referenci působí jako skutečně vyštípnutý či odtržený povrch.",
+    "odhad": "Odhad opravy 3000–8000 Kč",
+    "cas": "5.4 s · 2.21 Kč"
+   }
+  },
+  {
+   "skupina": "Sotva viditelné poškození",
+   "stav": "trefa",
+   "nazev": "Vlasová prasklina v rohu skla",
+   "meta": "Prosklená stěna · obývák · jemné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/d61feaa7166f.jpg",
+   "po": "/ukazka/031e09b9c979.jpg",
+   "vyrezPred": "/ukazka/d1acf08f6afe.jpg",
+   "vyrezPo": "/ukazka/1233edbb1b48.jpg",
+   "brana": "Obrazové porovnání: podobnost 94.4 % · zarovnání good · rozdíl jasu -2 · podezřelých míst 1",
+   "luna": {
+    "ton": "stred",
+    "popis": "Drobné poškození",
+    "jistota": 68,
+    "rekla": "V hostovském výřezu je oproti referenci patrná tenká šikmá čára na ploše skla, která může odpovídat vlasové prasklině nebo rýze. Nejde o rozbití skla ani o zjevné poškození rámu.",
+    "alternativa": "Čára může být pouze odraz, povrchový škrábanec nebo větev/linie v pozadí viděná přes sklo; z těchto snímků nelze původ spolehlivě potvrdit.",
+    "protiargument": "Tenká šikmá čára je viditelná pouze v hostovském snímku, ale její vzhled odpovídá spíše dočasnému odrazu, vláknu pavučiny nebo stéblu/větvi před či za sklem než jednoznačné změně samotné skleněné tabule. Na záběru není patrné rozšíření, odštěpení ani poškození rámu.",
+    "odhad": null,
+    "cas": "8.3 s · 2.51 Kč"
+   }
+  },
+  {
+   "skupina": "Zjevné poškození",
+   "stav": "trefa",
+   "nazev": "Velká skvrna od kávy",
+   "meta": "Sedačka a nábytek · obývák · zjevné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/d61feaa7166f.jpg",
+   "po": "/ukazka/e5f8f568073f.jpg",
+   "vyrezPred": "/ukazka/7d36314bef2b.jpg",
+   "vyrezPo": "/ukazka/d146b356f822.jpg",
+   "brana": "Obrazové porovnání: podobnost 92.6 % · zarovnání good · rozdíl jasu +0 · podezřelých míst 1",
+   "luna": {
+    "ton": "stred",
+    "popis": "Drobné poškození",
+    "jistota": 93,
+    "rekla": "Na opěradle předního oranžového křesla se oproti referenci objevila výrazná nepravidelná tmavá skvrna. Nejde o díru ani propálení; pravděpodobně jde o znečištění čalounění, které může vyžadovat odborné čištění.",
+    "alternativa": "Může jít o dočasně mokré místo nebo ztmavnutí čalounění způsobené vlhkostí, které po úplném vyschnutí zesvětlá. Rozdíl však odpovídá skutečné skvrně více než změně osvětlení.",
+    "protiargument": "Na opěradle předního oranžového křesla je v novém snímku vidět nepravidelná tmavá skvrna. Protože čalounění nevykazuje díru, propálení ani deformaci a okraje skvrny jsou rozpitě nepravidelné, nejpravděpodobněji jde o povrchové znečištění nebo dočasně vlhké místo, nikoli o poškození materiálu.",
+    "odhad": "Odhad opravy 800–2500 Kč",
+    "cas": "5.5 s · 2.15 Kč"
+   }
+  },
+  {
+   "skupina": "Zjevné poškození",
+   "stav": "trefa",
+   "nazev": "Propálená díra v čalounění",
+   "meta": "Sedačka a nábytek · obývák · zjevné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/d61feaa7166f.jpg",
+   "po": "/ukazka/68db16f96c3a.jpg",
+   "vyrezPred": "/ukazka/1d0d16227af5.jpg",
+   "vyrezPo": "/ukazka/13488c52dba8.jpg",
+   "brana": "Obrazové porovnání: podobnost 94.4 % · zarovnání good · rozdíl jasu -1 · podezřelých míst 1",
+   "luna": {
+    "ton": "vazne",
+    "popis": "Výrazné poškození",
+    "jistota": 98,
+    "rekla": "Na sedáku křesla je oproti referenci nově viditelné propálené místo s proděravělým čalouněním a obnaženou výplní.",
+    "alternativa": "Teoreticky může jít o výraznou skvrnu nebo poškození přítomné před pobytem, ale v referenčním výřezu místo není vidět a detail odhaluje spálený okraj i výplň.",
+    "protiargument": "Protiargument je velmi slabý: změna je patrná nejen v celkovém snímku, ale i v přiloženém detailu. Na sedáku je nově kruhové tmavé místo s ohořelým okrajem a viditelnou světlou výplní, což neodpovídá běžnému stínu, úhlu ani znečištění odstranitelnému úklidem.",
+    "odhad": "Odhad opravy 2000–5000 Kč",
+    "cas": "5.3 s · 1.98 Kč"
+   }
+  },
+  {
+   "skupina": "Zjevné poškození",
+   "stav": "neporadek",
+   "nazev": "Hluboká rýha v podlaze",
+   "meta": "Podlaha · obývák · zjevné",
+   "verdikt": "Vyhodnoceno jako nepořádek",
+   "pred": "/ukazka/d61feaa7166f.jpg",
+   "po": "/ukazka/2004d8fbe5d1.jpg",
+   "vyrezPred": "/ukazka/1dc1e347a03e.jpg",
+   "vyrezPo": "/ukazka/2120dfeee558.jpg",
+   "brana": "Obrazové porovnání: podobnost 94.1 % · zarovnání good · rozdíl jasu -1 · podezřelých míst 1",
+   "luna": {
+    "ton": "nic",
+    "popis": "Nepořádek",
+    "jistota": 84,
+    "rekla": "Na podlaze se v hostovském snímku objevuje podlouhlý světlý organický materiál a několik drobných částic. Z porovnání výřezů není patrná jednoznačná rýha ani promáčklina vinylu.",
+    "alternativa": "Může jít o stébla trávy, rostlinný materiál nebo povrchové nečistoty přinesené zvenku; po běžném úklidu může podlaha zůstat bez změny.",
+    "protiargument": null,
+    "odhad": null,
+    "cas": "5.8 s · 2.05 Kč"
+   }
+  },
+  {
+   "skupina": "Zjevné poškození",
+   "stav": "trefa",
+   "nazev": "Prasklé sklo",
+   "meta": "Prosklená stěna · obývák · zjevné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/d61feaa7166f.jpg",
+   "po": "/ukazka/869ab072f5cd.jpg",
+   "vyrezPred": "/ukazka/4153710151c5.jpg",
+   "vyrezPo": "/ukazka/a7c56c14c7ea.jpg",
+   "brana": "Obrazové porovnání: podobnost 89.5 % · zarovnání good · rozdíl jasu -3 · podezřelých míst 4",
+   "luna": {
+    "ton": "vazne",
+    "popis": "Výrazné poškození",
+    "jistota": 99,
+    "rekla": "Na velké skleněné ploše prosklené stěny se oproti referenci nově objevila rozsáhlá pavoukovitá prasklina s výrazným místem nárazu přibližně uprostřed výřezu. Jde o skutečné poškození skla, nikoli o změnu světla nebo úhlu.",
+    "alternativa": "Ze snímků nelze určit, kdy ani čím prasklina vznikla; teoreticky mohlo jít o náraz zvenčí, tepelný nebo montážní stres, nikoli nutně o jednání hosta.",
+    "protiargument": "Protiargument není přesvědčivý: radiálně uspořádané linie vycházejí z jednoho bodu nárazu a jsou patrné i v přiblížených výřezech. Nejde o běžný odraz, změnu světla ani jiný úhel; pokud jsou snímky autentické, sklo je nově prasklé.",
+    "odhad": "Odhad opravy 18000–45000 Kč",
+    "cas": "4.4 s · 2.23 Kč"
+   }
+  },
+  {
+   "skupina": "Zjevné poškození",
+   "stav": "trefa",
+   "nazev": "Propálená pracovní deska",
+   "meta": "Kuchyňská linka · kuchyně · zjevné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/2c59139f9ed6.jpg",
+   "po": "/ukazka/5fd49a22d554.jpg",
+   "vyrezPred": "/ukazka/8840af8e4f73.jpg",
+   "vyrezPo": "/ukazka/c004af6f3bf4.jpg",
+   "brana": "Obrazové porovnání: podobnost 94.7 % · zarovnání good · rozdíl jasu -2 · podezřelých míst 1",
+   "luna": {
+    "ton": "vazne",
+    "popis": "Výrazné poškození",
+    "jistota": 99,
+    "rekla": "Na pracovní desce vlevo od dřezu se oproti referenci objevil velký kruhový propálený nebo tepelně poškozený útvar s černým popraskaným středem a hnědým lemem. Jde o výrazné poškození povrchu, nikoli o běžné znečištění.",
+    "alternativa": "Teoreticky může jít o výrazně tmavý předmět nebo montážní zásah překrytý stínem, ale struktura popraskaného středu a tepelný lem jsou v porovnání výřezů konzistentní s propálením.",
+    "protiargument": "Na pracovní desce se objevil kruhový černý útvar, ale z fotografie nelze vyloučit, že jde o připečené jídlo, saze nebo jiný odstranitelný zbytek po horkém předmětu, nikoli o propálení desky. Rozhodující je, zda po běžném čištění zůstane změna barvy a popraskaná struktura povrchu.",
+    "odhad": "Odhad opravy 5000–15000 Kč",
+    "cas": "4.3 s · 2.03 Kč"
+   }
+  },
+  {
+   "skupina": "Zjevné poškození",
+   "stav": "prehlednuto",
+   "nazev": "Utržená dvířka skříňky",
+   "meta": "Kuchyňská linka · kuchyně · zjevné",
+   "verdikt": "Nenalezeno",
+   "pred": "/ukazka/2c59139f9ed6.jpg",
+   "po": "/ukazka/ddf0c551d96d.jpg",
+   "vyrezPred": "/ukazka/bdb615a1b698.jpg",
+   "vyrezPo": "/ukazka/c6c11f4fcb35.jpg",
+   "brana": "Obrazové porovnání: podobnost 90.2 % · zarovnání good · rozdíl jasu -2 · podezřelých míst 4",
+   "luna": {
+    "ton": "ok",
+    "popis": "Beze změny",
+    "jistota": 99,
+    "rekla": "Horní skříňka je na snímku od hosta otevřená; na referenčním snímku byla zavřená. Nejsou patrné známky uražení, prasknutí ani jiného poškození dvířek nebo pracovní desky.",
+    "alternativa": "Nejpravděpodobněji jde pouze o běžné otevření skříňky hostem, nikoli o poškození.",
+    "protiargument": null,
+    "odhad": null,
+    "cas": "3.7 s · 1.96 Kč"
+   }
+  },
+  {
+   "skupina": "Zjevné poškození",
+   "stav": "trefa",
+   "nazev": "Prasklá sprchová zástěna",
+   "meta": "Koupelna a sprcha · koupelna · zjevné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/d76aa2de2868.jpg",
+   "po": "/ukazka/21c13689d6be.jpg",
+   "vyrezPred": "/ukazka/f985c1d5ffdd.jpg",
+   "vyrezPo": "/ukazka/1a6f4e046368.jpg",
+   "brana": "Obrazové porovnání: podobnost 95.6 % · zarovnání good · rozdíl jasu +0 · podezřelých míst 3",
+   "luna": {
+    "ton": "vazne",
+    "popis": "Výrazné poškození",
+    "jistota": 99,
+    "rekla": "Skleněná sprchová zástěna je oproti referenci výrazně popraskaná. Z jednoho centrálního místa se rozbíhají četné praskliny přes velkou část tabule.",
+    "alternativa": "Rozdíl je konzistentně viditelný v celkovém snímku i v odpovídajícím výřezu; běžný odraz, změna světla ani úhel záběru takový vzor nevysvětlují. Nelze však ze snímků určit okamžik ani příčinu vzniku.",
+    "protiargument": "Nejsilnější protiargument neobstojí: praskliny jsou viditelné ve více výřezech a mají stejný radiální průběh z jednoho bodu. Neodpovídají odrazu, stínu, vlhkosti ani změně úhlu; nejspíše jde o skutečně popraskanou skleněnou tabuli.",
+    "odhad": "Odhad opravy 10000–25000 Kč",
+    "cas": "4.3 s · 2.15 Kč"
+   }
+  },
+  {
+   "skupina": "Zjevné poškození",
+   "stav": "trefa",
+   "nazev": "Chybí držák sprchy",
+   "meta": "Koupelna a sprcha · koupelna · zjevné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/d76aa2de2868.jpg",
+   "po": "/ukazka/dc133f6eecf7.jpg",
+   "vyrezPred": "/ukazka/7862ea5ed09b.jpg",
+   "vyrezPo": "/ukazka/9f659ffef254.jpg",
+   "brana": "Obrazové porovnání: podobnost 96.8 % · zarovnání good · rozdíl jasu +1 · podezřelých míst 2",
+   "luna": {
+    "ton": "vazne",
+    "popis": "Chybí vybavení",
+    "jistota": 95,
+    "rekla": "Z horní části sprchového systému zmizel kruhový držák/prvek uchycený ke stěně. Na snímku po odjezdu zůstaly na obkladu dva montážní otvory; sprchová zástěna ani obklady nevykazují zjevné prasknutí.",
+    "alternativa": "Prvek mohl být pouze dočasně demontovaný nebo zakrytý jinou součástí sprchy; vzhledem ke dvěma nově viditelným montážním otvorům je však skutečné sejmutí nejpravděpodobnější.",
+    "protiargument": "Na referenčním snímku je u horní části sprchové tyče kruhový nástěnný prvek, zatímco na novém snímku jsou v odpovídající oblasti vidět dva malé otvory. To ale samo o sobě neprokazuje poškození hostem; spíše může jít o demontáž nebo změnu montáže sprchového příslušenství, přičemž stěna, obklad ani sklo nevykazují zjevné nové poškození.",
+    "odhad": "Odhad opravy 800–2500 Kč",
+    "cas": "6.4 s · 2.43 Kč"
+   }
+  },
+  {
+   "skupina": "Zjevné poškození",
+   "stav": "trefa",
+   "nazev": "Uvolněné zábradlí",
+   "meta": "Spací patro · patro · zjevné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/29f973affb2e.jpg",
+   "po": "/ukazka/241538404c04.jpg",
+   "vyrezPred": "/ukazka/d9010f1f1378.jpg",
+   "vyrezPo": "/ukazka/eeff12dc424b.jpg",
+   "brana": "Obrazové porovnání: podobnost 90.4 % · zarovnání good · rozdíl jasu -1 · podezřelých míst 2",
+   "luna": {
+    "ton": "vazne",
+    "popis": "Výrazné poškození",
+    "jistota": 98,
+    "rekla": "Dřevěný prvek u přední hrany loftu/zábradlí je v referenci souvislý, zatímco na snímku po odjezdu je výrazně zlomený a odštípnutý; část je vychýlená šikmo dolů a na lomu jsou viditelné třísky.",
+    "alternativa": "Teoreticky by mohlo jít o již existující poškození zakryté nebo přehlédnuté v celkovém referenčním snímku, ale shodný výřez potvrzuje, že v referenci byl prvek neporušený.",
+    "protiargument": "Nejpříznivější protiargument je, že šikmo visící dřevěný kus může být samostatná volně položená lať nebo dočasný předmět překrývající přední hranu loftu; změna úhlu pohledu by pak mohla vytvořit dojem napojení na zábradlí. Na detailních záběrech však vodorovná část končí nepravidelným roztřepeným lomem a šikmý kus na něj zjevně navazuje, takže tento protiargument je slabý.",
+    "odhad": "Odhad opravy 3000–8000 Kč",
+    "cas": "5.8 s · 2.19 Kč"
+   }
+  },
+  {
+   "skupina": "Zjevné poškození",
+   "stav": "trefa",
+   "nazev": "Velká skvrna na matraci",
+   "meta": "Spací patro · patro · zjevné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/29f973affb2e.jpg",
+   "po": "/ukazka/a187793b845a.jpg",
+   "vyrezPred": "/ukazka/50b6aa8af45e.jpg",
+   "vyrezPo": "/ukazka/983e4f4ce1d8.jpg",
+   "brana": "Obrazové porovnání: podobnost 79.4 % · zarovnání good · rozdíl jasu +3 · podezřelých míst 2",
+   "luna": {
+    "ton": "vazne",
+    "popis": "Výrazné poškození",
+    "jistota": 78,
+    "rekla": "Na matraci je v hostovském snímku viditelná výrazná hnědá skvrna, která na referenčním snímku není patrná. Skvrna je částečně odkryta posunutou přikrývkou.",
+    "alternativa": "Matrace byla na referenčním snímku v tomto místě zakrytá, takže skvrna mohla existovat již při předání a nyní se pouze odhalila. Bez snímku celé matrace při předání nelze vznik během pobytu spolehlivě potvrdit.",
+    "protiargument": "Po odhrnutí přikrývky je vidět hnědé zabarvení matrace, ale referenční snímek tuto část matrace zakrývá, takže nelze doložit, že vzniklo během pobytu. Nepravidelný tvar a nasvícení mohou odpovídat předchozímu zabarvení, stínu nebo nečistotě odstraniteln é běžným čištěním, nikoli novému poškození.",
+    "odhad": null,
+    "cas": "7.0 s · 2.50 Kč"
+   }
+  },
+  {
+   "skupina": "Zjevné poškození",
+   "stav": "trefa",
+   "nazev": "Ulomená noha stolku",
+   "meta": "Sedačka a nábytek · obývák · zjevné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/d61feaa7166f.jpg",
+   "po": "/ukazka/5a5e9aca2d30.jpg",
+   "vyrezPred": "/ukazka/0cf7e0d8cf5b.jpg",
+   "vyrezPo": "/ukazka/d452405aa88b.jpg",
+   "brana": "Obrazové porovnání: podobnost 90 % · zarovnání good · rozdíl jasu -1 · podezřelých míst 4",
+   "luna": {
+    "ton": "stred",
+    "popis": "Drobné poškození",
+    "jistota": 86,
+    "rekla": "Na podlaze vedle předního křesla se v hostovském snímku nachází uvolněný dřevěný díl, který na referenčním snímku není. Pravděpodobně jde o oddělenou část konstrukce nebo opěrky křesla.",
+    "alternativa": "Může jít o díl, který byl pouze před odjezdem odložen nebo přesunut a nebyl skutečně ulomen; z výřezu není vidět jeho spoj ani místo původu.",
+    "protiargument": "Dřevěný díl není nově uvolněný: je viditelný i na referenčním výřezu, pouze v jiné poloze a částečně zakrytý křeslem v celkovém záběru. Jde tedy nejspíš o běžnou část nebo polohu křesla, nikoli o nově vzniklé poškození.",
+    "odhad": "Odhad opravy 500–1500 Kč",
+    "cas": "9.1 s · 2.90 Kč"
+   }
+  },
+  {
+   "skupina": "Zjevné poškození",
+   "stav": "trefa",
+   "nazev": "Rozbitý dřez",
+   "meta": "Kuchyňská linka · kuchyně · zjevné",
+   "verdikt": "Nalezeno",
+   "pred": "/ukazka/2c59139f9ed6.jpg",
+   "po": "/ukazka/f47c28d9736a.jpg",
+   "vyrezPred": "/ukazka/a805b0c79be3.jpg",
+   "vyrezPo": "/ukazka/5247f65ca5ba.jpg",
+   "brana": "Obrazové porovnání: podobnost 94.6 % · zarovnání good · rozdíl jasu +0 · podezřelých míst 2",
+   "luna": {
+    "ton": "vazne",
+    "popis": "Výrazné poškození",
+    "jistota": 99,
+    "rekla": "Na přední hraně pracovní desky bezprostředně vpravo od dřezu je nově odštípnutý a prasklý větší kus materiálu. V referenčním snímku je hrana v tomto místě neporušená.",
+    "alternativa": "Mohlo by jít o dříve zakryté nebo přehlédnuté poškození, ale stejný detailní výřez v referenci ukazuje neporušenou hranu; změna je proto dobře doložená.",
+    "protiargument": "Nejvěrohodnější protiargument je, že tmavá nepravidelná plocha u přední hrany může na hlavním snímku připomínat stín nebo cizí nečistotu zachycenou u dřezu. Detailní výřez však ukazuje skutečně chybějící materiál, ostré odštípnutí a navazující prasklinu, takže tento protiargument je slabý.",
+    "odhad": "Odhad opravy 5000–12000 Kč",
+    "cas": "4.7 s · 2.05 Kč"
+   }
+  }
+ ]
+}

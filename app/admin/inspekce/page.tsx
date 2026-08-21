@@ -37,6 +37,14 @@ export default async function AdminInspekce() {
         </p>
       )}
 
+      <p className="mb-5 text-[14px] text-sage">
+        Jak kontrola rozhoduje a co pozná, ukazuje{" "}
+        <Link href="/kontrola-stavu" className="text-ember hover:text-ember-soft">
+          přehled dvaceti tří případů
+        </Link>{" "}
+        — od vlasové praskliny ve skle po propálenou díru v čalounění, i s tím, co systém přehlédl.
+      </p>
+
       <Karta nadpis="Fronta" pocet={fronta.length}>
         {fronta.length ? (
           fronta.map((i) => {
