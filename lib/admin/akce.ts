@@ -6,6 +6,7 @@ import { radky, radkyT, transakce, jePrekryvTerminu, type Spousteni } from "@/li
 import { zapisDoDeniku } from "@/lib/auth/audit";
 import { vyzadujMajitele, vyzadujPrihlaseni } from "@/lib/auth/dal";
 import { icoSedi, naIban } from "./firma";
+import { vytvorRezervaci } from "@/lib/reservations/vytvor";
 import { zalozPristup } from "@/lib/portal/pristup";
 import { posliPristupDoPortalu } from "@/lib/mail/pobyt";
 
@@ -456,4 +457,108 @@ export async function ulozFirmu(f: {
   revalidatePath("/admin/nastaveni");
   revalidatePath("/rezervace");
   return { ok: true, zprava: `Uloženo. Účet ${ucet.zobrazeni}${ucet.banka ? " · " + ucet.banka : ""}.` };
+}
+
+/* ===== Ruční rezervace ===== */
+
+/**
+ * Rezervace zadaná v administraci.
+ *
+ * Většina rezervací u dvou domků nepřijde přes web, ale telefonem. Bez tohohle
+ * by majitel musel takové pobyty vést mimo systém — a kalendář na webu by
+ * ukazoval volno tam, kde volno není.
+ *
+ * Zakládá se toutéž cestou jako webová rezervace, včetně databázové ochrany
+ * proti dvojímu prodeji. Liší se jen zdroj, který zůstane v záznamu.
+ */
+export async function zalozRezervaci(f: {
+  domek: string;
+  prijezd: string;
+  odjezd: string;
+  hoste: string;
+  jmeno: string;
+  email: string;
+  telefon: string;
+  poznamka: string;
+  zdroj: string;
+}): Promise<Vysledek & { kod?: string }> {
+  const kdo = await vyzadujMajitele();
+
+  const jmeno = f.jmeno.trim();
+  if (jmeno.length < 2) return { ok: false, chyba: "Doplňte jméno hosta." };
+
+  const email = f.email.trim().toLowerCase();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return { ok: false, chyba: "Doplňte platný e-mail — bez něj se hostovi nedá nic poslat." };
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(f.prijezd) || !/^\d{4}-\d{2}-\d{2}$/.test(f.odjezd)) {
+    return { ok: false, chyba: "Vyplňte prosím oba termíny." };
+  }
+
+  const hoste = Number(f.hoste);
+  if (!Number.isInteger(hoste) || hoste < 1 || hoste > 4) {
+    return { ok: false, chyba: "Počet hostů musí být 1 až 4." };
+  }
+
+  const zdroj = f.zdroj === "phone" ? "phone" : "admin";
+
+  const v = await vytvorRezervaci({
+    domek: f.domek,
+    prijezd: new Date(f.prijezd + "T12:00:00"),
+    odjezd: new Date(f.odjezd + "T12:00:00"),
+    dospeli: hoste,
+    doplnky: {},
+    host: { jmeno, email, telefon: f.telefon.trim() || undefined, poznamka: f.poznamka.trim() || undefined },
+    zdroj,
+    vytvoril: kdo.id,
+  });
+
+  if (!v.ok) {
+    // Hláška z webu je psaná hostovi („obsadil někdo jiný, omlouváme se").
+    // Majitel ví, že ten někdo jiný je nejspíš jeho vlastní rezervace —
+    // užitečnější je říct které.
+    if (v.duvod === "obsazeno") {
+      const kolize = await radky<{ code: string; jmeno: string | null }>(sql`
+        SELECT r.code,
+               (SELECT btrim(coalesce(g.first_name,'') || ' ' || coalesce(g.last_name,''))
+                  FROM reservation_guests rg JOIN guests g ON g.id = rg.guest_id
+                 WHERE rg.reservation_id = r.id AND rg.role = 'payer' LIMIT 1) AS jmeno
+          FROM reservations r
+          JOIN reservation_units ru ON ru.reservation_id = r.id
+          JOIN units u ON u.id = ru.unit_id
+         WHERE ru.status IN ('hold','confirmed','checked_in')
+           AND daterange(ru.checkin, ru.checkout, '[)')
+               && daterange(${f.prijezd}::date, ${f.odjezd}::date, '[)')
+           AND (${f.domek} = 'cely-les' OR u.slug = ${f.domek})
+         ORDER BY r.checkin LIMIT 2
+      `);
+      const kdo2 = kolize.map((k) => `${k.code}${k.jmeno ? ` (${k.jmeno})` : ""}`).join(", ");
+      return {
+        ok: false,
+        chyba: kdo2
+          ? `Ten termín už je zabraný — ${kdo2}.`
+          : "Ten termín už je zabraný.",
+      };
+    }
+    return { ok: false, chyba: v.zprava };
+  }
+
+  await zapisDoDeniku({
+    akce: "rezervace.zalozena_rucne",
+    typEntity: "reservation",
+    idEntity: v.kod,
+    kdo: kdo.id,
+    zmena: { kod: v.kod, domek: f.domek, prijezd: f.prijezd, odjezd: f.odjezd, zdroj },
+  });
+
+  revalidatePath("/admin", "layout");
+  return {
+    ok: true,
+    kod: v.kod,
+    zprava:
+      v.stav === "hold"
+        ? `Založeno ${v.kod}. Termín je zablokovaný, záloha ${(v.zalohaHalere / 100).toLocaleString("cs-CZ")} Kč.`
+        : `Založeno ${v.kod} jako poptávka — příjezd je do 48 hodin, potvrďte ji ručně.`,
+  };
 }

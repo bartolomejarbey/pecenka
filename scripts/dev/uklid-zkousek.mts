@@ -19,9 +19,10 @@ const kandidati = await radky<{ id: string; code: string; checkin: string; email
     FROM reservations r
     JOIN reservation_guests rg ON rg.reservation_id = r.id
     JOIN guests g ON g.id = rg.guest_id
-   -- Jen rezervace z průchodu, ne ukázková data ze seedu. Ta ukázková
-   -- (eva@example.com) slouží k předvedení portálu a musí zůstat.
-   WHERE g.email LIKE 'zkouska.%@example.com'
+   -- Jen rezervace z automatických průchodů, ne ukázková data ze seedu.
+   -- Ta ukázková (eva@example.com) slouží k předvedení portálu a zůstává.
+   -- Předpony odpovídají tomu, co zakládají skripty v scripts/dev.
+   WHERE (g.email LIKE 'zkouska.%@example.com' OR g.email LIKE 'telefon.%@example.com')
      AND r.status NOT IN ('cancelled', 'expired')
    ORDER BY r.checkin
 `);

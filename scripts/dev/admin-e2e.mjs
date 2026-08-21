@@ -181,6 +181,64 @@ async function main() {
     console.log(`${sedi ? "✓" : "✗"} ${popis.padEnd(24)} ${odpoved ?? "(bez odpovědi)"}`);
   }
 
+  /* ===== Ruční rezervace ===== */
+  // Termín daleko v budoucnu, ať se nesrazí s ukázkovými daty ani s průchodem.
+  const den = (o) => {
+    const d = new Date();
+    d.setDate(d.getDate() + o);
+    return d.toISOString().slice(0, 10);
+  };
+  const posun = 500 + (Date.now() % 60);
+  const rucni = {
+    prijezd: den(posun),
+    odjezd: den(posun + 3),
+    jmeno: "Telefonní host",
+    email: `telefon.${Date.now().toString().slice(-6)}@example.com`,
+    telefon: "+420111222333",
+    poznamka: "Domluveno telefonem.",
+  };
+
+  const zaloz = async () => {
+    await jdi("/admin/rezervace/nova");
+    return evalx(`(async () => {
+      const nast = (el, v) => {
+        const s = Object.getOwnPropertyDescriptor(el.constructor.prototype, 'value').set;
+        s.call(el, v);
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+      const d = ${JSON.stringify(rucni)};
+      const pole = [...document.querySelectorAll('input, textarea')];
+      const podle = (t) => pole.filter(el => el.type === t);
+      const [prijezd, odjezd] = podle('date');
+      nast(prijezd, d.prijezd);
+      nast(odjezd, d.odjezd);
+      const texty = pole.filter(el => el.type === 'text' || el.tagName === 'TEXTAREA' || el.type === 'email');
+      nast(texty[0], d.jmeno);
+      nast(texty[1], d.email);
+      nast(texty[2], d.telefon);
+      if (texty[3]) nast(texty[3], d.poznamka);
+      document.querySelector('form button[type=submit]').click();
+      for (let i = 0; i < 200; i++) {
+        await new Promise(r => setTimeout(r, 150));
+        if (!location.pathname.endsWith('/nova')) return 'presmerovano ' + location.pathname;
+        const p = document.querySelector('[role=status]');
+        if (p && p.textContent.trim()) return p.textContent.trim();
+      }
+      return 'bez odezvy';
+    })()`);
+  };
+
+  const prvni = await zaloz();
+  console.log(`${/presmerovano|Založeno/.test(String(prvni)) ? "✓" : "✗"} ruční rezervace se založila  ${prvni}`);
+  if (!/presmerovano|Založeno/.test(String(prvni))) chyb++;
+
+  // Tentýž termín podruhé — databázová ochrana musí platit i tudy.
+  const druha = await zaloz();
+  const odmitnuto = /zabran|obsaz/i.test(String(druha));
+  console.log(`${odmitnuto ? "✓" : "✗"} tentýž termín se ručně podruhé zadat nedá  ${druha}`);
+  if (!odmitnuto) chyb++;
+
   ws.close();
   chrome.kill();
   fs.rmSync(profil, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });

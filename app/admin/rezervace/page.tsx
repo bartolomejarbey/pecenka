@@ -43,6 +43,18 @@ export default async function AdminRezervace({ searchParams }: Props) {
 
   return (
     <Shell kdo={kdo} aktivni="/admin/rezervace" nadpis="Rezervace">
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <Link
+          href="/admin/rezervace/nova"
+          className="rounded-xl bg-ember px-4 py-2.5 text-[14px] font-semibold text-night transition-colors hover:bg-ember-soft"
+        >
+          Nová rezervace
+        </Link>
+        <span className="text-[13.5px] text-sage">
+          Pobyt domluvený telefonem nebo e-mailem.
+        </span>
+      </div>
+
       <form action="/admin/rezervace" className="mb-4">
         <input
           type="search"
