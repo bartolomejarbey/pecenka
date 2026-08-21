@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { konecnaFaktura, nedanovyDoklad, opravnyDoklad, zalohovaFaktura, type Vysledek } from "@/lib/doklady/akce";
 
@@ -38,6 +39,7 @@ export default function Doklady({
   kod: string;
   doklady: DokladKRezervaci[];
 }) {
+  const router = useRouter();
   const [probiha, start] = useTransition();
   const [hlaska, setHlaska] = useState<{ ok: boolean; text: string } | null>(null);
   const [opravuje, setOpravuje] = useState<string | null>(null);
@@ -52,6 +54,10 @@ export default function Doklady({
       const v = await fn();
       setHlaska(v.ok ? { ok: true, text: v.zprava } : { ok: false, text: v.chyba });
       if (v.ok) {
+        // Seznam dokladů vykresluje server. `revalidatePath` v akci sice
+        // vyprázdní mezipaměť, ale otevřenou stránku nikdo nepřekreslí —
+        // majitel by vystavil fakturu a neviděl ji, dokud sám neobnoví.
+        router.refresh();
         setOpravuje(null);
         setNedanovy(false);
         setDuvod("");

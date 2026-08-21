@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { odkazNaDoklad } from "@/lib/payments/odkaz";
+import { podpisyNastaveny } from "@/lib/payments/podpis";
 import { sql } from "drizzle-orm";
 import { radky } from "@/lib/db/client";
 import { vyzadujMajitele } from "@/lib/auth/dal";
@@ -77,7 +79,20 @@ export default async function AdminDoklady() {
               <div key={d.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
                 <div className="min-w-0">
                   <p className="text-[15px] text-linen">
-                    <span className="font-display">{d.number}</span>
+                    {/* Číslo dokladu je zároveň odkaz na jeho tiskovou podobu —
+                        z přehledu se k dokladu jinak nedá dostat. */}
+                    {d.status === "DRAFT" || !podpisyNastaveny() ? (
+                      <span className="font-display">{d.number}</span>
+                    ) : (
+                      <a
+                        href={odkazNaDoklad(d.id)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-display underline decoration-linen/25 underline-offset-4 hover:text-ember"
+                      >
+                        {d.number}
+                      </a>
+                    )}
                     <span className="ml-2.5 text-sage">
                       {nazevDokladu(d.doc_type, d.vat_applicable)}
                     </span>

@@ -39,7 +39,15 @@ const Vstup = z.object({
   web: z.string().optional(), // honeypot
 });
 
-/** Kolik pokusů z jedné IP za deset minut. */
+/**
+ * Kolik pokusů z jedné IP za deset minut.
+ *
+ * Počítadlo žije v paměti procesu. V nasazení běží víc instancí funkce
+ * a každá si počítá zvlášť, takže skutečný strop je násobkem instancí —
+ * proti nepozornému opakování to stačí, proti odhodlanému robotovi ne.
+ * Skutečnou pojistkou proti dvojímu prodeji je databázové omezení při
+ * zakládání rezervace, ne tohle.
+ */
 const LIMIT = 5;
 const OKNO_MS = 10 * 60 * 1000;
 const pokusy = new Map<string, number[]>();

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { rozhodniOSkode } from "@/lib/luna/rozhodnuti";
 
@@ -26,6 +27,7 @@ export default function Rozhodnuti({
   const [castka, setCastka] = useState(odhadMax ? String(Math.round(odhadMax)) : "");
   const [duvod, setDuvod] = useState("");
   const [sluzba, setSluzba] = useState(false);
+  const router = useRouter();
   const [probiha, start] = useTransition();
   const [hlaska, setHlaska] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -33,6 +35,8 @@ export default function Rozhodnuti({
     start(async () => {
       const v = await rozhodniOSkode(pripadId, kc, duvod, sluzba);
       setHlaska(v.ok ? { ok: true, text: v.zprava } : { ok: false, text: v.chyba });
+      // Rozhodnutí mění stav protokolu, který vykresluje server.
+      if (v.ok) router.refresh();
     });
 
   const kratky = duvod.trim().length < 20;

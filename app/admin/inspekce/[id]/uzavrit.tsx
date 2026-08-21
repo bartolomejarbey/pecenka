@@ -1,9 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { spustVyhodnoceni, uzavriInspekci } from "@/lib/luna/rozhodnuti";
 
 export default function Uzavrit({ inspekceId }: { inspekceId: string }) {
+  const router = useRouter();
   const [probiha, start] = useTransition();
   const [hlaska, setHlaska] = useState<string | null>(null);
 
@@ -13,7 +15,13 @@ export default function Uzavrit({ inspekceId }: { inspekceId: string }) {
     <div className="mt-5 flex flex-wrap items-center gap-3">
       <button
         type="button" className={tl} disabled={probiha}
-        onClick={() => start(async () => setHlaska((await uzavriInspekci(inspekceId)).ok ? "Uzavřeno." : "Nepovedlo se."))}
+        onClick={() =>
+          start(async () => {
+            const v = await uzavriInspekci(inspekceId);
+            setHlaska(v.ok ? "Uzavřeno." : "Nepovedlo se.");
+            if (v.ok) router.refresh();
+          })
+        }
       >
         Uzavřít bez nároku
       </button>

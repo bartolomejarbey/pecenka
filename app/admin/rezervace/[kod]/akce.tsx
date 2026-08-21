@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { oznacZaplaceno, potvrdRezervaci, zmenStav, zrusRezervaci, type Vysledek } from "@/lib/admin/akce";
 
@@ -28,6 +29,7 @@ export default function Akce({
   zalohaId: string | null;
   doplatekId: string | null;
 }) {
+  const router = useRouter();
   const [probiha, start] = useTransition();
   const [hlaska, setHlaska] = useState<{ ok: boolean; text: string } | null>(null);
   const [stornujeSe, setStornujeSe] = useState(false);
@@ -37,7 +39,12 @@ export default function Akce({
     start(async () => {
       const v = await fn();
       setHlaska(v.ok ? { ok: true, text: v.zprava ?? "Hotovo." } : { ok: false, text: v.chyba });
-      if (v.ok) setStornujeSe(false);
+      if (v.ok) {
+        // Stav rezervace vykresluje server. Bez překreslení by majitel klikl
+        // na „Potvrdit" a viděl dál původní stav i původní tlačítko.
+        router.refresh();
+        setStornujeSe(false);
+      }
     });
 
   const hlavni = (() => {
