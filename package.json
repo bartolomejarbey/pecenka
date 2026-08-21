@@ -12,6 +12,8 @@
     "db:reset": "rm -rf .pglite && node scripts/db-migrate.mjs && node scripts/db-seed.mjs",
     "db:seed": "node scripts/db-seed.mjs",
     "test": "vitest run",
+    "test:admin": "node scripts/dev/admin-e2e.mjs",
+    "qa": "node scripts/qa-shots.mjs",
     "test:watch": "vitest",
     "admin:create": "node scripts/create-admin.mts",
     "db:check": "node scripts/db-check.mjs",

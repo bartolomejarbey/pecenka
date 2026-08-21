@@ -5,6 +5,7 @@ import { sql } from "drizzle-orm";
 import { radky, radkyT, transakce, jePrekryvTerminu, type Spousteni } from "@/lib/db/client";
 import { zapisDoDeniku } from "@/lib/auth/audit";
 import { vyzadujMajitele, vyzadujPrihlaseni } from "@/lib/auth/dal";
+import { icoSedi, naIban } from "./firma";
 
 /**
  * Akce administrace.
@@ -275,4 +276,116 @@ export async function ulozPoznamku(kod: string, text: string): Promise<Vysledek>
   });
   revalidatePath(`/admin/rezervace/${kod}`);
   return { ok: true, zprava: "Poznámka uložena." };
+}
+
+/* ===== Údaje firmy ===== */
+
+/**
+ * Uložení fakturačních údajů.
+ *
+ * Kontroluje se tu víc, než je zvykem u nastavení, a schválně: tyhle údaje
+ * jdou na doklad. IČO s překlepem doputuje k finančnímu úřadu, účet
+ * s překlepem pošle zálohu cizímu člověku. Obojí se dá zjistit z kontrolní
+ * číslice dřív, než se to stihne vytisknout.
+ */
+export async function ulozFirmu(f: {
+  nazev: string;
+  ico: string;
+  dic: string;
+  ulice: string;
+  mesto: string;
+  psc: string;
+  ucet: string;
+  platceDph: boolean;
+  poplatekKc: string;
+  vyhlaska: string;
+  zalohaProcent: string;
+  kauceKc: string;
+  splatnostDni: string;
+}): Promise<Vysledek> {
+  const kdo = await vyzadujMajitele();
+
+  const nazev = f.nazev.trim();
+  if (nazev.length < 3) return { ok: false, chyba: "Doplňte jméno podnikatele nebo název firmy." };
+
+  const ico = f.ico.replace(/\s/g, "");
+  if (!icoSedi(ico)) {
+    return { ok: false, chyba: "IČO nesedí na kontrolní číslici. Zkontrolujte prosím, jestli v něm není překlep." };
+  }
+
+  const dic = f.dic.replace(/\s/g, "").toUpperCase();
+  if (dic && !/^CZ\d{8,10}$/.test(dic)) {
+    return { ok: false, chyba: "DIČ má tvar CZ a osm až deset číslic, například CZ27074358." };
+  }
+  if (f.platceDph && !dic) {
+    return { ok: false, chyba: "Plátce DPH musí mít DIČ — bez něj nejde vystavit daňový doklad." };
+  }
+
+  const ucet = naIban(f.ucet);
+  if ("chyba" in ucet) return { ok: false, chyba: ucet.chyba };
+
+  const psc = f.psc.replace(/\s/g, "");
+  if (!/^\d{5}$/.test(psc)) return { ok: false, chyba: "PSČ má pět číslic." };
+  if (f.ulice.trim().length < 3 || f.mesto.trim().length < 2) {
+    return { ok: false, chyba: "Doplňte prosím ulici a obec — adresa je povinná náležitost dokladu." };
+  }
+
+  const cislo = (s: string, popis: string, max: number): { chyba: string } | { n: number } => {
+    const n = Number(s.replace(",", ".").replace(/\s/g, ""));
+    if (!Number.isFinite(n) || n < 0 || n > max) return { chyba: `${popis} musí být číslo mezi 0 a ${max}.` };
+    return { n };
+  };
+
+  const poplatek = cislo(f.poplatekKc, "Poplatek z pobytu", 1000);
+  if ("chyba" in poplatek) return { ok: false, chyba: poplatek.chyba };
+  const kauce = cislo(f.kauceKc, "Kauce", 100_000);
+  if ("chyba" in kauce) return { ok: false, chyba: kauce.chyba };
+  const zaloha = cislo(f.zalohaProcent, "Záloha", 100);
+  if ("chyba" in zaloha) return { ok: false, chyba: zaloha.chyba };
+  const splatnost = cislo(f.splatnostDni, "Splatnost", 90);
+  if ("chyba" in splatnost) return { ok: false, chyba: splatnost.chyba };
+
+  const vyhlaska = f.vyhlaska.trim();
+  if (poplatek.n > 0 && !vyhlaska) {
+    return {
+      ok: false,
+      chyba: "U poplatku z pobytu doplňte číslo obecně závazné vyhlášky — patří na doklad jako důvod účtování.",
+    };
+  }
+
+  // Klíče anglicky, protože v tomhle tvaru adresu zakládá `scripts/db-seed.mjs`
+  // a doklad ji odtamtud čte. Dva tvary jedné věci by znamenaly, že doklad
+  // vypadá jinak podle toho, jestli údaje někdo přes formulář přepsal.
+  const adresa = { street: f.ulice.trim(), city: f.mesto.trim(), zip: psc, country: "CZ" };
+
+  await radky(sql`
+    UPDATE company_settings SET
+      legal_name = ${nazev},
+      ico = ${ico},
+      dic = ${dic || null},
+      address = ${JSON.stringify(adresa)}::jsonb,
+      bank_iban = ${ucet.iban},
+      bank_bic = ${ucet.bic},
+      bank_display = ${ucet.zobrazeni},
+      vat_payer = ${f.platceDph},
+      city_tax_cents = ${Math.round(poplatek.n * 100)},
+      city_tax_ozv_ref = ${vyhlaska || null},
+      security_deposit_cents = ${Math.round(kauce.n * 100)},
+      deposit_share_bp = ${Math.round(zaloha.n * 100)},
+      invoice_due_days = ${Math.round(splatnost.n)},
+      updated_at = now()
+    WHERE id = 1
+  `);
+
+  await zapisDoDeniku({
+    akce: "company.update",
+    typEntity: "company_settings",
+    idEntity: "1",
+    kdo: kdo.id,
+    zmena: { nazev, ico, ucet: ucet.zobrazeni, platceDph: f.platceDph, poplatekKc: poplatek.n },
+  });
+
+  revalidatePath("/admin/nastaveni");
+  revalidatePath("/rezervace");
+  return { ok: true, zprava: `Uloženo. Účet ${ucet.zobrazeni}${ucet.banka ? " · " + ucet.banka : ""}.` };
 }

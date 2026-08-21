@@ -3,11 +3,12 @@ import { sql } from "drizzle-orm";
 import { radky, jeLokalniDb } from "@/lib/db/client";
 import { vyzadujPrihlaseni } from "@/lib/auth/dal";
 import { odhlasSe } from "@/lib/auth/akce";
-import { formatHalere } from "@/lib/booking";
+import { SITE } from "@/lib/content";
 import { COMGATE_ZAPNUT } from "@/lib/payments/nastaveni";
 import { podpisyNastaveny } from "@/lib/payments/podpis";
 import Shell from "@/components/admin/Shell";
 import { Karta } from "@/components/admin/prvky";
+import FormularFirmy from "./formular";
 
 export const metadata: Metadata = { title: "Nastavení", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -26,17 +27,40 @@ export default async function AdminNastaveni() {
     legal_name: string;
     ico: string;
     dic: string | null;
+    address: { street?: string; city?: string; zip?: string } | null;
     bank_iban: string;
     bank_display: string;
     vat_payer: boolean;
     city_tax_cents: string | number;
+    city_tax_ozv_ref: string | null;
     security_deposit_cents: string | number;
     deposit_share_bp: number;
+    invoice_due_days: number;
   }>(sql`
-    SELECT legal_name, ico, dic, bank_iban, bank_display, vat_payer,
-           city_tax_cents, security_deposit_cents, deposit_share_bp
+    SELECT legal_name, ico, dic, address, bank_iban, bank_display, vat_payer,
+           city_tax_cents, city_tax_ozv_ref, security_deposit_cents,
+           deposit_share_bp, invoice_due_days
       FROM company_settings WHERE id = 1
   `);
+
+  // Zástupné hodnoty ze seedu se do formuláře nepředávají — prázdné pole
+  // s nápovědou je srozumitelnější než „DOPLNIT", které vypadá jako údaj.
+  const bezZastupne = (h: string, vzor: RegExp) => (vzor.test(h) ? "" : h);
+  const vychozi = {
+    nazev: bezZastupne(firma?.legal_name ?? "", /^DOPLNIT/i),
+    ico: bezZastupne(firma?.ico ?? "", /^0{8}$|^DOPLNIT/i),
+    dic: firma?.dic ?? "",
+    ulice: bezZastupne(firma?.address?.street ?? "", /^DOPLNIT/i),
+    mesto: firma?.address?.city ?? "",
+    psc: (firma?.address?.zip ?? "").replace(/\s/g, ""),
+    ucet: bezZastupne(firma?.bank_display ?? "", /^0+\//),
+    platceDph: Boolean(firma?.vat_payer),
+    poplatekKc: String(Number(firma?.city_tax_cents ?? 0) / 100),
+    vyhlaska: firma?.city_tax_ozv_ref ?? "",
+    zalohaProcent: String((firma?.deposit_share_bp ?? 5000) / 100),
+    kauceKc: String(Number(firma?.security_deposit_cents ?? 0) / 100),
+    splatnostDni: String(firma?.invoice_due_days ?? 14),
+  };
 
   const nedodelky = [
     !firma || firma.legal_name.startsWith("DOPLNIT")
@@ -44,6 +68,12 @@ export default async function AdminNastaveni() {
       : null,
     !firma || firma.bank_iban.startsWith("CZ00000")
       ? "Doplnit bankovní účet — bez něj se negeneruje QR platba."
+      : null,
+    !firma?.address?.street || firma.address.street.startsWith("DOPLNIT")
+      ? "Doplnit adresu — je to povinná náležitost dokladu."
+      : null,
+    SITE.phone.includes("777 000 777")
+      ? "Na webu je zástupné telefonní číslo. Pošlete to skutečné — doplní se při nejbližším nasazení."
       : null,
     !podpisyNastaveny() ? "Nastavit PAYMENTS_SIGNING_KEY (podpis odkazů na platbu)." : null,
     !process.env.SMTP_HOST ? "Nastavit SMTP — bez něj se e-maily jen logují." : null,
@@ -71,24 +101,8 @@ export default async function AdminNastaveni() {
           )}
         </Karta>
 
-        <Karta nadpis="Firma a platby">
-          <Radek popis="Název" hodnota={firma?.legal_name ?? "—"} />
-          <Radek popis="IČO" hodnota={firma?.ico ?? "—"} />
-          <Radek popis="DIČ" hodnota={firma?.dic ?? "není plátce DPH"} />
-          <Radek popis="Účet" hodnota={firma?.bank_display ?? "—"} />
-          <Radek popis="Záloha" hodnota={`${(firma?.deposit_share_bp ?? 0) / 100} % z ceny pobytu`} />
-          <Radek
-            popis="Kauce"
-            hodnota={formatHalere(Number(firma?.security_deposit_cents ?? 0)) + " (neúčtuje se předem)"}
-          />
-          <Radek
-            popis="Poplatek obci"
-            hodnota={
-              Number(firma?.city_tax_cents ?? 0) > 0
-                ? `${formatHalere(Number(firma!.city_tax_cents))} za osobu a noc`
-                : "obec ho zatím nemá zavedený / neověřeno"
-            }
-          />
+        <Karta nadpis="Fakturační údaje">
+          <FormularFirmy vychozi={vychozi} />
         </Karta>
 
         <Karta nadpis="Účet">
