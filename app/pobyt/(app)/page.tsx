@@ -5,7 +5,7 @@ import LogoMark from "@/components/LogoMark";
 import VzkazHostovi from "@/components/pobyt/VzkazHostovi";
 import { Zkopiruj } from "@/components/pobyt/prvky";
 import { HOUSES, SITE } from "@/lib/content";
-import { telOdkaz, vokativ } from "@/lib/format";
+import { formatTelefon, telOdkaz, vokativ } from "@/lib/format";
 import { odhlas } from "@/lib/portal/akce";
 import { ktoJePrihlasen } from "@/lib/portal/pristup";
 import { nactiPrehled, type Prehled } from "@/lib/portal/prehled";
@@ -99,7 +99,7 @@ export default async function PobytPrehled() {
 
         {prehled.faze === "prijezd" && (
           <>
-            <Karta nadpis="Jak dovnitř" zvyraznit>
+            <Karta nadpis="Jak se dostanete dovnitř" zvyraznit>
               {vytahniKod(info?.klice ?? "") ? (
                 <Zkopiruj hodnota={vytahniKod(info?.klice ?? "")!} popis="Kód od schránky" velky />
               ) : null}
@@ -122,7 +122,14 @@ export default async function PobytPrehled() {
 
         {prehled.faze === "behem" && (
           <>
-            <div className="grid grid-cols-2 gap-3">
+            {/*
+              * Pod sebe, ne vedle sebe.
+              *
+              * Dvousloupcová mřížka má na 393 px sto šedesát pixelů na kartu
+              * a heslo „lomasvetlusky" se v ní lámalo na tři řádky. Údaj,
+              * který se opisuje, musí být na jeden pohled celý.
+              */}
+            <div className="space-y-3">
               {info?.wifiHeslo && (
                 <Zkopiruj hodnota={info.wifiHeslo} popis="Heslo k Wi-Fi" />
               )}
@@ -145,12 +152,21 @@ export default async function PobytPrehled() {
           <Odjezd stav={protokol} odjezdDo={info?.odjezdDo ?? "10:00"} />
         )}
 
-        <a
-          href={telOdkaz(telefon)}
-          className="flex min-h-[52px] items-center justify-center gap-2.5 rounded-full border border-linen/15 text-[15px] text-linen hover:border-ember/40"
-        >
-          Zavolat nám · klidně i kvůli maličkosti
-        </a>
+        {/*
+          * Telefon jen tam, kde se opravdu volá.
+          *
+          * Byl na každé obrazovce pod sebou se vším ostatním; na čtvrté už
+          * to byla omáčka a duplikoval záložku Pomoc. Zůstává v den příjezdu
+          * (host bloudí) a v den odjezdu (host něco našel).
+          */}
+        {(prehled.faze === "prijezd" || prehled.faze === "odjezd") && (
+          <a
+            href={telOdkaz(telefon)}
+            className="flex min-h-[52px] items-center justify-center gap-2.5 rounded-full border border-linen/15 text-[15px] text-linen hover:border-ember/40"
+          >
+            Zavolat nám · {formatTelefon(telefon)}
+          </a>
+        )}
       </div>
     </main>
   );
@@ -175,7 +191,8 @@ function nadpisFaze(p: Prehled, domek: string): string {
     case "prijezd":
       return p.dniDoPrijezdu === 0 ? "Dnes se vidíme" : "Zítra vyrážíte";
     case "behem":
-      return `Vítejte v ${vLokalu(domek)}`;
+      // „Vítejte" druhý den zní jako automat, který neví, že tu host už spal.
+      return p.dniDoOdjezdu >= 3 ? `Jste v ${vLokalu(domek)}` : "Užijte si to tu";
     case "odjezd":
       return p.dniDoOdjezdu === 0 ? "Dnes odjíždíte" : "Zítra odjíždíte";
     case "po":

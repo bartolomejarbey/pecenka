@@ -6,6 +6,16 @@ import os from "node:os";
 import path from "node:path";
 
 const OUT = process.argv[2] || "qa-portal";
+/**
+ * Fáze pobytu, ve které se má portál projít.
+ *
+ * Portál vypadá jinak před příjezdem, na místě a u odjezdu — projít ho v jedné
+ * fázi znamená vidět třetinu. Přepnutí jede přes ukázkový režim, který posouvá
+ * termín rezervace; funguje jen na místní databázi.
+ *
+ *   node scripts/dev/qa-portal.mjs <adresář> <vs> <kód> [faze]
+ */
+const FAZE = process.argv[5] || null;
 const BASE = process.env.QA_URL || "https://sedmyles.vercel.app";
 const VS = process.argv[3] || "2610000015";
 const KOD = process.argv[4] || "S8DEZ5HB";
@@ -59,6 +69,15 @@ const snimek = async (jmeno) => {
   fs.writeFileSync(path.join(OUT, `${jmeno}.jpg`), Buffer.from(o.data, "base64"));
 };
 
+if (FAZE) {
+  await jdi("/pobyt/ukazka");
+  await s("Runtime.evaluate", {
+    expression: `[...document.querySelectorAll('form')].find(f => f.querySelector('input[value="${FAZE}"]'))?.requestSubmit()`,
+  });
+  await spat(4000);
+  console.log("fáze:", FAZE);
+}
+
 await jdi("/pobyt/prihlaseni");
 await snimek("1-prihlaseni");
 
@@ -86,6 +105,37 @@ await jdi("/pobyt/protokol");
 await snimek("6-fotky");
 const zona = await s("Runtime.evaluate", { expression: "document.querySelector('h1')?.textContent", returnByValue: true });
 console.log("první zóna:", zona.result.value);
+
+/*
+ * Dotykové cíle a přetečení.
+ *
+ * Měří se na poslední otevřené stránce; pro celý průchod se skript pouští
+ * pro každou fázi zvlášť. Čtyřicet čtyři pixelů je hranice, pod kterou se
+ * palcem netrefí ani člověk bez brýlí.
+ */
+const audit = await s("Runtime.evaluate", {
+  returnByValue: true,
+  expression: `(() => {
+    const male = [...document.querySelectorAll('a,button,[role=button],input,summary')]
+      .filter((e) => {
+        const r = e.getBoundingClientRect();
+        const st = getComputedStyle(e);
+        // Prvky schované pro odečítače (sr-only) se neklepají — vstup pro
+        // soubor v průvodci focením spouští viditelné tlačítko vedle.
+        const skryty = st.clipPath !== 'none' || st.clip !== 'auto' || st.opacity === '0';
+        if (skryty || r.width <= 1 || r.height <= 1) return false;
+        // Odkaz uvnitř odstavce je součást věty, ne samostatná akce.
+        const vVete = e.tagName === 'A' && e.parentElement?.tagName === 'P';
+        if (vVete) return false;
+        return r.height < 44 || r.width < 44;
+      })
+      .map((e) => (e.textContent || e.getAttribute('aria-label') || e.tagName).trim().slice(0, 40));
+    return { male, sirka: document.documentElement.scrollWidth };
+  })()`,
+});
+const a = audit.result.value;
+if (a.male.length) console.log("malé cíle:", a.male.join(" | "));
+if (a.sirka > 393) console.log("vodorovné přetečení:", a.sirka, "px");
 
 console.log("hotovo:", fs.readdirSync(OUT).length, "snímků");
 sock.close(); chrome.kill(); fs.rmSync(profil, { recursive: true, force: true });

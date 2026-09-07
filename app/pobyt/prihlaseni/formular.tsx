@@ -2,6 +2,8 @@
 
 import { useActionState } from "react";
 import { prihlas, type StavPrihlaseni } from "@/lib/portal/akce";
+import { SITE } from "@/lib/content";
+import { telOdkaz } from "@/lib/format";
 
 const POLE =
   "mt-2 w-full rounded-xl border border-linen/15 bg-bark px-4 py-3.5 text-[16px] text-linen " +
@@ -52,11 +54,31 @@ export default function Formular({ chybaZOdkazu }: { chybaZOdkazu: string | null
       </button>
 
       <p className="text-[13.5px] leading-relaxed text-sage/80">
-        Kód nemáte? Napište nám na{" "}
-        <a href="mailto:ahoj@sedmyles.cz" className="text-ember underline underline-offset-2">
-          ahoj@sedmyles.cz
-        </a>{" "}
-        a pošleme ho znovu.
+        Kód nemáte, nebo vám nesedí?
+      </p>
+      {/*
+        * Cesta ven, ne odkaz uvnitř věty.
+        *
+        * Host bez kódu je tady zaseknutý — tohle je jediná obrazovka, kterou
+        * vidí. Malý odkaz v odstavci je pro něj slepá ulička; potřebuje
+        * tlačítko, které se dá trefit palcem.
+        */}
+      <div className="grid grid-cols-2 gap-2.5">
+        <a
+          href={telOdkaz(SITE.phone)}
+          className="flex min-h-[52px] items-center justify-center rounded-full border border-linen/20 text-[15px] text-linen transition-colors hover:border-ember/45 hover:text-ember"
+        >
+          Zavolat
+        </a>
+        <a
+          href={`mailto:${SITE.email}?subject=${encodeURIComponent("Přístup k pobytu")}`}
+          className="flex min-h-[52px] items-center justify-center rounded-full border border-linen/20 text-[15px] text-linen transition-colors hover:border-ember/45 hover:text-ember"
+        >
+          Napsat e-mail
+        </a>
+      </div>
+      <p className="text-[13.5px] leading-relaxed text-sage/80">
+        Pošleme ho znovu, obvykle do pár minut.
       </p>
     </form>
   );

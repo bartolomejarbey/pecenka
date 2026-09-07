@@ -1042,3 +1042,67 @@ všude.
 
 Měřeno: LCP 32–420 ms, CLS 0 (kontakt 0,028), nula dlouhých úloh, nula chyb
 v konzoli na všech 13 stránkách v obou rozlišeních. **207 testů prochází.**
+
+## Kolo 17 — zkouška klientské zóny
+
+Otázka zněla: je to přehledné, důstojné a funkční i pro člověka, který se
+nechce nic učit — nebo je to jen hezky vypadající generovaná omáčka?
+Projití všech pěti fází × čtyř záložek na 393 px našlo pět věcí.
+
+### Heslo k wifi se lámalo na tři řádky
+Nejhorší nález. Dvousloupcová mřížka má na telefonu sto šedesát pixelů na
+kartu a „lomasvetlusky" se do ní nevešlo — vypadalo to rozbitě a hůř se to
+opisovalo. „KÓD OD SCHRÁNKY" zároveň naráželo do slova „kopírovat".
+
+Prvek `Zkopiruj` má teď popis nahoře, hodnotu pod ním a **ikonu místo slova**;
+dlouhá hodnota dostane menší písmo, ne zalomení. Hesla jsou pod sebou, ne
+vedle sebe.
+
+### „Vítejte v Achátu" druhý den pobytu
+Fáze `behem` začíná den po příjezdu, takže hosta vítala aplikace i tehdy,
+když už tam jednu noc spal. Teď „Jste v Achátu" a poslední den „Užijte si
+to tu".
+
+### Telefon na každé obrazovce
+Tlačítko „Zavolat nám · klidně i kvůli maličkosti" bylo pod vším a na čtvrté
+obrazovce už to byla omáčka — navíc duplikovalo záložku Pomoc. Zůstává jen
+v den příjezdu (host bloudí) a v den odjezdu (host něco našel), a nese
+i číslo.
+
+### Host bez kódu byl na přihlášení zaseknutý
+Jediná cesta ven byla malý odkaz uvnitř věty. Teď dvě tlačítka — zavolat
+a napsat.
+
+### „Jak dovnitř" vs „Jak se dostanete dovnitř"
+Táž věc se v Pobytu a v Domku jmenovala jinak.
+
+### Co obstálo
+Chybová obrazovka: při výpadku databáze host viděl větu a telefon, ne
+traceback. Prázdná data: bez adresy a kódu se neukáže prázdný blok, ale věta
+„Pokyny doplníme před příjezdem. Kdyby tu nic nebylo, zavolejte."
+Žádný dotykový cíl pod 44 px, žádné vodorovné přetečení.
+
+### Testy, které to hlídají dál
+`__tests__/portal-texty.test.ts` — osmnáct frází, které do portálu nepatří
+(„nezapomeňte", „vezměte na vědomí", „neváhejte", „uživatel", „klient"),
+zákaz vykřičníků a kontrola, že každý tón vzkazu má dokončenou větu.
+Test si vynutil vlastní upřesnění: u tónu s prosbami smí věta končit
+dvojtečkou, protože uvozuje seznam.
+
+`__tests__/prehled.test.ts` — osm testů na fáze pobytu včetně toho, že se
+pokryje celá osa a že přechod letního času nerozhodí počet dní.
+
+`scripts/dev/qa-portal.mjs` umí projít portál v zadané fázi a hlásí malé
+dotykové cíle i vodorovné přetečení. Nepočítá prvky schované pro odečítače
+ani odkazy uvnitř odstavce — ty nejsou samostatná akce.
+
+### Dvě věci mimo portál
+`scripts/dev/ukazkova-data.mjs` postaví celou ukázku jedním příkazem
+a **odmítne běžet, když běží server**: PGlite drží data v jednom adresáři
+a dva procesy nad ním si je navzájem poškodí. Přišlo se na to tak, že se to
+stalo — chyba se projeví až později hláškou „Aborted()".
+
+`scripts/dev/snimek.mjs` fotí jednu stránku; čeká, až zmizí kostra
+z `loading.tsx`, jinak zachytí prázdno.
+
+**227 testů prochází.**
