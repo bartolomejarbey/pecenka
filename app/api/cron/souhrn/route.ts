@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { overCron } from "@/lib/cron/overeni";
 import { nactiDnes } from "@/lib/admin/dnes";
 import { posliRanniSouhrn, stojiZaOdeslani } from "@/lib/mail/souhrn";
 
@@ -17,17 +18,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-  const tajemstvi = process.env.CRON_SECRET;
-  if (tajemstvi) {
-    const podano =
-      req.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ??
-      new URL(req.url).searchParams.get("token");
-    if (podano !== tajemstvi) {
-      return NextResponse.json({ error: "Nepovoleno." }, { status: 401 });
-    }
-  } else if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "CRON_SECRET není nastaven." }, { status: 503 });
-  }
+  const nepovoleno = overCron(req);
+  if (nepovoleno) return nepovoleno;
 
   const komu = process.env.CONTACT_TO ?? process.env.SMTP_USER;
   if (!komu) {

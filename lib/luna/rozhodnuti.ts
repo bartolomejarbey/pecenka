@@ -5,6 +5,7 @@ import { sql } from "drizzle-orm";
 import { radky } from "@/lib/db/client";
 import { zapisDoDeniku } from "@/lib/auth/audit";
 import { vyzadujMajitele } from "@/lib/auth/dal";
+import { zkontrolujRozhodnuti } from "./kontrola";
 
 /**
  * Rozhodnutí o škodě.
@@ -29,14 +30,9 @@ export async function rozhodniOSkode(
 ): Promise<Vysledek> {
   const kdo = await vyzadujMajitele();
 
-  const cisty = duvod.trim();
-  if (cisty.length < 20) {
-    return {
-      ok: false,
-      chyba: "Napiš prosím vlastními slovy, proč to považuješ za škodu — aspoň 20 znaků. Bez toho to nejde uložit.",
-    };
-  }
-  if (castkaKc < 0) return { ok: false, chyba: "Částka nemůže být záporná." };
+  const kontrola = zkontrolujRozhodnuti(castkaKc, duvod);
+  if (!kontrola.ok) return { ok: false, chyba: kontrola.chyba };
+  const cisty = kontrola.duvod;
 
   const [pripad] = await radky<{ id: string; reservation_id: string; zone_key: string }>(
     sql`SELECT id::text AS id, reservation_id::text AS reservation_id, zone_key
@@ -60,6 +56,8 @@ export async function rozhodniOSkode(
     return { ok: false, chyba: "Rozhodnutí se nepodařilo uložit." };
   }
 
+  await zapisZpetnouVazbu(pripadId, castkaKc > 0 ? "true_positive" : "false_positive", cisty);
+
   await zapisDoDeniku({
     akce: castkaKc > 0 ? "skoda.rozhodnuta" : "skoda.zamitnuta",
     typEntity: "damage_case",
@@ -78,11 +76,56 @@ export async function rozhodniOSkode(
   };
 }
 
+/**
+ * Zpětná vazba od člověka k nálezu modelu.
+ *
+ * Tabulka `luna_feedback` existovala od začátku a nikdo do ní nikdy nezapsal.
+ * Přitom „bez nároku" u nálezu `damage_major` je učebnicový falešný poplach —
+ * a bez záznamu se nedá poznat, jestli se systém po změně promptu zlepšil,
+ * nebo zhoršil. Je to jediná měřitelná pravda, kterou o vlastní přesnosti máme;
+ * deset vygenerovaných dvojic v testovací sadě ji nenahradí.
+ *
+ * Selhání se jen zaloguje — kalibrační poznámka nesmí shodit rozhodnutí,
+ * na kterém stojí peníze.
+ */
+async function zapisZpetnouVazbu(
+  pripadId: string,
+  hodnoceni: "true_positive" | "false_positive",
+  poznamka: string,
+): Promise<void> {
+  try {
+    await radky(sql`
+      INSERT INTO luna_feedback (finding_id, human_label, note)
+      SELECT lf.id, ${hodnoceni}, ${poznamka.slice(0, 500)}
+        FROM damage_cases dc
+        JOIN luna_runs lr ON lr.inspection_id = dc.inspection_id AND lr.zone_key = dc.zone_key
+        JOIN luna_findings lf ON lf.luna_run_id = lr.id
+       WHERE dc.id = ${pripadId}::uuid AND lr.mode = 'primary'
+       ORDER BY lr.created_at DESC LIMIT 1
+    `);
+  } catch (e) {
+    console.error("[luna] zpětnou vazbu se nepodařilo zapsat:", e);
+  }
+}
+
 /** Uzavření inspekce, když není co řešit. */
 export async function uzavriInspekci(inspekceId: string): Promise<Vysledek> {
   const kdo = await vyzadujMajitele();
   await radky(sql`
     UPDATE inspections SET status = 'closed', closed_at = now() WHERE id = ${inspekceId}::uuid
+  `);
+  // Případy, které zůstaly viset, byly plané poplachy. Zapíšeme to dřív,
+  // než je zavřeme — potom už není podle čeho je najít.
+  const nevyrizene = await radky<{ id: string }>(sql`
+    SELECT id::text AS id FROM damage_cases
+     WHERE inspection_id = ${inspekceId}::uuid AND state = 'pending'
+  `);
+  for (const p of nevyrizene) {
+    await zapisZpetnouVazbu(p.id, "false_positive", "Protokol uzavřen bez nároku.");
+  }
+  await radky(sql`
+    UPDATE damage_cases SET state = 'dismissed'
+     WHERE inspection_id = ${inspekceId}::uuid AND state = 'pending'
   `);
   await radky(sql`
     UPDATE tasks SET resolved_at = now(), resolved_by = ${kdo.id},
@@ -149,6 +192,14 @@ export async function vyuctujSkodu(pripadId: string): Promise<Vysledek> {
 
   if (!r) return { ok: false, chyba: "Rozhodnutí nenalezeno." };
   if (r.stav !== "decided") return { ok: false, chyba: "Tenhle nález se neúčtuje." };
+  // `uz_vyuctovano` se počítalo a nikde nepoužilo: dvojklik nebo dvě otevřené
+  // záložky znamenaly dvě faktury hostovi za jednu prasklou tabuli.
+  if (r.uz_vyuctovano) {
+    return {
+      ok: false,
+      chyba: "Tahle škoda už je vyúčtovaná. Doklad najdeš v dokladech rezervace.",
+    };
+  }
 
   const castka = Number(r.castka);
   if (castka <= 0) return { ok: false, chyba: "Rozhodnutá částka je nulová." };

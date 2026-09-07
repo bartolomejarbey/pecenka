@@ -78,7 +78,7 @@ export default async function AdminKalendar() {
                       {p ? (
                         <BunkaPruhu p={p} maly />
                       ) : (
-                        <span className="flex h-full items-center px-2 text-[12px] text-sage/40">
+                        <span className="flex h-full items-center px-2 text-[12px] text-sage/75">
                           {k.ceny[dm.slug]?.[den]
                             ? formatHalere(k.ceny[dm.slug][den]).replace(" Kč", "")
                             : ""}
@@ -121,7 +121,7 @@ export default async function AdminKalendar() {
               const d = new Date(den);
               const vikend = d.getDay() === 0 || d.getDay() === 6;
               return (
-                <span key={den} className={`py-1 text-center ${vikend ? "text-ember/70" : "text-sage/60"}`}>
+                <span key={den} className={`py-1 text-center ${vikend ? "text-ember/70" : "text-sage/80"}`}>
                   {d.getDate()}
                 </span>
               );

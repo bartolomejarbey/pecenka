@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { zkontrolujRozhodnuti } from "@/lib/luna/kontrola";
 import { pripravDb } from "./pomocnici/db";
 
 /**
@@ -113,5 +114,52 @@ describe("doúčtování po pobytu", () => {
     const id = await rezervace(100);
     const v = await db.vystavDouctovani(id, "ok", 50000, false);
     expect(v.ok).toBe(false);
+  });
+});
+
+/**
+ * Brána mezi nálezem a fakturou.
+ *
+ * Je to jediné místo, kde se z podezření stává nárok na peníze. Testuje se
+ * proto zvlášť, bez databáze — ať je vidět, co přesně projde a co ne.
+ */
+describe("kontrola rozhodnutí o škodě", () => {
+  const DUVOD = "Propálená díra v čalounění křesla, průměr asi pět centimetrů.";
+
+  it("krátké odůvodnění neprojde — odkliknutí návrhu stroje není lidský zásah", () => {
+    expect(zkontrolujRozhodnuti(2500, "souhlasím").ok).toBe(false);
+    expect(zkontrolujRozhodnuti(2500, "   ").ok).toBe(false);
+  });
+
+  it("běžná částka s odůvodněním projde", () => {
+    const v = zkontrolujRozhodnuti(2500, DUVOD);
+    expect(v.ok).toBe(true);
+    if (v.ok) expect(v.duvod).toBe(DUVOD);
+  });
+
+  it("nula projde — zamítnutí je taky rozhodnutí", () => {
+    expect(zkontrolujRozhodnuti(0, "Po zvětšení je to jen odlesk, nic poškozeného tam není.").ok).toBe(true);
+  });
+
+  it("záporná ani nesmyslná částka neprojde", () => {
+    expect(zkontrolujRozhodnuti(-1, DUVOD).ok).toBe(false);
+    expect(zkontrolujRozhodnuti(Number.NaN, DUVOD).ok).toBe(false);
+  });
+
+  it("překlep o řád se zastaví", () => {
+    const v = zkontrolujRozhodnuti(70000, DUVOD);
+    expect(v.ok).toBe(false);
+    if (!v.ok) expect(v.chyba).toContain("překlep");
+  });
+
+  it("vysoká částka projde, když ji majitel vypíše i do odůvodnění", () => {
+    expect(
+      zkontrolujRozhodnuti(70000, "Rozbitá prosklená stěna, výměna tabule za 70000 Kč dle nabídky.").ok,
+    ).toBe(true);
+  });
+
+  it("hranice je třicet tisíc", () => {
+    expect(zkontrolujRozhodnuti(30000, DUVOD).ok).toBe(true);
+    expect(zkontrolujRozhodnuti(30001, DUVOD).ok).toBe(false);
   });
 });

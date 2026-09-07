@@ -54,7 +54,7 @@ function MonthGrid({
           const isBooked = booked.has(key);
 
           const tone = isPast
-            ? "text-linen/15"
+            ? "text-sage/50"
             : isBooked
               ? "bg-moss/25 text-sage/70 line-through"
               : "text-linen";

@@ -348,3 +348,91 @@ export async function vyrez(fotka: Buffer, o: Oblast, okraj = 0.12): Promise<Buf
     .jpeg({ quality: 85 })
     .toBuffer();
 }
+
+/* ===== Rychlá kontrola použitelnosti ===== */
+
+/**
+ * Pod touhle energií hran je snímek rozmazaný.
+ *
+ * Práh je nízko schválně. Rozmazaná fotka v šeru má energii kolem 30,
+ * obyčejná fotka interiéru z mobilu i za mraku přes 200. Odmítnout dobrou
+ * fotku je horší než přijmout průměrnou.
+ */
+const PRAH_OSTROSTI = 55;
+
+export type Posudek = {
+  pouzitelna: boolean;
+  /** Krátká věta pro hosta. Prázdná, když je fotka v pořádku. */
+  vzkaz: string;
+  jas: number;
+  ostrost: number;
+};
+
+/**
+ * Je fotka vůbec k něčemu?
+ *
+ * Odesílací brána dosud počítala **řádky**, ne použitelné snímky: dvanáct
+ * fotek prstu nebo tmy prošlo stejně jako dvanáct poctivých. Host odjel
+ * s hláškou „Hotovo, děkujeme" a majiteli přistálo dvanáct zón, se kterými
+ * se nedá nic dělat.
+ *
+ * Kontrola běží **hned při nahrání**, protože jediná chvíle, kdy jde fotka
+ * opravit, je ta, kdy host ještě stojí v místnosti. Je schválně shovívavá —
+ * odmítnout dobrou fotku je horší než přijmout průměrnou.
+ */
+export async function posudFotku(data: Buffer): Promise<Posudek> {
+  const { channels } = await sharp(data).greyscale().stats();
+  const jas = channels[0]?.mean ?? 0;
+  const ostrost = await ostrostObrazu(data);
+
+  // Pořadí hlášek je důležitější, než se zdá. Fotka pořízená v šeru má
+  // i nízkou energii hran, takže by na hosta vyskočilo „je rozmazaná" —
+  // a on by marně zkoušel držet telefon pevněji. Tma se pozná dřív.
+  if (jas < 30 || (jas < 55 && ostrost < PRAH_OSTROSTI)) {
+    return { pouzitelna: false, jas, ostrost,
+      vzkaz: "Tahle vyšla hodně tmavá. Rozsviťte prosím a zkuste to ještě jednou." };
+  }
+  if (jas > 246) {
+    return { pouzitelna: false, jas, ostrost,
+      vzkaz: "Tahle je přesvícená — nejspíš blesk nebo protisvětlo. Zkuste to prosím bez blesku." };
+  }
+  if (ostrost < PRAH_OSTROSTI) {
+    return { pouzitelna: false, jas, ostrost,
+      vzkaz: "Fotka vyšla rozmazaná. Chvilku prosím podržte telefon v klidu a zkuste to znovu." };
+  }
+  return { pouzitelna: true, vzkaz: "", jas, ostrost };
+}
+
+/**
+ * Energie hran (rozptyl Laplaciánu).
+ *
+ * Rozmazaný snímek nemá ostré přechody, takže rozptyl druhé derivace je
+ * nízký. Počítá se na zmenšené šedé kopii — na rozhodnutí „ostrá / rozmazaná"
+ * to bohatě stačí a je to o řád rychlejší.
+ */
+async function ostrostObrazu(data: Buffer): Promise<number> {
+  const S = 320;
+  const { data: p, info } = await sharp(data)
+    .greyscale()
+    .resize(S, S, { fit: "inside" })
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  const w = info.width;
+  const h = info.height;
+  if (w < 3 || h < 3) return 0;
+
+  let soucet = 0;
+  let soucetKvadratu = 0;
+  let n = 0;
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      const i = y * w + x;
+      const l = p[i - 1] + p[i + 1] + p[i - w] + p[i + w] - 4 * p[i];
+      soucet += l;
+      soucetKvadratu += l * l;
+      n++;
+    }
+  }
+  const prumer = soucet / n;
+  return soucetKvadratu / n - prumer * prumer;
+}

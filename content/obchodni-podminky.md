@@ -40,15 +40,25 @@ Rezervace probíhá ve dvou režimech podle toho, jak brzy přijíždíte.
 
 ## 4. Kauce
 
-Spolu s doplatkem hradíte **vratnou kauci 3 000 Kč**. Vracíme ji **do 3 dnů po odjezdu** na účet, ze kterého přišla platba.
+Kauce je **smluvní, nevybíráme ji dopředu.** Nic neblokujeme na kartě ani nedržíme na účtu — vracet tedy není co. Znamená to jen, že se zavazujete uhradit případnou škodu do výše **3 000 Kč**; nad tuto částku jen tehdy, pokud jste ji způsobili úmyslně nebo hrubou nedbalostí.
 
-Z kauce můžeme strhnout pouze:
+Účtovat můžeme pouze:
 
 - náhradu škody na domku nebo vybavení nad rámec běžného opotřebení,
 - náklady na mimořádný úklid (např. kouření uvnitř, výrazné znečištění),
 - smluvní pokutu za porušení pravidel pobytu podle článku 7.
 
-O každém stržení vás předem informujeme e-mailem včetně vyčíslení. Pokud škoda přesáhne kauci, máme právo na doplacení rozdílu.
+Nic z toho se neúčtuje samo. **O každém nároku rozhoduje člověk**, musí ho písemně odůvodnit a **předem se vám ozveme** — dostanete vyčíslení a prostor se k němu vyjádřit dřív, než vystavíme jakýkoli doklad. Nesouhlas řešíme dohodou; teprve když se nedohodneme, může věc skončit u soudu. Tím nejsou dotčena vaše práva spotřebitele podle občanského zákoníku.
+
+## 4a. Fotoprotokol při odjezdu
+
+Před odjezdem vás v portálu poprosíme, abyste vyfotili několik míst v domku. Zabere to pár minut a **je to ochrana pro obě strany**: vy máte doloženo, v jakém stavu jste domek nechali, my se nemusíme dohadovat o něčem, co nikdo neviděl.
+
+- Fotky se automaticky porovnají se snímky pořízenými při předání. Porovnání dělá program a **o ničem nerozhoduje** — jen upozorní člověka na místa, kde vidí rozdíl. Podrobnosti jsou v [Zásadách ochrany osobních údajů](/ochrana-osobnich-udaju).
+- Když program něco najde, ozveme se vám ještě **než odjedete** — buď prosbou o srovnání drobnosti, nebo prosbou o telefonát. Většina věcí se vyřeší během minuty na místě.
+- Nepořádek není škoda. Neustlaná postel, nádobí ve dřezu ani přesunutý nábytek se nikdy neúčtují.
+- Fotky si necháváme **90 dní po odjezdu** a pak je mažeme.
+- Protokol nevyplnit můžete. Nic za to neúčtujeme; jen pak nemáme čím doložit stav při odjezdu ani jeden z nás.
 
 ## 5. Příjezd a odjezd
 

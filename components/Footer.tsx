@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SITE, NAV_LINKS, LEGAL_LINKS, HOUSES } from "@/lib/content";
+import { telOdkaz } from "@/lib/format";
 import { Logo } from "./ui";
 
 export default function Footer() {
@@ -77,7 +78,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href={`tel:${SITE.phone.replace(/\s/g, "")}`}
+                  href={telOdkaz(SITE.phone)}
                   className="inline-block py-1 transition-colors hover:text-ember"
                 >
                   {SITE.phone}

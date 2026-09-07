@@ -14,7 +14,12 @@ const EMAIL = process.env.ADMIN_EMAIL || "admin@sedmyles.cz";
 const BASE = process.env.QA_URL || "http://127.0.0.1:3000";
 const SHELL = path.join(
   os.homedir(),
-  "Library/Caches/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-mac-x64/chrome-headless-shell",
+  // Playwright ukládá binárku podle architektury stroje. Natvrdo zapsané
+  // `mac-x64` znamenalo, že na Applu s ARM skript spadl na ENOENT — a QA
+  // se prostě přestalo pouštět.
+  `Library/Caches/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-mac-${
+    process.arch === "arm64" ? "arm64" : "x64"
+  }/chrome-headless-shell`,
 );
 
 const STRANKY = [
@@ -23,6 +28,12 @@ const STRANKY = [
   ["kalendar", "/admin/kalendar"],
   ["rezervace", "/admin/rezervace"],
   ["penize", "/admin/penize"],
+  ["doklady", "/admin/doklady"],
+  ["inspekce", "/admin/inspekce"],
+  ["vic", "/admin/vic"],
+  ["reference", "/admin/reference"],
+  ["reference-achat", "/admin/reference/achat"],
+  ["test-ai", "/admin/test-ai"],
   ["nastaveni", "/admin/nastaveni"],
 ];
 const VIEWPORTY = [
@@ -136,4 +147,8 @@ if (kod.result.value) {
 }
 
 console.log("hotovo:", fs.readdirSync(OUT).length, "snímků");
-ws.close(); chrome.kill(); fs.rmSync(profil, { recursive: true, force: true });
+ws.close();
+chrome.kill();
+// Chrome dopisuje profil ještě chvíli po `kill` — bez opakování skript
+// spadne na ENOTEMPTY až úplně na konci, kdy je všechno hotové.
+fs.rmSync(profil, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });

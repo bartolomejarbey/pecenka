@@ -266,6 +266,26 @@ export async function zrusRezervaci(kod: string, duvod: string): Promise<Vyslede
                          resolution_note = 'Rezervace stornována.'
          WHERE reservation_id = ${r.id}::uuid AND resolved_at IS NULL
       `);
+      /*
+       * Storno musí zavřít i odjezdový protokol.
+       *
+       * Zrušená rezervace mohla mít otevřený případ škody ve frontě — a na ten
+       * šlo pořád vystavit doklad. Účtovat škodu k pobytu, který se nekonal,
+       * je přesně ten druh chyby, kterou nikdo nečeká, dokud nepřijde.
+       */
+      await tx.execute(sql`
+        UPDATE damage_cases SET state = 'dismissed'
+         WHERE reservation_id = ${r.id}::uuid AND state = 'pending'
+      `);
+      await tx.execute(sql`
+        UPDATE inspections SET status = 'closed', closed_at = now()
+         WHERE reservation_id = ${r.id}::uuid AND status <> 'closed'
+      `);
+      // Přístup do portálu se zavírá hned, ne až vypršením.
+      await tx.execute(sql`
+        UPDATE guest_portal_access SET expires_at = now()
+         WHERE reservation_id = ${r.id}::uuid
+      `);
       return r.id;
     });
 
@@ -371,6 +391,7 @@ export async function ulozFirmu(f: {
   zalohaProcent: string;
   kauceKc: string;
   splatnostDni: string;
+  infolinka: string;
 }): Promise<Vysledek> {
   const kdo = await vyzadujMajitele();
 
@@ -414,6 +435,13 @@ export async function ulozFirmu(f: {
   const splatnost = cislo(f.splatnostDni, "Splatnost", 90);
   if ("chyba" in splatnost) return { ok: false, chyba: splatnost.chyba };
 
+  // Infolinka jde hostovi do automatického vzkazu po odeslání protokolu.
+  // Špatné číslo znamená, že host, který má zavolat, nikam nedovolá.
+  const infolinka = f.infolinka.replace(/[^\d+]/g, "");
+  if (infolinka && !/^(\+420)?\d{9}$/.test(infolinka)) {
+    return { ok: false, chyba: "Infolinka má být české číslo, například +420 733 418 260." };
+  }
+
   const vyhlaska = f.vyhlaska.trim();
   if (poplatek.n > 0 && !vyhlaska) {
     return {
@@ -442,6 +470,7 @@ export async function ulozFirmu(f: {
       security_deposit_cents = ${Math.round(kauce.n * 100)},
       deposit_share_bp = ${Math.round(zaloha.n * 100)},
       invoice_due_days = ${Math.round(splatnost.n)},
+      checkout_hotline = ${infolinka || "+420 733 418 260"},
       updated_at = now()
     WHERE id = 1
   `);

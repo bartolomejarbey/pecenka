@@ -5,13 +5,15 @@ import { prihlas, type StavPrihlaseni } from "@/lib/portal/akce";
 
 const POLE =
   "mt-2 w-full rounded-xl border border-linen/15 bg-bark px-4 py-3.5 text-[16px] text-linen " +
-  "placeholder:text-sage/40 focus:border-ember focus:outline-none";
+  "placeholder:text-sage/70 focus:border-ember focus:outline-none";
 
-export default function Formular() {
-  const [stav, akce, probiha] = useActionState<StavPrihlaseni, FormData>(prihlas, {});
+export default function Formular({ chybaZOdkazu }: { chybaZOdkazu: string | null }) {
+  const [stav, akce, probiha] = useActionState<StavPrihlaseni, FormData>(prihlas, {
+    chyba: chybaZOdkazu ?? undefined,
+  });
 
   return (
-    <form action={akce} className="mt-8 space-y-5">
+    <form action={akce} className="mt-7 space-y-4">
       <div>
         <label htmlFor="vs" className="text-[13px] uppercase tracking-[0.14em] text-sage/70">
           Variabilní symbol
@@ -19,6 +21,8 @@ export default function Formular() {
         <input
           id="vs" name="vs" inputMode="numeric" autoComplete="off" required
           placeholder="2609000018" className={POLE}
+          // Deset číslic — číselná klávesnice a žádné automatické opravy.
+          maxLength={10} pattern="[0-9]*"
         />
       </div>
       <div>
@@ -30,6 +34,7 @@ export default function Formular() {
           placeholder="8 znaků z e-mailu"
           className={`${POLE} font-display tracking-[0.2em]`}
           style={{ textTransform: "uppercase" }}
+          maxLength={8} autoCapitalize="characters" autoCorrect="off" spellCheck={false}
         />
       </div>
 
@@ -46,7 +51,7 @@ export default function Formular() {
         {probiha ? "Přihlašuji…" : "Vstoupit"}
       </button>
 
-      <p className="text-[13.5px] leading-relaxed text-sage/70">
+      <p className="text-[13.5px] leading-relaxed text-sage/80">
         Kód nemáte? Napište nám na{" "}
         <a href="mailto:ahoj@sedmyles.cz" className="text-ember underline underline-offset-2">
           ahoj@sedmyles.cz

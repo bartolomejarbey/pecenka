@@ -13,7 +13,7 @@ import type { InfoOPobytu } from "@/lib/admin/pobyt";
 
 const POLE =
   "w-full rounded-xl border border-linen/15 bg-bark px-3.5 py-2.5 text-[15px] text-linen " +
-  "placeholder:text-sage/40 focus:border-ember focus:outline-none";
+  "placeholder:text-sage/70 focus:border-ember focus:outline-none";
 
 export default function Pobyt({ domky }: { domky: InfoOPobytu[] }) {
   const [ktery, setKtery] = useState(0);
@@ -48,11 +48,12 @@ export default function Pobyt({ domky }: { domky: InfoOPobytu[] }) {
           <button
             key={d.domek}
             type="button"
+            aria-pressed={i === ktery}
             onClick={() => {
               setKtery(i);
               setHlaska(null);
             }}
-            className={`rounded-xl px-4 py-2 text-[14px] transition-colors ${
+            className={`flex min-h-11 items-center rounded-xl px-4 text-[14.5px] transition-colors ${
               i === ktery
                 ? "bg-ember font-semibold text-night"
                 : "border border-linen/15 text-sage hover:text-linen"

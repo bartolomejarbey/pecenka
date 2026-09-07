@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { ulozPoznamku } from "@/lib/admin/akce";
 
@@ -10,7 +11,9 @@ import { ulozPoznamku } from "@/lib/admin/akce";
 export default function Poznamka({ kod, text }: { kod: string; text: string | null }) {
   const [hodnota, setHodnota] = useState(text ?? "");
   const [upravuje, setUpravuje] = useState(false);
+  const [chyba, setChyba] = useState<string | null>(null);
   const [probiha, start] = useTransition();
+  const router = useRouter();
 
   if (!upravuje && !hodnota) {
     return (
@@ -34,16 +37,30 @@ export default function Poznamka({ kod, text }: { kod: string; text: string | nu
             onChange={(e) => setHodnota(e.target.value)}
             rows={3}
             autoFocus
-            className="mt-2.5 w-full resize-y rounded-lg border border-amber-300/25 bg-night px-3.5 py-2.5 text-[14.5px] text-linen focus:border-amber-300/60 focus:outline-none"
+            className="mt-2.5 w-full resize-y rounded-lg border border-amber-300/25 bg-night px-3.5 py-2.5 text-[16px] text-linen focus:border-amber-300/60 focus:outline-none"
           />
+          {chyba && (
+            <p role="alert" className="mt-2.5 text-[13.5px] text-red-300">
+              {chyba}
+            </p>
+          )}
           <div className="mt-3 flex gap-3">
             <button
               type="button"
               disabled={probiha}
               onClick={() =>
                 start(async () => {
-                  await ulozPoznamku(kod, hodnota);
-                  setUpravuje(false);
+                  // Návratová hodnota se dřív zahazovala: neúspěšné uložení
+                  // vypadalo úplně stejně jako úspěšné a editor se zavřel tak
+                  // jako tak.
+                  const v = await ulozPoznamku(kod, hodnota);
+                  if (v.ok) {
+                    setChyba(null);
+                    setUpravuje(false);
+                    router.refresh();
+                  } else {
+                    setChyba(v.chyba);
+                  }
                 })
               }
               className="rounded-lg bg-amber-300/90 px-4 py-2 text-[14px] font-semibold text-night hover:bg-amber-300 disabled:opacity-50"

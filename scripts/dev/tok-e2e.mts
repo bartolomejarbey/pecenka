@@ -29,7 +29,12 @@ const EMAIL = arg("--email", "ahoj@sedmyles.cz");
 const HESLO = arg("--heslo", process.env.ADMIN_HESLO ?? "");
 const SHELL = path.join(
   os.homedir(),
-  "Library/Caches/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-mac-x64/chrome-headless-shell",
+  // Playwright ukládá binárku podle architektury stroje. Natvrdo zapsané
+  // `mac-x64` znamenalo, že na Applu s ARM skript spadl na ENOENT — a QA
+  // se prostě přestalo pouštět.
+  `Library/Caches/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-mac-${
+    process.arch === "arm64" ? "arm64" : "x64"
+  }/chrome-headless-shell`,
 );
 
 const spat = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -258,15 +263,19 @@ async function main() {
     const zony = ${JSON.stringify(zony ?? [])};
     if (!zony.length) return 'zóny se nenašly';
     let i = 0, chyb = [];
-    for (const z of zony) {
+    for (const klic of zony) {
+      // Klíč má tvar domek/zóna — u Celého lesa má tutéž zónu každý ze dvou
+      // domků a bez rozlišení by si fotky přepsaly.
+      const [dum, z] = klic.includes('/') ? klic.split('/') : ['', klic];
       const b = await (await fetch(zdroje[i % zdroje.length])).blob();
       i++;
       const fd = new FormData();
       fd.append('fotka', new File([b], 'z.jpg', { type: 'image/jpeg' }));
       fd.append('zona', z);
-      fd.append('id', 'e2e-' + z + '-' + Date.now());
+      if (dum) fd.append('dum', dum);
+      fd.append('id', 'e2e-' + z);
       const o = await fetch('/api/pobyt/foto', { method: 'POST', body: fd });
-      if (!o.ok) chyb.push(z + ': ' + (await o.text()).slice(0, 80));
+      if (!o.ok) chyb.push(klic + ': ' + (await o.text()).slice(0, 80));
     }
     return chyb.length ? chyb.join(' | ') : 'ok ' + zony.length;
   })()`);

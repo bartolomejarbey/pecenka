@@ -3,12 +3,29 @@ import { Fraunces, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { SITE } from "@/lib/content";
 
+/*
+ * Fraunces je variabilní font.
+ *
+ * Výčet vah `["300","400","500","600"]` z něj udělal čtyři pevné řezy, takže
+ * `font-weight: 480` v `.display-hero` a `380` v `.accent-italic` se
+ * zaokrouhlily — návrh dělal něco jiného, než měl. Bez `weight` se osa
+ * 300–700 zapne celá a je to zároveň o dva soubory míň.
+ *
+ * Kurzíva je zvlášť a **bez předběžného načítání**: je to 86 kB, které
+ * blokují stahování hero fotky, a používá ji jen dekorativní `.accent-italic`.
+ */
 const fraunces = Fraunces({
   subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "500", "600"],
-  style: ["normal", "italic"],
   variable: "--font-fraunces",
   display: "swap",
+});
+
+const frauncesKurziva = Fraunces({
+  subsets: ["latin", "latin-ext"],
+  style: ["italic"],
+  variable: "--font-fraunces-kurziva",
+  display: "swap",
+  preload: false,
 });
 
 const hanken = Hanken_Grotesk({
@@ -21,6 +38,9 @@ const hanken = Hanken_Grotesk({
 export const viewport: Viewport = {
   themeColor: "#0c110f",
   colorScheme: "dark",
+  // Bez tohohle nemá `env(safe-area-inset-*)` co vracet a spodní lišta
+  // administrace leží na iPhonu pod domovským indikátorem.
+  viewportFit: "cover",
 };
 
 export const metadata: Metadata = {
@@ -71,7 +91,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="cs" className={`${fraunces.variable} ${hanken.variable}`}>
+    <html lang="cs" className={`${fraunces.variable} ${frauncesKurziva.variable} ${hanken.variable}`}>
       <head>
         <script
           // Zapne skrývání [data-reveal] ještě před prvním vykreslením, aby obsah

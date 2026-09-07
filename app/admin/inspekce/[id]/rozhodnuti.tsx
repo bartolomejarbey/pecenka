@@ -66,7 +66,7 @@ export default function Rozhodnuti({
         onChange={(e) => setDuvod(e.target.value)}
         rows={4}
         placeholder="Např. „Na sedáku křesla je tmavá skvrna o průměru asi 15 cm, která na fotce při předání není. Vypadá na rozlitou kávu vsáklou do látky."
-        className="mt-3 w-full resize-y rounded-lg border border-linen/15 bg-bark px-3.5 py-3 text-[14.5px] leading-relaxed text-linen placeholder:text-sage/40 focus:border-ember focus:outline-none"
+        className="mt-3 w-full resize-y rounded-lg border border-linen/15 bg-bark px-3.5 py-3 text-[14.5px] leading-relaxed text-linen placeholder:text-sage/70 focus:border-ember focus:outline-none"
       />
       <p className={`mt-1.5 text-[12.5px] ${kratky ? "text-sage/60" : "text-emerald-300"}`}>
         {duvod.trim().length} / 20 znaků {kratky ? "— zatím málo" : "✓"}

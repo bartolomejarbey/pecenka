@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { ArrowIcon, Button, Kicker } from "@/components/ui";
+import Termin from "./Termin";
+import { PRICING } from "@/lib/content";
 
 /** Světlušky — deterministické pozice, drží se v horní části a mimo text. */
 const FIREFLIES = [
@@ -70,14 +72,25 @@ export default function Hero() {
           Tma, ve které jsou konečně vidět hvězdy.
         </p>
 
+        {/*
+          * Termín hned tady. Tlačítko „Rezervovat" zůstává pro toho, kdo
+          * ještě neví kdy — ale většina lidí přichází s víkendem v hlavě.
+          */}
         <div
-          className="rise-in mt-10 flex flex-wrap items-center gap-4"
+          className="rise-in mt-9 max-w-2xl"
           style={{ "--rise-i": 3 } as React.CSSProperties}
         >
-          <Button href="/rezervace">Rezervovat pobyt</Button>
-          <Button href="/domky" variant="outline">
+          <Termin />
+        </div>
+
+        <div
+          className="rise-in mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-[14.5px]"
+          style={{ "--rise-i": 3 } as React.CSSProperties}
+        >
+          <Button href="/domky" variant="outline" className="!px-5 !py-2.5 !text-[14px]">
             Prohlédnout domky
           </Button>
+          <span className="text-linen/60">od {PRICING.baseNight.toLocaleString("cs-CZ")} Kč za noc · minimálně {PRICING.minNights} noci</span>
         </div>
 
         {/* Trust strip + scroll hint */}

@@ -62,7 +62,7 @@ export default async function AdminRezervace({ searchParams }: Props) {
           defaultValue={q.q ?? ""}
           placeholder="Jméno, e-mail, telefon, kód nebo variabilní symbol"
           aria-label="Hledat rezervaci"
-          className="w-full rounded-xl border border-linen/15 bg-bark px-4 py-3 text-[15px] text-linen placeholder:text-sage/40 focus:border-ember focus:outline-none"
+          className="w-full rounded-xl border border-linen/15 bg-bark px-4 py-3 text-[16px] text-linen placeholder:text-sage/70 focus:border-ember focus:outline-none"
         />
       </form>
 

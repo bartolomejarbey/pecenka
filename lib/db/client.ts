@@ -79,6 +79,29 @@ export function getDb(): Promise<Db> {
 export const jeLokalniDb = () => !process.env.DATABASE_URL;
 
 /**
+ * Uzavření spojení.
+ *
+ * Pro dlouhoběžící web zbytečné, pro skripty nutné. PGlite drží data
+ * v adresáři a zápis dokončuje asynchronně; skript, který po `UPDATE` zavolá
+ * `process.exit(0)`, ho utne v půlce. Napoprvé to vypadá, že se změna
+ * neuložila, a **napodruhé se zápis do téhož adresáře zasekne** — což se
+ * hledá dlouho, protože chyba nevznikla tam, kde se projeví.
+ */
+export async function zavriDb(): Promise<void> {
+  const drzena = globalThis.__sedmylesDb;
+  if (!drzena) return;
+  globalThis.__sedmylesDb = undefined;
+  try {
+    const db = await drzena;
+    // Driver je schovaný v drizzle; obě varianty ho vystavují jinak.
+    const klient = (db as unknown as { $client?: { close?: () => Promise<void>; end?: () => Promise<void> } }).$client;
+    await (klient?.close?.() ?? klient?.end?.() ?? Promise.resolve());
+  } catch (e) {
+    console.error("[db] zavření spojení selhalo:", e);
+  }
+}
+
+/**
  * Surový SQL dotaz vracející řádky.
  *
  * Existuje proto, že `db.execute()` má u každého driveru jiný tvar výsledku:

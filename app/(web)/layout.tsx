@@ -1,7 +1,6 @@
 import RevealObserver from "@/components/RevealObserver";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import CookieBanner from "@/components/CookieBanner";
 import { SITE, FAQ_ITEMS } from "@/lib/content";
 
 /**
@@ -102,7 +101,16 @@ export default function WebLayout({ children }: { children: React.ReactNode }) {
         {children}
       </div>
       <Footer />
-      <CookieBanner />
+      {/*
+        * Lišta o cookies tu byla a už není.
+        *
+        * Web používá jen technicky nezbytné cookies (relace hosta, relace
+        * administrace) a ty souhlas nevyžadují — § 89 zákona o elektronických
+        * komunikacích, stejně tak GDPR. Lišta, která oznamovala „používáme jen
+        * nezbytné cookies", zabírala na telefonu třetinu rezervační stránky
+        * a nechávala klepnout na „Rozumím" kvůli něčemu, k čemu není co
+        * rozumět. Informace zůstává na /cookies, kam patří.
+        */}
     </>
   );
 }

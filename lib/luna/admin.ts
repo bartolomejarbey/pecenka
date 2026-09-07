@@ -2,7 +2,7 @@ import "server-only";
 
 import { sql } from "drizzle-orm";
 import { radky } from "@/lib/db/client";
-import { podepsanyOdkaz } from "./uloziste";
+import { podepsaneOdkazy } from "./uloziste";
 
 /** Fronta inspekcí a detail pro administraci. */
 
@@ -157,12 +157,17 @@ export async function nactiDetailInspekce(id: string): Promise<DetailInspekce | 
      ORDER BY cz.order_index
   `);
 
+  const odkazy = await podepsaneOdkazy(
+    zony.flatMap((z) => [z.pred_key, z.po_key].filter((k): k is string => Boolean(k))),
+    1800,
+  );
+
   return {
     id: i.id, kodRezervace: i.code, rezervaceId: i.reservation_id, domek: i.unit_name ?? i.unit_slug,
     jmeno: i.jmeno, stav: i.status, odeslano: i.submitted_at, shrnuti: i.summary_cs,
     nakladHalere: Number(i.cost_cents),
-    zony: await Promise.all(
-      zony.map(async (z) => ({
+    zony: (
+      zony.map((z) => ({
         klic: z.zone_key,
         nazev: z.label,
         zavaznost: z.severity ?? "none",
@@ -176,8 +181,8 @@ export async function nactiDetailInspekce(id: string): Promise<DetailInspekce | 
         odhadMin: Number(z.min_c ?? 0) / 100,
         odhadMax: Number(z.max_c ?? 0) / 100,
         potrebaNoveFoto: Boolean(z.needs_reshoot),
-        predUrl: z.pred_key ? await podepsanyOdkaz(z.pred_key, 1800).catch(() => null) : null,
-        poUrl: z.po_key ? await podepsanyOdkaz(z.po_key, 1800).catch(() => null) : null,
+        predUrl: (z.pred_key && odkazy.get(z.pred_key)) ?? null,
+        poUrl: (z.po_key && odkazy.get(z.po_key)) ?? null,
         pripadId: z.pripad_id,
         vyuctovano: z.vyuctovano,
         rozhodnuto: z.r_kdy
@@ -188,7 +193,7 @@ export async function nactiDetailInspekce(id: string): Promise<DetailInspekce | 
               sluzba: Boolean(z.r_sluzba),
             }
           : null,
-      })),
+      }))
     ),
   };
 }

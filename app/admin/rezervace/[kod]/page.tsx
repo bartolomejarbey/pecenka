@@ -126,7 +126,7 @@ export default async function DetailRezervace({ params }: Props) {
                   aria-hidden="true"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className={`text-[15px] ${done ? "text-linen" : aktualni ? "text-linen" : "text-sage/60"}`}>
+                  <p className={`text-[15px] ${done ? "text-linen" : aktualni ? "text-linen" : "text-sage/80"}`}>
                     {u.popis}
                   </p>
                   {aktualni && (
@@ -152,8 +152,8 @@ export default async function DetailRezervace({ params }: Props) {
               <tr key={i}>
                 <td className="py-2 pr-3 text-sage">
                   {p.popis}
-                  {p.datum && <span className="ml-2 text-sage/60">{den(p.datum)}</span>}
-                  {p.mnozstvi > 1 && <span className="ml-2 text-sage/60">×{p.mnozstvi}</span>}
+                  {p.datum && <span className="ml-2 text-sage/80">{den(p.datum)}</span>}
+                  {p.mnozstvi > 1 && <span className="ml-2 text-sage/80">×{p.mnozstvi}</span>}
                 </td>
                 <td className="py-2 text-right text-sage/70">
                   {p.sazbaDph !== null ? `${p.sazbaDph} %` : "—"}
@@ -209,7 +209,7 @@ export default async function DetailRezervace({ params }: Props) {
           <ul className="mt-4 space-y-2 text-[13.5px] text-sage">
             {r.historie.map((h, i) => (
               <li key={i}>
-                <span className="text-sage/60">{new Date(h.kdy).toLocaleString("cs-CZ")}</span>{" "}
+                <span className="text-sage/80">{new Date(h.kdy).toLocaleString("cs-CZ")}</span>{" "}
                 {POPIS_AKCE[h.akce] ?? h.akce}
               </li>
             ))}

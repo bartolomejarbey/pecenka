@@ -4,8 +4,8 @@ import { useActionState } from "react";
 import { prihlas, type StavPrihlaseni } from "@/lib/auth/akce";
 
 const POLE =
-  "mt-2 w-full rounded-xl border border-linen/15 bg-bark px-4 py-3 text-[15px] text-linen " +
-  "placeholder:text-sage/40 focus:border-ember focus:outline-none";
+  "mt-2 w-full rounded-xl border border-linen/15 bg-bark px-4 py-3 text-[16px] text-linen " +
+  "placeholder:text-sage/70 focus:border-ember focus:outline-none";
 
 export default function PrihlasovaciFormular() {
   const [stav, akce, probiha] = useActionState<StavPrihlaseni, FormData>(prihlas, {});

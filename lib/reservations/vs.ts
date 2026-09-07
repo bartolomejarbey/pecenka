@@ -1,3 +1,5 @@
+import { createHmac } from "node:crypto";
+
 /**
  * Variabilní symbol a veřejný kód rezervace.
  *
@@ -58,24 +60,24 @@ export function sestavKod(rok: number, poradi: number): string {
  * Heslo do hostovského portálu odvozené od VS.
  *
  * Majitel chtěl „hesla jako VS". Samotný VS je ale na e-mailu, na výpisu z účtu
- * i na faktuře — jako tajemství neobstojí. Kompromis: host se hlásí kódem
- * rezervace **a** tímhle kódem, který z VS vzniká, ale nedá se z něj odvodit
+ * i na faktuře — jako tajemství neobstojí. Kompromis: host se hlásí variabilním
+ * symbolem **a** tímhle kódem, který z VS vzniká, ale nedá se z něj odvodit
  * bez znalosti tajného klíče. Zůstává krátký a diktovatelný do telefonu.
  *
- * Skutečné přihlášení řeší `lib/portal/auth.ts` (magic link + tenhle kód).
+ * Odvozuje ho **HMAC-SHA256**, ne vlastní míchačka. Původní verze stála na
+ * FNV-1a s 32bitovým stavem a deterministické rotaci — komentář sliboval, že
+ * se kód bez klíče spočítat nedá, ale skutečná entropie byla nanejvýš dvaatřicet
+ * bitů a mezi znaky se stav degradoval. Krátké tajemství šlo offline uhodnout
+ * hrubou silou. Délka i abeceda zůstávají, mění se jen to, co je uvnitř.
  */
 export function portalovyKod(vs: string, tajemstvi: string, delka = 6): string {
   // Bez I, O, 0, 1 — v ruce psané a diktované se pletou.
   const ABECEDA = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
-  let h = 2166136261 >>> 0;
-  for (const znak of `${tajemstvi}:${vs}`) {
-    h = ((h ^ znak.charCodeAt(0)) >>> 0) * 16777619;
-    h = h >>> 0;
-  }
+  const otisk = createHmac("sha256", tajemstvi).update(`portal:${vs}`).digest();
   let out = "";
   for (let i = 0; i < delka; i++) {
-    out += ABECEDA[h % ABECEDA.length];
-    h = Math.floor(h / ABECEDA.length) + ((h * 31 + i) >>> 0) % 97;
+    // Pět bitů na znak — abeceda má přesně 32 položek, takže se nic nezkosí.
+    out += ABECEDA[otisk[i % otisk.length] & 31];
   }
   return out;
 }

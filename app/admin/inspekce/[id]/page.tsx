@@ -96,7 +96,7 @@ export default async function DetailInspekce({ params }: { params: Promise<{ id:
                           className="mt-2 w-full rounded-xl border border-linen/10"
                         />
                       ) : (
-                        <div className="mt-2 flex h-32 items-center justify-center rounded-xl border border-dashed border-linen/15 text-[13px] text-sage/50">
+                        <div className="mt-2 flex h-32 items-center justify-center rounded-xl border border-dashed border-linen/15 text-[13px] text-sage/75">
                           není
                         </div>
                       )}
@@ -109,14 +109,14 @@ export default async function DetailInspekce({ params }: { params: Promise<{ id:
                 <div className="mt-5 space-y-3 text-[14.5px] leading-relaxed">
                   <p className="text-linen">{z.coSeZmenilo}</p>
                   <p className="rounded-xl border border-linen/10 bg-night px-4 py-3 text-sage">
-                    <span className="mb-1 block text-[12px] uppercase tracking-[0.14em] text-sage/60">
+                    <span className="mb-1 block text-[12px] uppercase tracking-[0.14em] text-sage/80">
                       Proč to nemusí být škoda
                     </span>
                     {z.alternativa}
                   </p>
                   {z.protiargument && (
                     <p className="rounded-xl border border-linen/10 bg-night px-4 py-3 text-sage">
-                      <span className="mb-1 block text-[12px] uppercase tracking-[0.14em] text-sage/60">
+                      <span className="mb-1 block text-[12px] uppercase tracking-[0.14em] text-sage/80">
                         Protiargument z nezávislého běhu
                       </span>
                       {z.protiargument}

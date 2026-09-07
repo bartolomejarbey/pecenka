@@ -4,6 +4,7 @@ import PageHero from "@/components/PageHero";
 import Reveal from "@/components/Reveal";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
 import data from "@/lib/ukazka/data.json";
+import rozmery from "@/lib/ukazka/rozmery.json";
 
 /**
  * Ukázka kontroly stavu domku.
@@ -53,13 +54,17 @@ const SKUPINY = [
 type Pripad = (typeof data.pripady)[number];
 
 function Snimek({ src, alt, popisek }: { src: string; alt: string; popisek: string }) {
+  // Skutečné rozměry, ne odhad. Zdroje mají různé poměry stran a pevné
+  // `1024×683` je jednak deformovalo, jednak rezervovalo špatnou výšku —
+  // stránka se po načtení posunula.
+  const r = (rozmery as Record<string, { w: number; v: number }>)[src] ?? { w: 1024, v: 683 };
   return (
     <figure className="m-0">
       <Image
         src={src}
         alt={alt}
-        width={1024}
-        height={683}
+        width={r.w}
+        height={r.v}
         sizes="(max-width: 768px) 100vw, 460px"
         className="w-full rounded-xl border border-pine-edge bg-pine"
       />

@@ -76,10 +76,10 @@ export default function Calendar({
     const disabled = isPast || (isBooked && !canCheckout);
 
     let tone = "cursor-pointer text-linen hover:bg-pine";
-    if (isPast) tone = "cursor-not-allowed text-linen/15";
+    if (isPast) tone = "cursor-not-allowed text-sage/50";
     else if (isEdge) tone = "bg-ember font-semibold text-night";
-    else if (isBooked && !canCheckout) tone = "cursor-not-allowed text-moss line-through";
-    else if (isBooked) tone = "cursor-pointer text-moss line-through hover:bg-pine";
+    else if (isBooked && !canCheckout) tone = "cursor-not-allowed text-sage/70 line-through";
+    else if (isBooked) tone = "cursor-pointer text-sage/70 line-through hover:bg-pine";
     else if (inRange) tone = "bg-ember/15 text-linen";
     else if (inPreview) tone = "bg-ember/10 text-linen";
 
@@ -192,7 +192,7 @@ export default function Calendar({
         </span>
         <span className="flex items-center gap-2">
           <span
-            className="flex h-7 w-7 items-center justify-center rounded-full text-[12px] text-moss line-through"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-[12px] text-sage/70 line-through"
             aria-hidden="true"
           >
             23

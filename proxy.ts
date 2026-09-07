@@ -4,18 +4,27 @@ import { overPodpis } from "@/lib/payments/podpis";
 /**
  * Vrstva před vykreslením stránky.
  *
- * Dělá dvě věci:
+ * Hlídá adresy, na kterých je platný podpis podmínkou. Kontrola v komponentě
+ * sice obsah ochrání, ale Next už mezitím začal streamovat, takže `notFound()`
+ * skončí jako „měkká 404" — stav 200 s obsahem 404. Tady se dá vrátit poctivá
+ * 404, protože jsme před vykreslením.
  *
- * 1. **Bezpečnostní hlavičky** na všechny odpovědi.
- * 2. **Hlídá platební stránku.** Kontrola v komponentě sice obsah ochrání,
- *    ale Next už mezitím začal streamovat, takže `notFound()` skončí jako
- *    „měkká 404" — stav 200 s obsahem 404. Tady se dá vrátit poctivá 404,
- *    protože jsme před vykreslením.
+ * Bezpečnostní hlavičky sem **nepatří**: nasazuje je `next.config.ts` na
+ * všechny odpovědi včetně statických, a to bez invokace navíc.
  */
 
 // Proxy v Next 16 běží vždy na Node.js — runtime se nenastavuje.
+/*
+ * Proxy běží jen tam, kde má co dělat.
+ *
+ * Dřív se pouštěla skoro na všechno včetně `/`, `/cenik`, `/sitemap.xml`
+ * a všech `/api/**` — na Vercelu invokace navíc před každou odpovědí, i těmi
+ * z CDN. Bezpečnostní hlavičky se mezitím přesunuly do `next.config.ts`,
+ * kde je nasazuje statická konfigurace, takže tady zbylo jen ověření podpisu
+ * u dvou adres.
+ */
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|foto|platby|icon-).*)"],
+  matcher: ["/rezervace/:kod/platba", "/doklad/:id"],
 };
 
 /**
@@ -42,20 +51,5 @@ export default function proxy(req: NextRequest) {
     }
   }
 
-  const odpoved = NextResponse.next();
-  for (const [jmeno, hodnota] of Object.entries(HLAVICKY)) {
-    odpoved.headers.set(jmeno, hodnota);
-  }
-  return odpoved;
+  return NextResponse.next();
 }
-
-const HLAVICKY: Record<string, string> = {
-  // Web se nikam nevkládá do rámu — obrana proti clickjackingu.
-  "X-Frame-Options": "DENY",
-  "X-Content-Type-Options": "nosniff",
-  // Na cizí weby posíláme jen doménu, ne celou adresu (kódy rezervací!).
-  "Referrer-Policy": "strict-origin-when-cross-origin",
-  // Nic z toho web nepotřebuje.
-  "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
-  "X-DNS-Prefetch-Control": "on",
-};

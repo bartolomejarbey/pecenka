@@ -12,6 +12,11 @@ import { radky } from "@/lib/db/client";
  *
  * Dvanáct zón je horní hranice toho, co host ochotně vyfotí. Víc znamená,
  * že to vzdá v polovině.
+ *
+ * **Jeden snímek na zónu.** Návody dřív slibovaly u tří zón dva snímky,
+ * jenže průvodce ani porovnání s druhým nikdy nepočítaly — host si tedy četl
+ * pokyn, který systém nesplnil. Až bude druhý záběr potřeba, přibude jako
+ * samostatná zóna, ne jako skryté číslo v `snimku`.
  */
 
 export type ZonaDef = {
@@ -28,14 +33,14 @@ export type ZonaDef = {
 
 export const VYCHOZI_ZONY: ZonaDef[] = [
   {
-    klic: "floor", nazev: "Podlaha", poradi: 1, povinna: true, snimku: 2,
-    navod: "Postavte se do dveří a vyfoťte celou podlahu. Pak druhý snímek od okna zpátky ke dveřím.",
+    klic: "floor", nazev: "Podlaha", poradi: 1, povinna: true, snimku: 1,
+    navod: "Postavte se do dveří a vyfoťte celou podlahu — ať je vidět od prahu až k oknu.",
     otazky: ["Nejsou ve vinylu rýhy nebo promáčkliny?", "Nechybí lišta?", "Nejsou skvrny, které nejdou setřít?"],
     prahEskalace: 0.8, odhadOpravyKc: 4000,
   },
   {
-    klic: "kitchen", nazev: "Kuchyňská linka", poradi: 2, povinna: true, snimku: 2,
-    navod: "Celá linka zepředu. Druhý snímek shora na pracovní desku.",
+    klic: "kitchen", nazev: "Kuchyňská linka", poradi: 2, povinna: true, snimku: 1,
+    navod: "Celá linka zepředu, ať je vidět i pracovní deska.",
     otazky: ["Není deska propálená nebo pořezaná?", "Fungují dvířka a nejsou uražená?", "Není poškozený dřez nebo baterie?"],
     prahEskalace: 0.8, odhadOpravyKc: 6000,
   },
@@ -46,8 +51,8 @@ export const VYCHOZI_ZONY: ZonaDef[] = [
     prahEskalace: 0.85, odhadOpravyKc: 1500,
   },
   {
-    klic: "bathroom", nazev: "Koupelna a sprcha", poradi: 4, povinna: true, snimku: 2,
-    navod: "Celá koupelna a zvlášť sprchový kout.",
+    klic: "bathroom", nazev: "Koupelna a sprcha", poradi: 4, povinna: true, snimku: 1,
+    navod: "Celá koupelna ode dveří, ať je vidět i sprchový kout.",
     otazky: ["Není prasklá sprchová zástěna?", "Drží držák sprchy?", "Nejsou uvolněné obklady?"],
     prahEskalace: 0.85, odhadOpravyKc: 5000,
   },

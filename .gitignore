@@ -12,3 +12,7 @@ screenshots
 db/drizzle/meta
 .vercel
 .env*
+.uloziste
+.cache-test-ai
+qa-admin
+qa-portal

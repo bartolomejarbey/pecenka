@@ -30,11 +30,18 @@ export default function Uzavrit({ inspekceId }: { inspekceId: string }) {
         onClick={() => start(async () => {
           const v = await spustVyhodnoceni(inspekceId);
           setHlaska(v.ok ? v.zprava : v.chyba);
+          // Bez tohohle hláška slíbí výsledek, ale stránka dál ukazuje
+          // původní stav — a majitel kliká podruhé.
+          if (v.ok) router.refresh();
         })}
       >
         {probiha ? "Pracuji…" : "Vyhodnotit znovu"}
       </button>
-      {hlaska && <span className="text-[13.5px] text-sage">{hlaska}</span>}
+      {hlaska && (
+        <span role="status" className="text-[13.5px] text-sage">
+          {hlaska}
+        </span>
+      )}
     </div>
   );
 }

@@ -91,11 +91,12 @@ export default function SeasonStrip() {
           Celý rok <span className="accent-italic">jinak.</span>
         </Reveal>
 
-        <div className="mt-14 grid gap-5 md:grid-cols-4">
+        {/* Na telefonu vodorovný pás — viz komentář v Experiences. */}
+        <div className="-mx-5 mt-14 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:gap-5 md:grid-cols-4 md:overflow-visible md:px-0 md:pb-0 [&::-webkit-scrollbar]:hidden">
           {SEASONS.map((season, i) => {
             const Icon = ICONS[i];
             return (
-              <Reveal key={season.name} i={i} className="h-full">
+              <Reveal key={season.name} i={i} className="h-full w-[76vw] shrink-0 snap-center md:w-auto md:shrink">
                 <article className="flex h-full flex-col rounded-[28px] border border-linen/8 bg-pine p-7 transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-ember/30 md:p-8">
                   <Icon className="h-6 w-6 text-ember" />
                   <h3 className="font-display mt-6 text-xl text-linen">{season.name}</h3>

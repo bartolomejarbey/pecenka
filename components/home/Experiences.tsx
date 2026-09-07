@@ -15,9 +15,17 @@ export default function Experiences() {
           <span className="font-light italic text-ember-deep">ve městě nekoupíte.</span>
         </Reveal>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {/*
+          * Na telefonu vodorovně, ne pod sebou.
+          *
+          * Šest karet pod sebou je šest obrazovek rolování a úvodní stránka
+          * jich měla osmadvacet. Vodorovný pás se snapem je zvyk z každé
+          * aplikace, palcem se listuje pohodlně a pořád je vidět, že je
+          * karet víc — další kouká zprava.
+          */}
+        <div className="-mx-5 mt-14 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 sm:grid-cols-2 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden">
           {EXPERIENCES.map((exp, i) => (
-            <Reveal key={exp.title} i={i} className="h-full">
+            <Reveal key={exp.title} i={i} className="h-full w-[82vw] shrink-0 snap-center sm:w-auto sm:shrink">
               <article className="group h-full rounded-[28px] border border-night/10 p-7 transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-ember-deep/40 md:p-8">
                 <span className="font-display text-base italic text-ember-deep">
                   {String(i + 1).padStart(2, "0")}

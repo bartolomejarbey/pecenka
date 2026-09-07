@@ -1,11 +1,14 @@
 import "server-only";
 
-import { createHash, randomInt, timingSafeEqual } from "node:crypto";
-import { cookies } from "next/headers";
+import { cache } from "react";
+import { createHash, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
+import { cookies, headers } from "next/headers";
 import { sql } from "drizzle-orm";
 import { radky } from "@/lib/db/client";
 import { portalovyKod } from "@/lib/reservations/vs";
 import { overHeslo, zahashuj } from "@/lib/auth/heslo";
+import { ukazkaPovolena } from "./ukazka";
+import { prekrocilLimit } from "@/lib/limit";
 
 /**
  * Přístup hosta do portálu.
@@ -30,6 +33,8 @@ export type Pobyt = {
   rezervaceId: string;
   kod: string;
   vs: string;
+  /** Křestní jméno plátce — portál hosta oslovuje, ne „Dobrý den". */
+  jmeno: string | null;
   domek: string;
   /** Slug fyzického domku — informace k pobytu se liší dům od domu. */
   domekSlug: string;
@@ -38,10 +43,45 @@ export type Pobyt = {
   stav: string;
 };
 
+/**
+ * Tajemství, ze kterého se odvozuje přístupový kód i podpis relace.
+ *
+ * Ve vývoji stačí pevná hodnota, ať `npm run dev` funguje bez nastavování.
+ * **Naostro bez klíče se raději vyrobí náhodný** — jinak by si přístupový kód
+ * k cizímu pobytu spočítal kdokoli, kdo zná variabilní symbol, a stejně tak
+ * by šlo podepsat cookie relace. Selhává to zavřeně: přihlášení nepůjde,
+ * ale nikdo se nedostane dovnitř.
+ *
+ * Že je něco špatně, hlásí přehled stavu systému v administraci.
+ */
+const VYVOJOVE_TAJEMSTVI = "sedmyles-vyvojove-tajemstvi-nikdy-naostro";
+let nahradni: string | null = null;
+let uzVarovano = false;
+
+function tajemstviPortalu(): string {
+  const k = process.env.PORTAL_SECRET ?? process.env.PAYMENTS_SIGNING_KEY;
+  if (k) return k;
+  if (process.env.NODE_ENV !== "production") return VYVOJOVE_TAJEMSTVI;
+
+  if (!nahradni) nahradni = randomBytes(32).toString("hex");
+  if (!uzVarovano) {
+    uzVarovano = true;
+    console.error(
+      "[portál] PORTAL_SECRET není nastaven — přístupy hostů do portálu " +
+        "nebudou fungovat. Nastav proměnnou v prostředí.",
+    );
+  }
+  return nahradni;
+}
+
+/** Je přístup do portálu nastavený natrvalo? Bez toho se kódy nemají posílat. */
+export const pristupNastaven = () =>
+  Boolean(process.env.PORTAL_SECRET ?? process.env.PAYMENTS_SIGNING_KEY) ||
+  process.env.NODE_ENV !== "production";
+
 /** Kód, který host dostane e-mailem. Bez matoucích znaků. */
 export function vygenerujKod(vs: string): string {
-  const tajemstvi = process.env.PORTAL_SECRET ?? process.env.PAYMENTS_SIGNING_KEY ?? "vyvoj";
-  return portalovyKod(vs, tajemstvi, 8);
+  return portalovyKod(vs, tajemstviPortalu(), 8);
 }
 
 /** Založí přístup po zaplacení zálohy. */
@@ -75,6 +115,19 @@ export async function prihlasHosta(vs: string, kod: string): Promise<VysledekPri
   const cistyVs = vs.replace(/\D/g, "");
   const cistyKod = kod.trim().toUpperCase();
   if (!cistyVs || !cistyKod) return { ok: false, chyba: "Vyplňte prosím obojí." };
+
+  /*
+   * Strop pokusů z jedné adresy.
+   *
+   * Počítadlo na řádku přístupu hlídá **jeden** variabilní symbol, ale nic
+   * nebránilo zkoušet tisíc symbolů po jednom pokusu. A protože se i pro
+   * neexistující VS počítá scrypt (aby odpověď trvala stejně dlouho), stačilo
+   * pár set souběžných požadavků a funkce si lehla.
+   */
+  const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ?? "neznama";
+  if (prekrocilLimit(`portal-login:${ip}`, { pocet: 20, oknoMs: 15 * 60 * 1000 })) {
+    return { ok: false, chyba: "Příliš mnoho pokusů. Zkuste to prosím za chvíli." };
+  }
 
   const [pristup] = await radky<{
     id: string;
@@ -138,12 +191,18 @@ export async function prihlasHosta(vs: string, kod: string): Promise<VysledekPri
 }
 
 function otisk(id: string): string {
-  const tajemstvi = process.env.PORTAL_SECRET ?? process.env.PAYMENTS_SIGNING_KEY ?? "vyvoj";
-  return createHash("sha256").update(tajemstvi + id).digest("hex").slice(0, 32);
+  return createHash("sha256").update(tajemstviPortalu() + id).digest("hex").slice(0, 32);
 }
 
-/** Kdo je přihlášený v portálu. */
-export async function ktoJePrihlasen(): Promise<Pobyt | null> {
+/**
+ * Kdo je přihlášený v portálu.
+ *
+ * Kontroluje se **při každém požadavku**, ne jen při přihlášení. Cookie žije
+ * čtrnáct dní a dřív stačilo, že sedí podpis: vypršelý přístup, zamčený účet
+ * ani zrušená rezervace hosta z portálu nevyhodily. Storno tedy neznamenalo
+ * nic — host se dál díval na adresu domku a mohl odeslat protokol.
+ */
+export const ktoJePrihlasen = cache(async function ktoJePrihlasen(): Promise<Pobyt | null> {
   const hodnota = (await cookies()).get(COOKIE)?.value;
   if (!hodnota) return null;
   const [id, podpis] = hodnota.split(".");
@@ -151,7 +210,48 @@ export async function ktoJePrihlasen(): Promise<Pobyt | null> {
   const ocekavany = Buffer.from(otisk(id));
   const podany = Buffer.from(podpis);
   if (ocekavany.length !== podany.length || !timingSafeEqual(ocekavany, podany)) return null;
-  return nactiPobyt(id);
+
+  const [platny] = await radky<{ ok: boolean }>(sql`
+    SELECT (p.expires_at > now()
+            AND (p.locked_until IS NULL OR p.locked_until < now())) AS ok
+      FROM guest_portal_access p WHERE p.reservation_id = ${id}::uuid
+  `);
+  if (!platny?.ok) return null;
+
+  const pobyt = await nactiPobyt(id);
+  // Zrušený nebo propadlý pobyt portál zavírá. Host s ním nemá co dělat
+  // a hlavně by na něj neměl nahrávat fotky.
+  if (!pobyt || pobyt.stav === "cancelled" || pobyt.stav === "expired") return null;
+  return pobyt;
+});
+
+/**
+ * Ukázkové přihlášení bez kódu.
+ *
+ * Majitel potřebuje portál ukazovat — na schůzce, na telefonu, sobě samému —
+ * a opisovat variabilní symbol s osmiznakovým kódem u toho nikdo nechce.
+ * Přihlásí do rezervace, kterou dostane, a nastaví tutéž relaci jako běžné
+ * přihlášení; portál pak neví, že jde o ukázku, takže se chová **přesně
+ * tak jako hostům**. Ukázka, která se chová jinak než provoz, nic neukazuje.
+ *
+ * **Na ostrých datech nefunguje** — je to obejití přihlášení. Podmínku drží
+ * `ukazkaPovolena()`; volající si ji hlídá taky, tohle je jen pojistka.
+ */
+export async function prihlasUkazkove(rezervaceId: string): Promise<Pobyt | null> {
+  if (!ukazkaPovolena()) return null;
+
+  const pobyt = await nactiPobyt(rezervaceId);
+  if (!pobyt) return null;
+
+  (await cookies()).set(COOKIE, `${rezervaceId}.${otisk(rezervaceId)}`, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    // Ukázka je na chvíli, ne na čtrnáct dní.
+    maxAge: 8 * 3600,
+  });
+  return pobyt;
 }
 
 export async function odhlasHosta(): Promise<void> {
@@ -161,17 +261,19 @@ export async function odhlasHosta(): Promise<void> {
 async function nactiPobyt(rezervaceId: string): Promise<Pobyt | null> {
   const [r] = await radky<{
     id: string; code: string; variable_symbol: string; unit_name: string; unit_slug: string;
-    checkin: string; checkout: string; status: string;
+    checkin: string; checkout: string; status: string; jmeno: string | null;
   }>(sql`
     SELECT r.id::text AS id, r.code, r.variable_symbol, u.name AS unit_name, u.slug AS unit_slug,
-           r.checkin::text AS checkin, r.checkout::text AS checkout, r.status::text AS status
+           r.checkin::text AS checkin, r.checkout::text AS checkout, r.status::text AS status,
+           (SELECT g.first_name FROM reservation_guests rg JOIN guests g ON g.id = rg.guest_id
+             WHERE rg.reservation_id = r.id AND rg.role = 'payer' LIMIT 1) AS jmeno
       FROM reservations r JOIN units u ON u.id = r.unit_id
      WHERE r.id = ${rezervaceId}::uuid
   `);
   if (!r) return null;
   return {
-    rezervaceId: r.id, kod: r.code, vs: r.variable_symbol, domek: r.unit_name,
-    domekSlug: r.unit_slug,
+    rezervaceId: r.id, kod: r.code, vs: r.variable_symbol, jmeno: r.jmeno?.trim() || null,
+    domek: r.unit_name, domekSlug: r.unit_slug,
     prijezd: r.checkin, odjezd: r.checkout, stav: r.status,
   };
 }

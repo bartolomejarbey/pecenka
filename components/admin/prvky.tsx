@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatHalere } from "@/lib/booking";
+import { formatTelefon, telOdkaz } from "@/lib/format";
 
 /** Drobné stavební prvky administrace — karty, odznaky, prázdné stavy. */
 
@@ -33,7 +34,7 @@ export function Karta({
 }
 
 export function Prazdno({ children }: { children: React.ReactNode }) {
-  return <p className="px-5 py-6 text-[14.5px] leading-relaxed text-sage/70">{children}</p>;
+  return <p className="px-5 py-6 text-[14.5px] leading-relaxed text-sage/80">{children}</p>;
 }
 
 const TONY = {
@@ -97,10 +98,15 @@ export function StavRezervace({ stav }: { stav: string }) {
 
 /** Telefon jako odkaz — na mobilu se z něj rovnou volá. */
 export function Telefon({ cislo }: { cislo: string | null }) {
-  if (!cislo) return <span className="text-sage/50">telefon nemáme</span>;
+  if (!cislo) return <span className="text-sage/80">telefon nemáme</span>;
+  // Zavolat hostovi je hlavní akce hlavní obrazovky. Inline odkaz měl
+  // osmnáctipixelový cíl — na telefonu se do něj trefí každý třetí pokus.
   return (
-    <a href={`tel:${cislo.replace(/\s/g, "")}`} className="text-ember hover:underline">
-      {cislo}
+    <a
+      href={telOdkaz(cislo)}
+      className="-mx-2 inline-flex min-h-11 items-center px-2 text-ember hover:underline"
+    >
+      {formatTelefon(cislo)}
     </a>
   );
 }

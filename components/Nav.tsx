@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NAV_LINKS } from "@/lib/content";
 import { Logo, Button } from "./ui";
 
@@ -11,6 +11,8 @@ export default function Nav() {
   const [menu, setMenu] = useState<"closed" | "open" | "closing">("closed");
   const pathname = usePathname();
   const open = menu === "open";
+  const panelRef = useRef<HTMLDivElement>(null);
+  const prepinacRef = useRef<HTMLButtonElement>(null);
 
   // Místo scroll listeneru hlídáme sentinel na začátku stránky — prohlížeč
   // to řeší sám, bez callbacku na každý posun.
@@ -53,6 +55,47 @@ export default function Nav() {
     };
   }, [open]);
 
+  /*
+   * Fokus zůstává v otevřeném menu.
+   *
+   * Panel se hlásí jako `role="dialog" aria-modal`, ale fokus se do něj
+   * nepřesouval a Tab z hamburgeru pokračoval do stránky schované pod
+   * překryvem — uživatel s klávesnicí tabuloval po odkazech, které nevidí.
+   */
+  useEffect(() => {
+    if (!open) return;
+    const panel = panelRef.current;
+    if (!panel) return;
+
+    const ohniska = () =>
+      Array.from(
+        panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+      );
+    ohniska()[0]?.focus();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const prvky = ohniska();
+      if (!prvky.length) return;
+      const prvni = prvky[0];
+      const posledni = prvky[prvky.length - 1];
+      const kde = document.activeElement;
+      if (e.shiftKey && (kde === prvni || !panel.contains(kde))) {
+        e.preventDefault();
+        posledni.focus();
+      } else if (!e.shiftKey && kde === posledni) {
+        e.preventDefault();
+        prvni.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      // Po zavření zpátky na tlačítko, kterým se menu otevřelo.
+      prepinacRef.current?.focus();
+    };
+  }, [open]);
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
@@ -88,8 +131,19 @@ export default function Nav() {
           </Button>
         </div>
 
-        {/* Mobilní menu */}
-        <button
+        {/*
+          * Na telefonu byl jediný způsob, jak se dostat k rezervaci, otevřít
+          * hamburger nebo rolovat na konec. Hlavní akce webu byla schovaná
+          * přesně na zařízení, ze kterého přijde většina návštěv.
+          */}
+        <div className="flex items-center gap-1.5 lg:hidden">
+          {!open && (
+            <Button href="/rezervace" className="!px-4 !py-2 !text-[13.5px]">
+              Rezervovat
+            </Button>
+          )}
+          <button
+          ref={prepinacRef}
           className="relative z-50 flex h-11 w-11 flex-col items-center justify-center gap-[5px] lg:hidden"
           onClick={() => setMenu(open ? "closing" : "open")}
           aria-label={open ? "Zavřít menu" : "Otevřít menu"}
@@ -111,11 +165,13 @@ export default function Nav() {
               open ? "-translate-y-[7px] -rotate-45" : ""
             }`}
           />
-        </button>
+          </button>
+        </div>
       </div>
 
       {menu !== "closed" && (
         <div
+          ref={panelRef}
           id="mobile-nav"
           role="dialog"
           aria-modal="true"

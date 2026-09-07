@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { waitUntil } from "@vercel/functions";
+import { adresa, prekrocilLimit } from "@/lib/limit";
 import { createTransport } from "nodemailer";
 import { z } from "zod";
 import { formatCzDate, formatHalere } from "@/lib/booking";
@@ -42,35 +44,11 @@ const Vstup = z.object({
 /**
  * Kolik pokusů z jedné IP za deset minut.
  *
- * Počítadlo žije v paměti procesu. V nasazení běží víc instancí funkce
- * a každá si počítá zvlášť, takže skutečný strop je násobkem instancí —
- * proti nepozornému opakování to stačí, proti odhodlanému robotovi ne.
- * Skutečnou pojistkou proti dvojímu prodeji je databázové omezení při
- * zakládání rezervace, ne tohle.
+ * Podrobnosti a omezení viz `lib/limit.ts` — počítadlo žije v paměti procesu,
+ * takže proti odhodlanému robotovi to není ochrana. Tou je databázové omezení
+ * při zakládání rezervace.
  */
-const LIMIT = 5;
-const OKNO_MS = 10 * 60 * 1000;
-const pokusy = new Map<string, number[]>();
-
-/**
- * Odmítnutý pokus se nepočítá.
- *
- * Původně se do okna zapisoval každý příchod včetně těch, které se rovnou
- * odmítly. Kdo narazil na strop a zkusil to znovu, tím okno posunul —
- * a už se z něj nedostal. Host, který se ukliká, by čekal donekonečna
- * a nevěděl proč.
- */
-function prekrocilLimit(ip: string): boolean {
-  const ted = Date.now();
-  const seznam = (pokusy.get(ip) ?? []).filter((t) => ted - t < OKNO_MS);
-  if (seznam.length >= LIMIT) {
-    pokusy.set(ip, seznam);
-    return true;
-  }
-  seznam.push(ted);
-  pokusy.set(ip, seznam);
-  return false;
-}
+const LIMIT = { pocet: 5, oknoMs: 10 * 60 * 1000 };
 
 /**
  * České hlášky k chybám validace.
@@ -124,8 +102,7 @@ export async function POST(req: Request) {
   // Honeypot — boti pole vyplní, lidé ho nevidí.
   if (data.web) return NextResponse.json({ ok: true });
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  if (prekrocilLimit(ip)) {
+  if (prekrocilLimit(`rezervace:${adresa(req)}`, LIMIT)) {
     return NextResponse.json(
       { error: "Příliš mnoho pokusů. Zkuste to prosím za chvíli." },
       { status: 429 },
@@ -157,13 +134,23 @@ export async function POST(req: Request) {
 
   const odkaz = vysledek.stav === "hold" ? bezpecnyOdkaz(vysledek.kod) : null;
 
-  // Pošta je až po založení a mimo hlavní cestu: když spadne, rezervace platí
-  // dál a majitel ji vidí v administraci.
-  void posliMajiteli(data, vysledek).catch((e) =>
-    console.error("[rezervace] e-mail majiteli selhal:", e),
-  );
-  void posliHostovi(data, vysledek, odkaz).catch((e) =>
-    console.error("[rezervace] e-mail hostovi selhal:", e),
+  /*
+   * Pošta je až po založení a mimo hlavní cestu: když spadne, rezervace platí
+   * dál a majitel ji vidí v administraci.
+   *
+   * Přes `waitUntil`, ne `void`. Serverless běh se po odeslání odpovědi může
+   * zmrazit — a host by nedostal potvrzení s platebními údaji, přestože
+   * rezervace vznikla.
+   */
+  waitUntil(
+    Promise.all([
+      posliMajiteli(data, vysledek).catch((e) =>
+        console.error("[rezervace] e-mail majiteli selhal:", e),
+      ),
+      posliHostovi(data, vysledek, odkaz).catch((e) =>
+        console.error("[rezervace] e-mail hostovi selhal:", e),
+      ),
+    ]),
   );
 
   return NextResponse.json({

@@ -103,7 +103,7 @@ export default function Akce({
             value={duvod}
             onChange={(e) => setDuvod(e.target.value)}
             placeholder="Napiš, proč se ruší — objeví se v historii i na dokladu."
-            className="mt-2 w-full rounded-lg border border-linen/15 bg-bark px-3.5 py-2.5 text-[14.5px] text-linen placeholder:text-sage/40 focus:border-ember focus:outline-none"
+            className="mt-2 w-full rounded-lg border border-linen/15 bg-bark px-3.5 py-2.5 text-[14.5px] text-linen placeholder:text-sage/70 focus:border-ember focus:outline-none"
           />
           <div className="mt-3 flex gap-3">
             <button

@@ -26,6 +26,9 @@ type Vstup = {
 export async function posliPristupDoPortalu(v: Vstup): Promise<boolean> {
   const zaklad = process.env.APP_URL ?? "https://sedmyles.cz";
   const odkaz = `${zaklad}/pobyt/prihlaseni`;
+  // Odkaz nese totéž, co e-mail o pár řádků níž — nic nového neprozrazuje,
+  // jen ušetří opisování kódu mezi dvěma aplikacemi na telefonu.
+  const vstup = `${zaklad}/pobyt/vstup?vs=${encodeURIComponent(v.vs)}&kod=${encodeURIComponent(v.kodPristupu)}`;
 
   const html = `
   <div style="font-family:Georgia,serif;max-width:560px;margin:0 auto;color:#1a1a18">
@@ -42,24 +45,29 @@ export async function posliPristupDoPortalu(v: Vstup): Promise<boolean> {
       </p>
 
       <p style="margin:0 0 12px;font-size:15px;line-height:1.7">
-        Připravili jsme vám přístup, kde najdete podrobnosti k pobytu a kde
-        se před odjezdem vyfotí domek. Fotky slouží oběma stranám: vám jako
-        doklad, že jste odjížděli z domku v pořádku.
+        Připravili jsme vám aplikaci k pobytu: cestu, kód od schránky, wifi
+        a na konci pár fotek domku, které slouží oběma stranám — vám jako doklad,
+        že jste odjížděli z domku v pořádku.
       </p>
 
-      <div style="margin:18px 0;padding:16px 18px;background:#f6f4ec;border-radius:12px">
-        <p style="margin:0 0 10px;font-size:13px;color:#666">Přihlášení na ${esc(odkaz)}</p>
+      <p style="margin:18px 0 0">
+        <a href="${esc(vstup)}" style="display:inline-block;background:#d9914e;color:#0c110f;text-decoration:none;padding:14px 26px;border-radius:999px;font-size:16px;font-weight:600">
+          Otevřít pobyt
+        </a>
+      </p>
+      <p style="margin:10px 0 0;font-size:13px;color:#666;line-height:1.6">
+        Otevřete to na telefonu a přidejte si to na plochu — bude to jako aplikace.
+      </p>
+
+      <div style="margin:22px 0 0;padding:16px 18px;background:#f6f4ec;border-radius:12px">
+        <p style="margin:0 0 10px;font-size:13px;color:#666">
+          Kdyby tlačítko nefungovalo, přihlaste se ručně na ${esc(odkaz)}
+        </p>
         <p style="margin:0;font-size:15px;line-height:1.9">
           Variabilní symbol: <code style="font-size:16px"><strong>${esc(v.vs)}</strong></code><br>
           Kód: <code style="font-size:18px;letter-spacing:2px"><strong>${esc(v.kodPristupu)}</strong></code>
         </p>
       </div>
-
-      <p style="margin:18px 0 0">
-        <a href="${esc(odkaz)}" style="display:inline-block;background:#d9914e;color:#0c110f;text-decoration:none;padding:12px 22px;border-radius:999px;font-size:15px;font-weight:600">
-          Otevřít pobyt
-        </a>
-      </p>
 
       <p style="margin:22px 0 0;font-size:13px;color:#666;line-height:1.6">
         Kód platí do dvou týdnů po odjezdu. Rezervace ${esc(v.kodRezervace)}.
@@ -72,7 +80,9 @@ export async function posliPristupDoPortalu(v: Vstup): Promise<boolean> {
     "",
     `záloha za pobyt v domku ${v.domek} (${formatCzDate(v.prijezd)} – ${formatCzDate(v.odjezd)}) je připsaná. Termín je potvrzený.`,
     "",
-    `Přihlášení do pobytu: ${odkaz}`,
+    `Otevřít pobyt: ${vstup}`,
+    "",
+    `Kdyby odkaz nefungoval, přihlaste se ručně na ${odkaz}`,
     `Variabilní symbol: ${v.vs}`,
     `Kód: ${v.kodPristupu}`,
     "",

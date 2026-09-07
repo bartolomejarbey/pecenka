@@ -18,8 +18,21 @@ export const POLOZKY = [
   { href: "/admin/penize", popis: "Peníze", ikona: PenizeIkona },
   { href: "/admin/doklady", popis: "Doklady", ikona: DokladyIkona },
   { href: "/admin/inspekce", popis: "Protokoly", ikona: ProtokolIkona },
-  { href: "/admin/nastaveni", popis: "Víc", ikona: VicIkona },
+  { href: "/admin/reference", popis: "Reference", ikona: ReferenceIkona },
+  { href: "/admin/vic", popis: "Víc", ikona: VicIkona },
 ] as const;
+
+/**
+ * Co se vejde do spodní lišty telefonu.
+ *
+ * Osm položek v mřížce dá při 360 px pětačtyřicetipixelovou buňku a popisky
+ * se zalomí na dva řádky. Pět je strop; zbytek žije pod „Víc", což je
+ * plnohodnotná stránka, ne skrytá zásuvka.
+ */
+const NA_MOBILU = [POLOZKY[0], POLOZKY[1], POLOZKY[2], POLOZKY[5], POLOZKY[7]] as const;
+
+/** Které položky patří pod „Víc" — stránka `/admin/vic` je z toho staví. */
+export const POD_VIC = [POLOZKY[3], POLOZKY[4], POLOZKY[6]] as const;
 
 export default function Shell({
   kdo,
@@ -76,6 +89,13 @@ export default function Shell({
       </aside>
 
       <div className="min-w-0 flex-1">
+        <a
+          href="#obsah"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-ember focus:px-5 focus:py-3 focus:text-[15px] focus:font-semibold focus:text-night"
+        >
+          Přeskočit na obsah
+        </a>
+
         <header className="sticky top-0 z-30 border-b border-linen/8 bg-night/95 px-5 py-4 md:px-8">
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
             <h1 className="font-display text-xl text-linen md:text-2xl">{nadpis}</h1>
@@ -83,24 +103,28 @@ export default function Shell({
           </div>
         </header>
 
-        <div className="mx-auto max-w-5xl px-5 py-6 md:px-8 md:py-8">{children}</div>
+        <main id="obsah" className="mx-auto max-w-5xl px-5 py-6 md:px-8 md:py-8">
+          {children}
+        </main>
       </div>
 
       {/* Spodní navigace na telefonu */}
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-7 border-t border-linen/10 bg-bark lg:hidden"
-        aria-label="Administrace"
+        /* Odsazení podle bezpečné zóny — na iPhonu leží spodní řádek pod
+           domovským indikátorem a poslední položka se ťuknout nedá. */
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-linen/10 bg-bark pb-[env(safe-area-inset-bottom)] lg:hidden"
+        aria-label="Hlavní"
       >
-        {POLOZKY.map((p) => (
+        {NA_MOBILU.map((p) => (
           <Link
             key={p.href}
             href={p.href}
             aria-current={aktivni === p.href ? "page" : undefined}
-            className={`flex flex-col items-center justify-center gap-1 py-3 text-[11px] ${
+            className={`flex min-h-[56px] flex-col items-center justify-center gap-1 py-2.5 text-[11.5px] ${
               aktivni === p.href ? "text-ember" : "text-sage"
             }`}
           >
-            <p.ikona className="h-[19px] w-[19px]" />
+            <p.ikona className="h-[20px] w-[20px]" />
             {p.popis}
           </Link>
         ))}
@@ -164,6 +188,15 @@ function ProtokolIkona({ className }: I) {
       <rect x="2.5" y="6" width="19" height="14" rx="2.5" />
       <circle cx="12" cy="13" r="3.5" />
       <path d="M8.5 6l1.5-2h4l1.5 2" />
+    </svg>
+  );
+}
+function ReferenceIkona({ className }: I) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true" {...obrys}>
+      <rect x="3" y="5.5" width="18" height="13" rx="2.5" />
+      <path d="M3 15l4.5-4 3.5 3 3.5-4L21 15" />
+      <circle cx="8.5" cy="10" r="1.3" />
     </svg>
   );
 }

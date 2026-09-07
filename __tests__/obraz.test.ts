@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 import { beforeAll, describe, expect, it } from "vitest";
-import { dhash, porovnej, pripravFotku, vyrez, vzdalenostOtisku } from "@/lib/luna/obraz";
+import { dhash, porovnej, posudFotku, pripravFotku, vyrez, vzdalenostOtisku } from "@/lib/luna/obraz";
 
 /**
  * Obrazová brána Luny.
@@ -170,6 +170,58 @@ describe("porovnání před a po", () => {
 
     it("bod pod hranicí rozlišení se nenajde ani ostrý", async () => {
       expect(await bod(0.004, "#100804", 1)).toBe(0);
+    });
+  });
+
+  /*
+   * Rychlá kontrola použitelnosti.
+   *
+   * Odesílací brána dřív počítala řádky, ne použitelné snímky — dvanáct
+   * fotek prstu nebo tmy prošlo stejně jako dvanáct poctivých. Kontrola
+   * musí být shovívavá: odmítnout dobrou fotku je horší než přijmout
+   * průměrnou.
+   */
+  describe("posudek fotky", () => {
+    it("obyčejná fotka interiéru projde", async () => {
+      const p = await posudFotku(interier);
+      expect(p.pouzitelna, p.vzkaz).toBe(true);
+      expect(p.vzkaz).toBe("");
+    });
+
+    it("skoro černá fotka se vrátí s prosbou o rozsvícení", async () => {
+      const tma = await sharp(interier).modulate({ brightness: 0.06 }).jpeg().toBuffer();
+      const p = await posudFotku(tma);
+      expect(p.pouzitelna).toBe(false);
+      expect(p.vzkaz).toContain("tmavá");
+    });
+
+    it("přesvícená fotka se pozná taky", async () => {
+      const m = await sharp(interier).metadata();
+      const bila = await sharp({
+        create: {
+          width: m.width ?? 800,
+          height: m.height ?? 600,
+          channels: 3,
+          background: "#fdfdfd",
+        },
+      })
+        .jpeg()
+        .toBuffer();
+      const p = await posudFotku(bila);
+      expect(p.pouzitelna).toBe(false);
+    });
+
+    it("rozmazaná fotka neprojde", async () => {
+      const rozmazana = await sharp(interier).blur(18).jpeg().toBuffer();
+      const p = await posudFotku(rozmazana);
+      expect(p.pouzitelna).toBe(false);
+      expect(p.vzkaz).toContain("rozmazan");
+    });
+
+    it("mírně tmavší večerní fotka pořád projde", async () => {
+      const vecer = await sharp(interier).modulate({ brightness: 0.55 }).jpeg().toBuffer();
+      const p = await posudFotku(vecer);
+      expect(p.pouzitelna, `jas ${p.jas}, ostrost ${p.ostrost}`).toBe(true);
     });
   });
 });

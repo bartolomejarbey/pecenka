@@ -29,6 +29,11 @@ export type Nalez = {
   contains_person: boolean;
   estimated_cost_czk: { min: number; max: number };
   needs_reshoot: boolean;
+  /**
+   * Jediné pole, které čte host. Vlídná prosba o srovnání drobnosti, nebo
+   * `null`. U poškození vždycky `null` — o tom se mluví po telefonu.
+   */
+  guest_tidy_hint: string | null;
 };
 
 export type Uzitek = {
@@ -51,7 +56,7 @@ const SCHEMA = {
   required: [
     "zone_key", "severity", "confidence", "what_changed", "alternative_explanation",
     "is_lighting_or_angle_artifact", "is_guest_mess_not_damage", "contains_person",
-    "estimated_cost_czk", "needs_reshoot", "evidence_bbox",
+    "estimated_cost_czk", "needs_reshoot", "evidence_bbox", "guest_tidy_hint",
   ],
   properties: {
     zone_key: { type: "string" },
@@ -77,6 +82,7 @@ const SCHEMA = {
       properties: { min: { type: "number" }, max: { type: "number" } },
     },
     needs_reshoot: { type: "boolean" },
+    guest_tidy_hint: { type: ["string", "null"] },
   },
 } as const;
 
@@ -161,6 +167,26 @@ async function pridejAnthropic(
 
 /* ===== OpenAI ===== */
 
+/**
+ * Jedno zopakování při přetížení nebo výpadku.
+ *
+ * Vyhodnocení běží na pozadí a host o něm neví, takže osm sekund navíc nikoho
+ * nebolí. Zato protokol, který spadl na jednorázovém 429, se musí dotahovat
+ * cronem — a to je patnáct minut zpoždění a další volání modelu.
+ */
+async function zkusDvakrat(co: () => Promise<Response>): Promise<Response> {
+  try {
+    const o = await co();
+    if (o.status !== 429 && o.status < 500) return o;
+    await new Promise((r) => setTimeout(r, 4000));
+    return co();
+  } catch (e) {
+    await new Promise((r) => setTimeout(r, 4000));
+    if (process.env.NODE_ENV !== "test") console.warn("[luna] opakuji volání modelu:", (e as Error).message);
+    return co();
+  }
+}
+
 async function pridejOpenAi(
   zprava: string,
   obrazky: Obrazek[],
@@ -169,8 +195,11 @@ async function pridejOpenAi(
   const model = process.env.LUNA_MODEL ?? "gpt-5.6-luna";
   const zacatek = Date.now();
 
-  const odpoved = await fetch("https://api.openai.com/v1/chat/completions", {
+  const odpoved = await zkusDvakrat(() => fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
+    // Bez časového stropu stačí jedno zaseknuté spojení, aby serverless běh
+    // umřel uprostřed a protokol zůstal viset ve stavu „analyzing".
+    signal: AbortSignal.timeout(60_000),
     headers: {
       Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       "Content-Type": "application/json",
@@ -195,7 +224,7 @@ async function pridejOpenAi(
         json_schema: { name: "nalez", strict: true, schema: SCHEMA },
       },
     }),
-  });
+  }));
 
   if (!odpoved.ok) {
     throw new Error(`Model odmítl požadavek: ${odpoved.status} ${(await odpoved.text()).slice(0, 200)}`);
@@ -206,9 +235,13 @@ async function pridejOpenAi(
               prompt_tokens_details?: { cached_tokens?: number } };
   };
 
+  // OpenAI počítá kešované tokeny **uvnitř** `prompt_tokens`, Anthropic je má
+  // odděleně. Bez odečtení se cena kešované části připočítala dvakrát —
+  // a to číslo se ukazuje majiteli jako „kolik stálo vyhodnocení".
+  const kesovane = data.usage?.prompt_tokens_details?.cached_tokens ?? 0;
   const u = {
-    vstupniTokeny: data.usage?.prompt_tokens ?? 0,
-    kesovaneTokeny: data.usage?.prompt_tokens_details?.cached_tokens ?? 0,
+    vstupniTokeny: Math.max(0, (data.usage?.prompt_tokens ?? 0) - kesovane),
+    kesovaneTokeny: kesovane,
     vystupniTokeny: data.usage?.completion_tokens ?? 0,
   };
   return {
@@ -217,12 +250,42 @@ async function pridejOpenAi(
   };
 }
 
+/**
+ * Slova, která se hostovi v automatické hlášce neobjeví.
+ *
+ * Prompt to zakazuje, ale prompt je prosba. Tohle je zámek: kdyby model
+ * jednou napsal „vidím poškozenou desku“ do pole, které čte host, je to
+ * obvinění odeslané bez člověka. Radši prosbu zahodíme celou.
+ */
+const ZAKAZANA_SLOVA = [
+  "škod", "skod", "poškoz", "poskoz", "rozbi", "prask", "propál", "propal",
+  "účtov", "uctov", "kauc", "fakt", "náhrad", "nahrad", "vin", "zaplat",
+];
+
+/**
+ * Prosba pro hosta se pouští jen z nálezů, které škodou nejsou.
+ *
+ * Rozhodnutí schválně nezůstává na modelu: kdyby v jednom běhu ze sta
+ * vyplnil prosbu k prasklému sklu, host by se dozvěděl o poškození z
+ * automatické hlášky — bez člověka, bez kontextu a bez možnosti se ozvat.
+ */
+export function ocistiProsbu(text: unknown, zavaznost: Zavaznost): string | null {
+  if (zavaznost !== "none" && zavaznost !== "dirt") return null;
+  if (typeof text !== "string") return null;
+  const cisty = text.replace(/\s+/g, " ").trim();
+  if (cisty.length < 8 || cisty.length > 180) return null;
+  const male = cisty.toLowerCase();
+  if (ZAKAZANA_SLOVA.some((z) => male.includes(z))) return null;
+  return cisty;
+}
+
 /** Doplní chybějící pole a ořízne nesmysly. Model se občas utrhne. */
 function normalizuj(n: Partial<Nalez>, zonaKlic: string): Nalez {
   const zavaznosti: Zavaznost[] = ["none", "dirt", "wear", "damage_minor", "damage_major", "missing"];
+  const zavaznost = zavaznosti.includes(n.severity as Zavaznost) ? (n.severity as Zavaznost) : "none";
   return {
     zone_key: n.zone_key || zonaKlic,
-    severity: zavaznosti.includes(n.severity as Zavaznost) ? (n.severity as Zavaznost) : "none",
+    severity: zavaznost,
     confidence: Math.max(0, Math.min(1, Number(n.confidence) || 0)),
     evidence_bbox: n.evidence_bbox ?? null,
     what_changed: (n.what_changed ?? "").slice(0, 600),
@@ -239,6 +302,7 @@ function normalizuj(n: Partial<Nalez>, zonaKlic: string): Nalez {
       max: Math.max(0, Number(n.estimated_cost_czk?.max) || 0),
     },
     needs_reshoot: Boolean(n.needs_reshoot),
+    guest_tidy_hint: ocistiProsbu(n.guest_tidy_hint, zavaznost),
   };
 }
 

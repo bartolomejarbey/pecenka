@@ -4,6 +4,7 @@ import ContactForm from "@/components/ContactForm";
 import Reveal from "@/components/Reveal";
 import JsonLd from "@/components/JsonLd";
 import { PRICING, SITE } from "@/lib/content";
+import { telOdkaz } from "@/lib/format";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
@@ -60,7 +61,7 @@ export default function KontaktPage() {
 
                 <ContactRow label="Telefon">
                   <a
-                    href={`tel:${SITE.phone.replace(/\s/g, "")}`}
+                    href={telOdkaz(SITE.phone)}
                     className="font-display text-xl text-linen transition-colors duration-300 hover:text-ember"
                   >
                     {SITE.phone}

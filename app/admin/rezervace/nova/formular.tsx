@@ -13,8 +13,8 @@ import { zalozRezervaci } from "@/lib/admin/akce";
  */
 
 const POLE =
-  "w-full rounded-xl border border-linen/15 bg-bark px-4 py-2.5 text-[15px] text-linen " +
-  "placeholder:text-sage/40 focus:border-ember focus:outline-none";
+  "w-full rounded-xl border border-linen/15 bg-bark px-4 py-2.5 text-[16px] text-linen " +
+  "placeholder:text-sage/70 focus:border-ember focus:outline-none";
 
 const DOMKY = [
   { slug: "achat", nazev: "Achát" },

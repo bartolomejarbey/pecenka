@@ -7,6 +7,14 @@ import { ArrowIcon, Kicker } from "@/components/ui";
 import { ADDONS, PRICING } from "@/lib/content";
 import { formatPrice } from "@/lib/booking";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
+import Kalkulacka from "@/components/cenik/Kalkulacka";
+import { nactiRezervacniData } from "@/lib/booking/server";
+
+/**
+ * Kalkulačka počítá ze skutečného ceníku v databázi, takže stránka
+ * se obnovuje — jednou za pět minut je pro ceník víc než dost.
+ */
+export const revalidate = 300;
 
 export const metadata = pageMeta({
   title: "Ceník",
@@ -36,7 +44,7 @@ const PRICE_BLOCKS = [
 const PAYMENT_ROWS = [
   "Záloha 50 % do 3 dnů po potvrzení rezervace.",
   "Doplatek 14 dní před příjezdem.",
-  `Vratná kauce ${formatPrice(PRICING.deposit)} — vracíme do 3 dnů po odjezdu.`,
+  `Kauci ${formatPrice(PRICING.deposit)} dopředu nevybíráme — je jen smluvní. Nic se neúčtuje bez rozhovoru s vámi.`,
 ];
 
 const STORNO_ROWS = [
@@ -65,7 +73,11 @@ function CheckIcon() {
   );
 }
 
-export default function CenikPage() {
+export default async function CenikPage() {
+  const { dostupnost, ceniky } = await nactiRezervacniData(["achat", "mech"]);
+  const obsazene = Object.fromEntries(
+    Object.entries(dostupnost).map(([s, d]) => [s, d.obsazene]),
+  );
   return (
     <main>
       <JsonLd
@@ -104,6 +116,16 @@ export default function CenikPage() {
               </Reveal>
             ))}
           </div>
+
+          {/* Kolik bude stát můj víkend — odpověď místo skládání v hlavě. */}
+          <Reveal className="mt-12 md:mt-16">
+            <h3 className="font-display text-2xl md:text-3xl">
+              Kolik bude stát <span className="italic text-ember-deep">váš termín?</span>
+            </h3>
+            <div className="mt-5">
+              <Kalkulacka ceniky={ceniky} obsazene={obsazene} />
+            </div>
+          </Reveal>
 
           <ul className="mt-12 grid max-w-4xl gap-x-12 gap-y-4 md:mt-16 md:grid-cols-2">
             {PRICING.notes.map((note, i) => (

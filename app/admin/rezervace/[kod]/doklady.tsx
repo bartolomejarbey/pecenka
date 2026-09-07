@@ -49,8 +49,18 @@ export default function Doklady({
   const [popis, setPopis] = useState("");
   const [castka, setCastka] = useState("");
 
-  const spust = (fn: () => Promise<Vysledek>) =>
-    start(async () => {
+  /*
+   * Která akce právě běží.
+   *
+   * Tlačítka sdílela jediný příznak `probiha`, takže se po kliknutí jen
+   * všechna ztlumila a nebylo poznat, co se děje — u akce, která vytváří
+   * účetní doklad, je to nepříjemné.
+   */
+  const [bezi, setBezi] = useState<string | null>(null);
+
+  const spust = (klic: string, fn: () => Promise<Vysledek>) => {
+    setBezi(klic);
+    return start(async () => {
       const v = await fn();
       setHlaska(v.ok ? { ok: true, text: v.zprava } : { ok: false, text: v.chyba });
       if (v.ok) {
@@ -65,7 +75,9 @@ export default function Doklady({
         setPopis("");
         setCastka("");
       }
+      setBezi(null);
     });
+  };
 
   const kc = (h: number) => (h / 100).toLocaleString("cs-CZ") + " Kč";
 
@@ -116,7 +128,7 @@ export default function Doklady({
                     value={duvod}
                     onChange={(e) => setDuvod(e.target.value)}
                     placeholder="Např. „Host stornoval pobyt 21 dní předem."
-                    className="mt-2 w-full rounded-lg border border-linen/15 bg-bark px-3.5 py-2.5 text-[14.5px] text-linen placeholder:text-sage/40 focus:border-ember focus:outline-none"
+                    className="mt-2 w-full rounded-lg border border-linen/15 bg-bark px-3.5 py-2.5 text-[14.5px] text-linen placeholder:text-sage/70 focus:border-ember focus:outline-none"
                   />
                   <label className="mt-3.5 flex cursor-pointer items-start gap-2.5 text-[14px] text-sage">
                     <input
@@ -138,9 +150,9 @@ export default function Doklady({
                       type="button"
                       className={TL_HLAVNI}
                       disabled={probiha || duvod.trim().length < 5 || !vraceno}
-                      onClick={() => spust(() => opravnyDoklad(kod, d.id, duvod, vraceno))}
+                      onClick={() => spust("opravny", () => opravnyDoklad(kod, d.id, duvod, vraceno))}
                     >
-                      {probiha ? "Vystavuji…" : "Vystavit opravný doklad"}
+                      {bezi === "opravny" ? "Vystavuji…" : "Vystavit opravný doklad"}
                     </button>
                     <button type="button" className={TL} onClick={() => setOpravuje(null)}>
                       Zpět
@@ -154,13 +166,23 @@ export default function Doklady({
       )}
 
       <div className="mt-5 flex flex-wrap gap-3">
-        <button type="button" className={TL} disabled={probiha} onClick={() => spust(() => zalohovaFaktura(kod))}>
-          Zálohová faktura
+        <button
+          type="button" className={TL} disabled={probiha}
+          onClick={() => spust("zaloha", () => zalohovaFaktura(kod))}
+        >
+          {bezi === "zaloha" ? "Vystavuji…" : "Zálohová faktura"}
         </button>
-        <button type="button" className={TL} disabled={probiha} onClick={() => spust(() => konecnaFaktura(kod))}>
-          Konečná faktura
+        <button
+          type="button" className={TL} disabled={probiha}
+          onClick={() => spust("konecna", () => konecnaFaktura(kod))}
+        >
+          {bezi === "konecna" ? "Vystavuji…" : "Konečná faktura"}
         </button>
-        <button type="button" className={TL} disabled={probiha} onClick={() => setNedanovy((v) => !v)}>
+        <button
+          type="button" className={TL} disabled={probiha}
+          aria-expanded={nedanovy}
+          onClick={() => setNedanovy((v) => !v)}
+        >
           Vyúčtování bez DPH
         </button>
       </div>
@@ -177,23 +199,23 @@ export default function Doklady({
               value={popis}
               onChange={(e) => setPopis(e.target.value)}
               placeholder="Co se účtuje"
-              className="w-full rounded-lg border border-linen/15 bg-bark px-3.5 py-2.5 text-[14.5px] text-linen placeholder:text-sage/40 focus:border-ember focus:outline-none"
+              className="w-full rounded-lg border border-linen/15 bg-bark px-3.5 py-2.5 text-[14.5px] text-linen placeholder:text-sage/70 focus:border-ember focus:outline-none"
             />
             <input
               value={castka}
               onChange={(e) => setCastka(e.target.value.replace(/[^\d]/g, ""))}
               inputMode="numeric"
               placeholder="Kč"
-              className="w-full rounded-lg border border-linen/15 bg-bark px-3.5 py-2.5 text-[14.5px] tabular-nums text-linen placeholder:text-sage/40 focus:border-ember focus:outline-none"
+              className="w-full rounded-lg border border-linen/15 bg-bark px-3.5 py-2.5 text-[14.5px] tabular-nums text-linen placeholder:text-sage/70 focus:border-ember focus:outline-none"
             />
           </div>
           <button
             type="button"
             className={`${TL_HLAVNI} mt-3`}
             disabled={probiha || popis.trim().length < 5 || !Number(castka)}
-            onClick={() => spust(() => nedanovyDoklad(kod, popis, Number(castka)))}
+            onClick={() => spust("nedanovy", () => nedanovyDoklad(kod, popis, Number(castka)))}
           >
-            {probiha ? "Vystavuji…" : "Vystavit"}
+            {bezi === "nedanovy" ? "Vystavuji…" : "Vystavit"}
           </button>
         </div>
       )}

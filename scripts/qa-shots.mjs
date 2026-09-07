@@ -39,7 +39,12 @@ const OPAKOVAT = Number(arg("--opakovat", "1"));
 
 const SHELL = path.join(
   os.homedir(),
-  "Library/Caches/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-mac-x64/chrome-headless-shell",
+  // Playwright ukládá binárku podle architektury stroje. Natvrdo zapsané
+  // `mac-x64` znamenalo, že na Applu s ARM skript spadl na ENOENT — a QA
+  // se prostě přestalo pouštět.
+  `Library/Caches/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-mac-${
+    process.arch === "arm64" ? "arm64" : "x64"
+  }/chrome-headless-shell`,
 );
 
 const PAGES = [

@@ -1,7 +1,7 @@
-import Image from "next/image";
 import PageHero from "@/components/PageHero";
 import CtaBanner from "@/components/CtaBanner";
 import Reveal from "@/components/Reveal";
+import GalerieMrizka, { type FotkaGalerie } from "@/components/GalerieMrizka";
 import JsonLd from "@/components/JsonLd";
 import { ArrowIcon } from "@/components/ui";
 import { pageMeta, breadcrumbLd } from "@/lib/seo";
@@ -15,17 +15,7 @@ export const metadata = pageMeta({
   ogImage: "/foto/hero-lom-domky.jpg",
 });
 
-type Photo = {
-  src: string;
-  alt: string;
-  caption: string;
-  aspect: string;
-  span?: string;
-  offset?: string;
-  sizes: string;
-};
-
-const PHOTOS: Photo[] = [
+const PHOTOS: FotkaGalerie[] = [
   {
     src: "/foto/hero-lom-domky.jpg",
     alt: "Dva černé kubické domky na dřevěné terase u zatopeného lomu za zlaté hodiny",
@@ -89,30 +79,6 @@ const PHOTOS: Photo[] = [
   },
 ];
 
-function GalleryFigure({ photo, i }: { photo: Photo; i: number }) {
-  return (
-    <Reveal i={i} className={`${photo.span ?? ""} ${photo.offset ?? ""}`}>
-      <figure className="group">
-        <div
-          className={`photo-frame relative overflow-hidden rounded-[28px] border border-linen/8 ${photo.aspect}`}
-        >
-          <Image
-            src={photo.src}
-            alt={photo.alt}
-            fill
-            sizes={photo.sizes}
-            className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.045]"
-          />
-          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-night/60 to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-40" />
-        </div>
-        <figcaption className="font-display mt-4 text-lg italic text-sage transition-colors duration-300 group-hover:text-linen md:mt-5">
-          {photo.caption}
-        </figcaption>
-      </figure>
-    </Reveal>
-  );
-}
-
 export default function GaleriePage() {
   return (
     <main>
@@ -132,11 +98,7 @@ export default function GaleriePage() {
       {/* ===== Editorial galerie ===== */}
       <section className="grain relative overflow-hidden bg-night pb-24 md:pb-32">
         <div className="relative z-10 mx-auto max-w-7xl px-5 md:px-8">
-          <div className="grid gap-10 md:grid-cols-2 md:gap-x-8 md:gap-y-12">
-            {PHOTOS.map((p, i) => (
-              <GalleryFigure key={p.src} photo={p} i={i} />
-            ))}
-          </div>
+          <GalerieMrizka fotky={PHOTOS} />
 
           {/* Instagram ===== */}
           <Reveal className="mt-16 md:mt-24">

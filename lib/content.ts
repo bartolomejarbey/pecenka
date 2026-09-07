@@ -174,7 +174,7 @@ export const PRICING = {
     "Cena je za jeden domek a noc, ať jste dva nebo přijedete sami.",
     "Chcete oba domky (až 4 lidi) nebo je spojit v jeden? Napište nám.",
     "Minimální délka pobytu jsou 2 noci. Při pobytu na 7 a více nocí sleva 10 %.",
-    "Vratná kauce 3 000 Kč se vrací do 3 dnů po odjezdu.",
+    "Kauci dopředu nevybíráme. Je smluvní do 3 000 Kč a o čemkoli rozhoduje člověk, který se vám nejdřív ozve.",
     "V ceně: povlečení, ručníky, káva, dřevo do ohniště a závěrečný úklid.",
     "Domky jsou celoroční — topí tepelné čerpadlo, v létě chladí klimatizace.",
   ],

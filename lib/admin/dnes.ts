@@ -47,6 +47,15 @@ export type Dnes = {
   ukoly: Ukol[];
   /** Když se dnes nic neděje, ať obrazovka není prázdná. */
   pristiPrijezd: { kod: string; jmeno: string | null; domek: string; prijezd: string } | null;
+  /**
+   * Jedno číslo o penězích.
+   *
+   * Ne tabulka — číslo. Majitel chce ráno vědět, jestli na něco čeká, ne
+   * procházet stavy plateb. Podrobnosti jsou o jedno ťuknutí dál.
+   */
+  penize: { cekaHalere: number; rezervaci: number; poSplatnostiHalere: number };
+  /** Sedm dní dopředu: kolik příjezdů a odjezdů který den. Ať je vidět týden. */
+  tyden: { datum: string; prijezdu: number; odjezdu: number; obsazeno: number }[];
 };
 
 type RadekPobytu = {
@@ -90,7 +99,10 @@ function naPobyt(r: RadekPobytu, navazujici: Set<string>): Pobyt {
 }
 
 export async function nactiDnes(): Promise<Dnes> {
-  const pobyty = await radky<RadekPobytu>(sql`
+  // Tři nezávislé dotazy najednou. Sériově to byla tři čekání před prvním
+  // bajtem nejotvíranější obrazovky administrace.
+  const [pobyty, ukoly, pristiRadky, penizeRadky, tyden] = await Promise.all([
+    radky<RadekPobytu>(sql`
     WITH zaklad AS (
       SELECT r.id, r.code, r.checkin::text AS checkin, r.checkout::text AS checkout,
              r.status::text AS status, r.payment_state::text AS payment_state,
@@ -116,14 +128,8 @@ export async function nactiDnes(): Promise<Dnes> {
     SELECT 'zustava', * FROM zaklad
      WHERE checkin::date < CURRENT_DATE AND checkout::date > CURRENT_DATE
     ORDER BY unit_slug, checkin
-  `);
-
-  // Back-to-back: v témže domku dnes někdo odjíždí a někdo přijíždí.
-  const odjezdy = new Set(pobyty.filter((p) => p.druh === "odjizdi").map((p) => p.unit_slug));
-  const prijezdy = new Set(pobyty.filter((p) => p.druh === "prijizdi").map((p) => p.unit_slug));
-  const navazujici = new Set([...odjezdy].filter((s) => prijezdy.has(s)));
-
-  const ukoly = await radky<{
+  `),
+    radky<{
     id: string;
     kind: string;
     severity: Ukol["zavaznost"];
@@ -139,9 +145,8 @@ export async function nactiDnes(): Promise<Dnes> {
      ORDER BY CASE t.severity WHEN 'urgent' THEN 0 WHEN 'warn' THEN 1 ELSE 2 END,
               t.due_at NULLS LAST, t.created_at
      LIMIT 30
-  `);
-
-  const [pristi] = await radky<{
+  `),
+    radky<{
     code: string;
     jmeno: string | null;
     unit_name: string;
@@ -154,7 +159,39 @@ export async function nactiDnes(): Promise<Dnes> {
       FROM reservations r JOIN units u ON u.id = r.unit_id
      WHERE r.checkin > CURRENT_DATE AND r.status IN ('confirmed','hold')
      ORDER BY r.checkin LIMIT 1
-  `);
+  `),
+    radky<{ ceka: string | number; rezervaci: number; po_splatnosti: string | number }>(sql`
+      SELECT coalesce(sum(r.total_cents - r.paid_cents), 0) AS ceka,
+             count(*)::int AS rezervaci,
+             coalesce(sum(r.total_cents - r.paid_cents) FILTER (
+               WHERE EXISTS (SELECT 1 FROM payments pm
+                              WHERE pm.reservation_id = r.id
+                                AND pm.status IN ('created','pending')
+                                AND pm.due_at < now())), 0) AS po_splatnosti
+        FROM reservations r
+       WHERE r.status IN ('confirmed','checked_in','hold')
+         AND r.total_cents > r.paid_cents
+    `),
+    radky<{ datum: string; prijezdu: number; odjezdu: number; obsazeno: number }>(sql`
+      SELECT d::date::text AS datum,
+             count(*) FILTER (WHERE r.checkin = d::date)::int AS prijezdu,
+             count(*) FILTER (WHERE r.checkout = d::date)::int AS odjezdu,
+             count(*) FILTER (WHERE r.checkin <= d::date AND r.checkout > d::date)::int AS obsazeno
+        FROM generate_series(CURRENT_DATE, CURRENT_DATE + 6, '1 day') d
+        LEFT JOIN reservations r
+               ON r.status IN ('confirmed','checked_in','hold')
+              AND r.checkin <= d::date + 1 AND r.checkout >= d::date
+       GROUP BY d ORDER BY d
+    `),
+  ]);
+
+  const [pristi] = pristiRadky;
+  const [p] = penizeRadky;
+
+  // Back-to-back: v témže domku dnes někdo odjíždí a někdo přijíždí.
+  const odjezdy = new Set(pobyty.filter((p) => p.druh === "odjizdi").map((p) => p.unit_slug));
+  const prijezdy = new Set(pobyty.filter((p) => p.druh === "prijizdi").map((p) => p.unit_slug));
+  const navazujici = new Set([...odjezdy].filter((s) => prijezdy.has(s)));
 
   return {
     odjizdi: pobyty.filter((p) => p.druh === "odjizdi").map((p) => naPobyt(p, navazujici)),
@@ -172,5 +209,11 @@ export async function nactiDnes(): Promise<Dnes> {
     pristiPrijezd: pristi
       ? { kod: pristi.code, jmeno: pristi.jmeno, domek: pristi.unit_name, prijezd: pristi.checkin }
       : null,
+    penize: {
+      cekaHalere: cislo(p?.ceka ?? 0),
+      rezervaci: p?.rezervaci ?? 0,
+      poSplatnostiHalere: cislo(p?.po_splatnosti ?? 0),
+    },
+    tyden,
   };
 }

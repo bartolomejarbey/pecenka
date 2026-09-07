@@ -73,9 +73,9 @@ export default function Summary({
       </div>
 
       <p className="mt-4 text-sm leading-relaxed text-sage">
-        + vratná kauce {formatHalere(breakdown.deposit)}
+        Záloha 50 % po potvrzení termínu, zbytek 14 dní před příjezdem.
         <br />
-        Záloha 50 % po potvrzení termínu.
+        Kauci dopředu nevybíráme.
       </p>
     </aside>
   );

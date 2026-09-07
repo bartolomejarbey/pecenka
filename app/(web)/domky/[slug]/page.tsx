@@ -10,6 +10,7 @@ import Amenities from "@/components/house/Amenities";
 import HouseGallery from "@/components/house/HouseGallery";
 import Availability from "@/components/house/Availability";
 import OtherHouse from "@/components/house/OtherHouse";
+import StickyBooking from "@/components/house/StickyBooking";
 import CtaBanner from "@/components/CtaBanner";
 import { nactiDostupnost } from "@/lib/booking/server";
 
@@ -78,6 +79,7 @@ export default async function HouseDetailPage({ params }: Props) {
       />
       <OtherHouse house={other} />
       <CtaBanner />
+      <StickyBooking slug={house.slug} houseName={house.name} odCenyHalere={odCeny} />
     </main>
   );
 }

@@ -69,14 +69,26 @@ function StepHeading({ title, sub }: { title: string; sub?: string }) {
 export default function BookingWizard({
   data,
   predvolenyDomek = null,
+  predvolenyTermin = null,
 }: {
   data: Record<string, DataDomku>;
   predvolenyDomek?: HouseSlug | null;
+  /**
+   * Termín z hero na úvodní stránce nebo z detailu domku. Host už si vybral
+   * kdy — tak se ho neptáme znovu a rovnou ukážeme, který domek je volný.
+   */
+  predvolenyTermin?: { od: string; do: string } | null;
 }) {
   const [mounted, setMounted] = useState(false);
-  const [step, setStep] = useState<Step>(1);
   const [house, setHouse] = useState<HouseSlug | null>(predvolenyDomek);
-  const [range, setRange] = useState<Range>({ from: null, to: null });
+  const [range, setRange] = useState<Range>(() =>
+    predvolenyTermin
+      ? { from: new Date(`${predvolenyTermin.od}T12:00:00`), to: new Date(`${predvolenyTermin.do}T12:00:00`) }
+      : { from: null, to: null },
+  );
+  // Domek i termín známe → rovnou na hosty. Jen termín → výběr domku
+  // s vyznačenou dostupností. Nic → od začátku.
+  const [step, setStep] = useState<Step>(predvolenyDomek && predvolenyTermin ? 3 : 1);
   const [guests, setGuests] = useState(2);
   const [addons, setAddons] = useState<AddonSelection>({});
   const [contact, setContact] = useState<Contact>({
@@ -122,6 +134,30 @@ export default function BookingWizard({
     () => new Set(domek?.obsazene ?? []),
     [domek],
   );
+
+  /**
+   * Dostupnost obou domků v předvoleném termínu — pro karty v kroku 1.
+   *
+   * Host, který přišel s termínem, se neptá „který domek se mi líbí", ale
+   * „který je volný". Karta to musí říct dřív, než na ni klikne.
+   */
+  const dostupnostVTerminu = useMemo(() => {
+    if (!range.from || !range.to) return null;
+    const out: Partial<Record<HouseSlug, { volno: boolean; cena: number | null; noci: number }>> = {};
+    for (const slug of ["achat", "mech"] as const) {
+      const d = data[slug];
+      if (!d) continue;
+      const volno = isRangeFree(new Set(d.obsazene), range.from, range.to);
+      const chyba = validateRange(range.from, range.to, 2);
+      const cena = volno && !chyba ? calcPrice(range.from, range.to, {}, d.cenik) : null;
+      out[slug] = {
+        volno: volno && !chyba,
+        cena: cena ? cena.total : null,
+        noci: cena ? cena.nights : 0,
+      };
+    }
+    return out;
+  }, [range, data]);
 
   const rangeError = useMemo(() => {
     if (!range.from || !range.to || !domek) return null;
@@ -314,10 +350,18 @@ export default function BookingWizard({
             {step === 1 && (
               <div>
                 <StepHeading
-                  title="Který domek to bude?"
-                  sub="Achát má prosklenou stěnu přes celý les, Mech navíc dřevěnou žaluziovou clonu. Oba jsou pro dva — a dají se spojit v jeden velký."
+                  title={dostupnostVTerminu ? "Který domek to bude?" : "Který domek to bude?"}
+                  sub={
+                    dostupnostVTerminu && range.from && range.to
+                      ? `${formatCzDate(range.from)} – ${formatCzDate(range.to)}. Vybrali jste termín, tak rovnou vidíte, který domek je volný a za kolik. Termín jde ve druhém kroku změnit.`
+                      : "Achát má prosklenou stěnu přes celý les, Mech navíc dřevěnou žaluziovou clonu. Oba jsou pro dva — a dají se spojit v jeden velký."
+                  }
                 />
-                <HouseStep selected={house} onSelect={setHouse} />
+                <HouseStep
+                  selected={house}
+                  onSelect={setHouse}
+                  dostupnost={dostupnostVTerminu}
+                />
                 <div className="mt-10 flex justify-end">
                   <Button onClick={() => setStep(2)} disabled={!house}>
                     Pokračovat

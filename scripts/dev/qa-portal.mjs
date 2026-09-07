@@ -10,7 +10,7 @@ const BASE = process.env.QA_URL || "https://sedmyles.vercel.app";
 const VS = process.argv[3] || "2610000015";
 const KOD = process.argv[4] || "S8DEZ5HB";
 const SHELL = path.join(os.homedir(),
-  "Library/Caches/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-mac-x64/chrome-headless-shell");
+  `Library/Caches/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-mac-${process.arch === "arm64" ? "arm64" : "x64"}/chrome-headless-shell`);
 
 fs.mkdirSync(OUT, { recursive: true });
 const profil = fs.mkdtempSync(path.join(os.tmpdir(), "qa-p-"));
@@ -73,8 +73,17 @@ const kde = await s("Runtime.evaluate", { expression: "location.pathname", retur
 console.log("po přihlášení:", kde.result.value);
 await snimek("2-prehled");
 
+await jdi("/pobyt/domek");
+await snimek("3-domek");
+
+await jdi("/pobyt/odjezd");
+await snimek("4-odjezd");
+
+await jdi("/pobyt/pomoc");
+await snimek("5-pomoc");
+
 await jdi("/pobyt/protokol");
-await snimek("3-protokol");
+await snimek("6-fotky");
 const zona = await s("Runtime.evaluate", { expression: "document.querySelector('h1')?.textContent", returnByValue: true });
 console.log("první zóna:", zona.result.value);
 

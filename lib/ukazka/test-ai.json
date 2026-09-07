@@ -1,0 +1,581 @@
+{
+ "vytvoreno": "2026-08-31",
+ "verzePromptu": "luna-5.6-cs-3",
+ "model": "gpt-5.6-luna",
+ "nakladHalere": 3637,
+ "celkem": 10,
+ "poskozeniNalezeno": 4,
+ "poskozeniCelkem": 4,
+ "uklidNalezen": 3,
+ "uklidCelkem": 3,
+ "planePoplachy": 0,
+ "bezNalezuCelkem": 3,
+ "branaOtevrena": 10,
+ "volaniModelu": 10,
+ "pripady": [
+  {
+   "id": "p01",
+   "nazev": "Obývák beze změny",
+   "zona": "Sedačka a nábytek",
+   "zonaKlic": "seating",
+   "ocekavano": "bez_nalezu",
+   "proc": "Kontrolní dvojice. Když tady systém něco najde, hlásí falešné poplachy i všude jinde.",
+   "pred": "/test-ai/p01-pred.jpg",
+   "po": "/test-ai/p01-po.jpg",
+   "vyrezPred": "/test-ai/p01-vyrez-pred.jpg",
+   "vyrezPo": "/test-ai/p01-vyrez-po.jpg",
+   "posudek": {
+    "pouzitelna": true,
+    "vzkaz": "",
+    "jas": 119,
+    "ostrost": 850
+   },
+   "brana": {
+    "podobnost": 91.9,
+    "zarovnani": "good",
+    "rozdilJasu": -1,
+    "mist": 3,
+    "otevrena": true
+   },
+   "luna": {
+    "zavaznost": "none",
+    "jistota": 0.96,
+    "coSeZmenilo": "Na sedačce, konferenčním stolku ani jejich nohách není mezi referenčními a hostovskými snímky patrná žádná jednoznačná změna nebo poškození.",
+    "alternativa": "Drobné rozdíly v odstínu a kresbě čalounění mohou být způsobeny světlem, expozicí a nepatrně odlišným snímáním.",
+    "protiargument": null,
+    "stabilita": null,
+    "neporadek": false,
+    "svetloUhel": true,
+    "noveFoto": false,
+    "prosba": null,
+    "odhad": {
+     "min": 0,
+     "max": 0
+    },
+    "model": "gpt-5.6-luna",
+    "trvaniMs": 5636,
+    "cenaHalere": 200
+   },
+   "vzkaz": {
+    "ton": "dik",
+    "nadpis": "Hotovo, děkujeme",
+    "text": "Domek vypadá přesně tak, jak jsme ho předávali. Nic víc od vás nepotřebujeme a nikam volat nemusíte.",
+    "prosby": [],
+    "telefon": null,
+    "zonyKVolani": [],
+    "zonyKDofoceni": [],
+    "patka": "Fotky si necháme 90 dní a pak je smažeme. Kdyby přece jen bylo něco potřeba řešit, ozveme se vám osobně — automat vám nikdy nic neúčtuje. Šťastnou cestu domů."
+   },
+   "vysledek": "trefa"
+  },
+  {
+   "id": "p02",
+   "nazev": "Jiné světlo, stejná podlaha",
+   "zona": "Podlaha",
+   "zonaKlic": "floor",
+   "ocekavano": "bez_nalezu",
+   "proc": "Ráno versus večer je největší zdroj vymyšlených škod. Rozdíl v jasu nesmí být nález.",
+   "pred": "/test-ai/p02-pred.jpg",
+   "po": "/test-ai/p02-po.jpg",
+   "vyrezPred": "/test-ai/p02-vyrez-pred.jpg",
+   "vyrezPo": "/test-ai/p02-vyrez-po.jpg",
+   "posudek": {
+    "pouzitelna": true,
+    "vzkaz": "",
+    "jas": 86.7,
+    "ostrost": 153
+   },
+   "brana": {
+    "podobnost": 73.3,
+    "zarovnani": "fair",
+    "rozdilJasu": -62,
+    "mist": 4,
+    "otevrena": true
+   },
+   "luna": {
+    "zavaznost": "none",
+    "jistota": 0.96,
+    "coSeZmenilo": "Na podlaze není patrná žádná nová rýha, promáčklina, chybějící lišta ani jednoznačně trvalá skvrna. Rozdíly v odstínu a viditelnosti povrchu odpovídají výrazně odlišnému osvětlení.",
+    "alternativa": "Tmavší a teplejší vzhled podlahy ve snímcích od hosta je vysvětlitelný večerním světlem a lampou; nejde o prokázanou změnu materiálu.",
+    "protiargument": null,
+    "stabilita": null,
+    "neporadek": false,
+    "svetloUhel": true,
+    "noveFoto": false,
+    "prosba": null,
+    "odhad": {
+     "min": 0,
+     "max": 0
+    },
+    "model": "gpt-5.6-luna",
+    "trvaniMs": 3836,
+    "cenaHalere": 215
+   },
+   "vzkaz": {
+    "ton": "dik",
+    "nadpis": "Hotovo, děkujeme",
+    "text": "Domek vypadá přesně tak, jak jsme ho předávali. Nic víc od vás nepotřebujeme a nikam volat nemusíte.",
+    "prosby": [],
+    "telefon": null,
+    "zonyKVolani": [],
+    "zonyKDofoceni": [],
+    "patka": "Fotky si necháme 90 dní a pak je smažeme. Kdyby přece jen bylo něco potřeba řešit, ozveme se vám osobně — automat vám nikdy nic neúčtuje. Šťastnou cestu domů."
+   },
+   "vysledek": "trefa"
+  },
+  {
+   "id": "p03",
+   "nazev": "Přesunutý nábytek",
+   "zona": "Sedačka a nábytek",
+   "zonaKlic": "seating",
+   "ocekavano": "bez_nalezu",
+   "proc": "Host si posunul křeslo a přeskládal polštáře. Nábytek jinde není poškození.",
+   "pred": "/test-ai/p03-pred.jpg",
+   "po": "/test-ai/p03-po.jpg",
+   "vyrezPred": "/test-ai/p03-vyrez-pred.jpg",
+   "vyrezPo": "/test-ai/p03-vyrez-po.jpg",
+   "posudek": {
+    "pouzitelna": true,
+    "vzkaz": "",
+    "jas": 104.3,
+    "ostrost": 1048
+   },
+   "brana": {
+    "podobnost": 85.1,
+    "zarovnani": "good",
+    "rozdilJasu": 0,
+    "mist": 4,
+    "otevrena": true
+   },
+   "luna": {
+    "zavaznost": "none",
+    "jistota": 0.98,
+    "coSeZmenilo": "Nejvýraznější rozdíl je jiné natočení křesla a jiné rozmístění polštářů na sedačce. Čalounění nevykazuje viditelné díry, skvrny ani propálená místa a u stolku nechybí žádná noha.",
+    "alternativa": "Jde o běžné přesunutí nebo natočení nábytku a přeuspořádání polštářů, nikoli o poškození.",
+    "protiargument": null,
+    "stabilita": null,
+    "neporadek": false,
+    "svetloUhel": true,
+    "noveFoto": false,
+    "prosba": null,
+    "odhad": {
+     "min": 0,
+     "max": 0
+    },
+    "model": "gpt-5.6-luna",
+    "trvaniMs": 4477,
+    "cenaHalere": 210
+   },
+   "vzkaz": {
+    "ton": "dik",
+    "nadpis": "Hotovo, děkujeme",
+    "text": "Domek vypadá přesně tak, jak jsme ho předávali. Nic víc od vás nepotřebujeme a nikam volat nemusíte.",
+    "prosby": [],
+    "telefon": null,
+    "zonyKVolani": [],
+    "zonyKDofoceni": [],
+    "patka": "Fotky si necháme 90 dní a pak je smažeme. Kdyby přece jen bylo něco potřeba řešit, ozveme se vám osobně — automat vám nikdy nic neúčtuje. Šťastnou cestu domů."
+   },
+   "vysledek": "trefa"
+  },
+  {
+   "id": "p04",
+   "nazev": "Neumyté nádobí",
+   "zona": "Kuchyňská linka",
+   "zonaKlic": "kitchen",
+   "ocekavano": "uklid",
+   "proc": "Nádobí ve dřezu je věc úklidu. Systém má hosta poprosit, ne obvinit.",
+   "pred": "/test-ai/p04-pred.jpg",
+   "po": "/test-ai/p04-po.jpg",
+   "vyrezPred": "/test-ai/p04-vyrez-pred.jpg",
+   "vyrezPo": "/test-ai/p04-vyrez-po.jpg",
+   "posudek": {
+    "pouzitelna": true,
+    "vzkaz": "",
+    "jas": 108.3,
+    "ostrost": 979
+   },
+   "brana": {
+    "podobnost": 88,
+    "zarovnani": "good",
+    "rozdilJasu": 1,
+    "mist": 3,
+    "otevrena": true
+   },
+   "luna": {
+    "zavaznost": "dirt",
+    "jistota": 0.99,
+    "coSeZmenilo": "Na pracovní desce a ve dřezu přibylo použité nádobí, příbory a sklenice; nejde o poškození vybavení.",
+    "alternativa": "Může jít o běžně odložené nádobí před odjezdem, které lze odstranit standardním úklidem.",
+    "protiargument": null,
+    "stabilita": null,
+    "neporadek": true,
+    "svetloUhel": false,
+    "noveFoto": false,
+    "prosba": "Kdyby zbyla chvilka, umyjte prosím nádobí a nechte dřez prázdný.",
+    "odhad": {
+     "min": 0,
+     "max": 0
+    },
+    "model": "gpt-5.6-luna",
+    "trvaniMs": 3754,
+    "cenaHalere": 193
+   },
+   "vzkaz": {
+    "ton": "prosba",
+    "nadpis": "Děkujeme, protokol máme",
+    "text": "Všechno vypadá dobře. Kdyby zbyla chvilka, máme jednu malou prosbu:",
+    "prosby": [
+     "Kdyby zbyla chvilka, umyjte prosím nádobí a nechte dřez prázdný."
+    ],
+    "telefon": null,
+    "zonyKVolani": [],
+    "zonyKDofoceni": [],
+    "patka": "Nic z toho není povinné a nic se za to neúčtuje — jde jen o to, aby další hosté našli domek tak hezký, jak jste ho našli vy. Šťastnou cestu domů."
+   },
+   "vysledek": "trefa"
+  },
+  {
+   "id": "p05",
+   "nazev": "Neustlaná postel",
+   "zona": "Spací patro",
+   "zonaKlic": "loft",
+   "ocekavano": "uklid",
+   "proc": "Zmuchlaná peřina je přesně to, o co se dá vlídně poprosit. Nic víc.",
+   "pred": "/test-ai/p05-pred.jpg",
+   "po": "/test-ai/p05-po.jpg",
+   "vyrezPred": "/test-ai/p05-vyrez-pred.jpg",
+   "vyrezPo": "/test-ai/p05-vyrez-po.jpg",
+   "posudek": {
+    "pouzitelna": true,
+    "vzkaz": "",
+    "jas": 116,
+    "ostrost": 753
+   },
+   "brana": {
+    "podobnost": 69.2,
+    "zarovnani": "fair",
+    "rozdilJasu": -4,
+    "mist": 2,
+    "otevrena": true
+   },
+   "luna": {
+    "zavaznost": "dirt",
+    "jistota": 0.99,
+    "coSeZmenilo": "Postel je oproti referenci neustlaná a peřina s přehozem jsou shrnuté. Zábradlí i schůdky vypadají beze změny a bez zjevného poškození.",
+    "alternativa": "Jde o běžný stav po používání, který lze odstranit úklidem; nejedná se o poškození vybavení.",
+    "protiargument": null,
+    "stabilita": null,
+    "neporadek": true,
+    "svetloUhel": false,
+    "noveFoto": false,
+    "prosba": "Budeme rádi, když před odjezdem ještě srovnáte peřinu a přehoz.",
+    "odhad": {
+     "min": 0,
+     "max": 0
+    },
+    "model": "gpt-5.6-luna",
+    "trvaniMs": 5400,
+    "cenaHalere": 224
+   },
+   "vzkaz": {
+    "ton": "prosba",
+    "nadpis": "Děkujeme, protokol máme",
+    "text": "Všechno vypadá dobře. Kdyby zbyla chvilka, máme jednu malou prosbu:",
+    "prosby": [
+     "Budeme rádi, když před odjezdem ještě srovnáte peřinu a přehoz."
+    ],
+    "telefon": null,
+    "zonyKVolani": [],
+    "zonyKDofoceni": [],
+    "patka": "Nic z toho není povinné a nic se za to neúčtuje — jde jen o to, aby další hosté našli domek tak hezký, jak jste ho našli vy. Šťastnou cestu domů."
+   },
+   "vysledek": "trefa"
+  },
+  {
+   "id": "p06",
+   "nazev": "Mokrá koupelna po sprše",
+   "zona": "Koupelna a sprcha",
+   "zonaKlic": "bathroom",
+   "ocekavano": "uklid",
+   "proc": "Kapky na skle a ručník na zemi vypadají v porovnání dramaticky. Škoda to není.",
+   "pred": "/test-ai/p06-pred.jpg",
+   "po": "/test-ai/p06-po.jpg",
+   "vyrezPred": "/test-ai/p06-vyrez-pred.jpg",
+   "vyrezPo": "/test-ai/p06-vyrez-po.jpg",
+   "posudek": {
+    "pouzitelna": true,
+    "vzkaz": "",
+    "jas": 112.4,
+    "ostrost": 521
+   },
+   "brana": {
+    "podobnost": 82.4,
+    "zarovnani": "good",
+    "rozdilJasu": -6,
+    "mist": 4,
+    "otevrena": true
+   },
+   "luna": {
+    "zavaznost": "dirt",
+    "jistota": 0.99,
+    "coSeZmenilo": "Na snímku před odjezdem je ručník odložený na podlaze před sprchou; ve sprše a umyvadle jsou také viditelné kapky vody.",
+    "alternativa": "Ručník mohl být záměrně položen na zem kvůli zachycení vody po sprchování; jde o běžný stav po použití, nikoli o poškození.",
+    "protiargument": null,
+    "stabilita": null,
+    "neporadek": true,
+    "svetloUhel": false,
+    "noveFoto": false,
+    "prosba": "Kdyby zbyla chvilka, odložte prosím ručník z podlahy na určené místo.",
+    "odhad": {
+     "min": 0,
+     "max": 0
+    },
+    "model": "gpt-5.6-luna",
+    "trvaniMs": 4867,
+    "cenaHalere": 216
+   },
+   "vzkaz": {
+    "ton": "prosba",
+    "nadpis": "Děkujeme, protokol máme",
+    "text": "Všechno vypadá dobře. Kdyby zbyla chvilka, máme jednu malou prosbu:",
+    "prosby": [
+     "Kdyby zbyla chvilka, odložte prosím ručník z podlahy na určené místo."
+    ],
+    "telefon": null,
+    "zonyKVolani": [],
+    "zonyKDofoceni": [],
+    "patka": "Nic z toho není povinné a nic se za to neúčtuje — jde jen o to, aby další hosté našli domek tak hezký, jak jste ho našli vy. Šťastnou cestu domů."
+   },
+   "vysledek": "trefa"
+  },
+  {
+   "id": "p07",
+   "nazev": "Propálená díra v čalounění",
+   "zona": "Sedačka a nábytek",
+   "zonaKlic": "seating",
+   "ocekavano": "skoda",
+   "proc": "Malá plocha, vysoká cena. Přesně to, co plošné porovnání propouští jen kvůli hloubce propadu.",
+   "pred": "/test-ai/p07-pred.jpg",
+   "po": "/test-ai/p07-po.jpg",
+   "vyrezPred": "/test-ai/p07-vyrez-pred.jpg",
+   "vyrezPo": "/test-ai/p07-vyrez-po.jpg",
+   "posudek": {
+    "pouzitelna": true,
+    "vzkaz": "",
+    "jas": 108.8,
+    "ostrost": 822
+   },
+   "brana": {
+    "podobnost": 94.1,
+    "zarovnani": "good",
+    "rozdilJasu": -2,
+    "mist": 3,
+    "otevrena": true
+   },
+   "luna": {
+    "zavaznost": "damage_minor",
+    "jistota": 0.99,
+    "coSeZmenilo": "Na levé části sedáku sedačky se oproti referenčnímu snímku nově nachází proděravěné a roztřepené čalounění s odhalenou výplní.",
+    "alternativa": "Může jít o dříve vzniklé poškození, které bylo v referenčním snímku zakryté nebo přehlédnuté; výřez reference však místo ukazuje bez viditelné díry.",
+    "protiargument": "Nejvěrohodnější protiargument se zde nedá obhájit: otvor je na stejném místě sedáku v novém snímku zřetelně viditelný, má roztřepené okraje a odhalenou výplň. Nejde věrohodně vysvětlit světlem, úhlem, stínem ani běžným nepořádkem.",
+    "stabilita": "stable",
+    "neporadek": false,
+    "svetloUhel": false,
+    "noveFoto": false,
+    "prosba": null,
+    "odhad": {
+     "min": 1500,
+     "max": 3500
+    },
+    "model": "gpt-5.6-luna",
+    "trvaniMs": 13145,
+    "cenaHalere": 220
+   },
+   "vzkaz": {
+    "ton": "telefon",
+    "nadpis": "Zavolejte nám prosím, než odjedete",
+    "text": "Děkujeme, fotky máme. Na některých snímcích vidím něco, čemu si nejsem jistý, a rád bych to s vámi probral, dokud jste ještě na místě — bývá to během minuty vyřešené. Zavolejte prosím na +420 733 418 260.",
+    "prosby": [],
+    "telefon": "+420 733 418 260",
+    "zonyKVolani": [
+     "Sedačka a nábytek"
+    ],
+    "zonyKDofoceni": [],
+    "patka": "Týká se to místa: Sedačka a nábytek. Klidně to bude odraz nebo úhel fotky — proto voláme, a ne účtujeme. Dokud si to spolu neprojdeme, nic se neúčtuje. Kdyby se vám nedovolalo, napište na ahoj@sedmyles.cz a ozveme se vám sami."
+   },
+   "vysledek": "trefa"
+  },
+  {
+   "id": "p08",
+   "nazev": "Propálená pracovní deska",
+   "zona": "Kuchyňská linka",
+   "zonaKlic": "kitchen",
+   "ocekavano": "skoda",
+   "proc": "Stopa po horkém hrnci. Jasná škoda, kterou musí systém trefit s vysokou jistotou.",
+   "pred": "/test-ai/p08-pred.jpg",
+   "po": "/test-ai/p08-po.jpg",
+   "vyrezPred": "/test-ai/p08-vyrez-pred.jpg",
+   "vyrezPo": "/test-ai/p08-vyrez-po.jpg",
+   "posudek": {
+    "pouzitelna": true,
+    "vzkaz": "",
+    "jas": 101.8,
+    "ostrost": 847
+   },
+   "brana": {
+    "podobnost": 91.8,
+    "zarovnani": "good",
+    "rozdilJasu": -2,
+    "mist": 4,
+    "otevrena": true
+   },
+   "luna": {
+    "zavaznost": "damage_major",
+    "jistota": 0.75,
+    "coSeZmenilo": "Na pracovní desce vedle dřezu se oproti referenci objevil výrazný kruhový tmavý až zuhelnatělý útvar, který odpovídá propálení povrchu.",
+    "alternativa": "Může jít o připálenou nečistotu nebo zbytek sazí odstranitelný čištěním; tvar a tmavé okraje však spíše ukazují na tepelné poškození desky.",
+    "protiargument": "Na pracovní desce je v novém snímku kruhová tmavá skvrna, ale z dostupného záběru není patrné narušení, propadnutí ani deformace povrchu. Může jít o saze, mastný nebo připálený zbytek či otisk po horkém předmětu, který lze odstranit běžným čištěním.",
+    "stabilita": "stable",
+    "neporadek": false,
+    "svetloUhel": false,
+    "noveFoto": false,
+    "prosba": null,
+    "odhad": {
+     "min": 3000,
+     "max": 12000
+    },
+    "model": "gpt-5.6-luna",
+    "trvaniMs": 5582,
+    "cenaHalere": 210
+   },
+   "vzkaz": {
+    "ton": "telefon",
+    "nadpis": "Zavolejte nám prosím, než odjedete",
+    "text": "Děkujeme, fotky máme. Na některých snímcích vidím něco, čemu si nejsem jistý, a rád bych to s vámi probral, dokud jste ještě na místě — bývá to během minuty vyřešené. Zavolejte prosím na +420 733 418 260.",
+    "prosby": [],
+    "telefon": "+420 733 418 260",
+    "zonyKVolani": [
+     "Kuchyňská linka"
+    ],
+    "zonyKDofoceni": [],
+    "patka": "Týká se to místa: Kuchyňská linka. Klidně to bude odraz nebo úhel fotky — proto voláme, a ne účtujeme. Dokud si to spolu neprojdeme, nic se neúčtuje. Kdyby se vám nedovolalo, napište na ahoj@sedmyles.cz a ozveme se vám sami."
+   },
+   "vysledek": "trefa"
+  },
+  {
+   "id": "p09",
+   "nazev": "Prasklé sklo",
+   "zona": "Prosklená stěna a žaluzie",
+   "zonaKlic": "window",
+   "ocekavano": "skoda",
+   "proc": "Nejdražší položka v domku. Prasklina v tabuli se nesmí schovat mezi odrazy.",
+   "pred": "/test-ai/p09-pred.jpg",
+   "po": "/test-ai/p09-po.jpg",
+   "vyrezPred": "/test-ai/p09-vyrez-pred.jpg",
+   "vyrezPo": "/test-ai/p09-vyrez-po.jpg",
+   "posudek": {
+    "pouzitelna": true,
+    "vzkaz": "",
+    "jas": 100.9,
+    "ostrost": 748
+   },
+   "brana": {
+    "podobnost": 94.1,
+    "zarovnani": "good",
+    "rozdilJasu": -5,
+    "mist": 1,
+    "otevrena": true
+   },
+   "luna": {
+    "zavaznost": "damage_major",
+    "jistota": 0.99,
+    "coSeZmenilo": "Sklo prosklené stěny je oproti referenci výrazně popraskané: z centrálního bodu se radiálně šíří mnoho prasklin přes velkou část tabule.",
+    "alternativa": "Nejpravděpodobněji jde o skutečné prasknutí skla. Teoreticky by mohlo jít o obrazový artefakt, ale stejný vzor je zřetelně vidět v celkovém pohledu i ve srovnávacím výřezu.",
+    "protiargument": "Na snímku po odjezdu jsou přes skleněnou tabuli jasně viditelné radiální praskliny vycházející z jednoho centrálního bodu. Nejde věrohodně vysvětlit změnou světla, úhlu ani odrazem, protože stejný obrazec je patrný i v detailním výřezu a kopíruje plochu skla.",
+    "stabilita": "stable",
+    "neporadek": false,
+    "svetloUhel": false,
+    "noveFoto": false,
+    "prosba": null,
+    "odhad": {
+     "min": 15000,
+     "max": 35000
+    },
+    "model": "gpt-5.6-luna",
+    "trvaniMs": 4964,
+    "cenaHalere": 192
+   },
+   "vzkaz": {
+    "ton": "telefon",
+    "nadpis": "Zavolejte nám prosím, než odjedete",
+    "text": "Děkujeme, fotky máme. Na některých snímcích vidím něco, čemu si nejsem jistý, a rád bych to s vámi probral, dokud jste ještě na místě — bývá to během minuty vyřešené. Zavolejte prosím na +420 733 418 260.",
+    "prosby": [],
+    "telefon": "+420 733 418 260",
+    "zonyKVolani": [
+     "Prosklená stěna a žaluzie"
+    ],
+    "zonyKDofoceni": [],
+    "patka": "Týká se to místa: Prosklená stěna a žaluzie. Klidně to bude odraz nebo úhel fotky — proto voláme, a ne účtujeme. Dokud si to spolu neprojdeme, nic se neúčtuje. Kdyby se vám nedovolalo, napište na ahoj@sedmyles.cz a ozveme se vám sami."
+   },
+   "vysledek": "trefa"
+  },
+  {
+   "id": "p10",
+   "nazev": "Chybí držák sprchy",
+   "zona": "Koupelna a sprcha",
+   "zonaKlic": "bathroom",
+   "ocekavano": "skoda",
+   "proc": "Chybějící vybavení pozná jen porovnání s referencí. Na samostatné fotce nic nechybí.",
+   "pred": "/test-ai/p10-pred.jpg",
+   "po": "/test-ai/p10-po.jpg",
+   "vyrezPred": "/test-ai/p10-vyrez-pred.jpg",
+   "vyrezPo": "/test-ai/p10-vyrez-po.jpg",
+   "posudek": {
+    "pouzitelna": true,
+    "vzkaz": "",
+    "jas": 86.8,
+    "ostrost": 649
+   },
+   "brana": {
+    "podobnost": 93.2,
+    "zarovnani": "good",
+    "rozdilJasu": 2,
+    "mist": 1,
+    "otevrena": true
+   },
+   "luna": {
+    "zavaznost": "missing",
+    "jistota": 0.75,
+    "coSeZmenilo": "Na snímku po odjezdu chybí ruční sprchová hlavice, její držák i hadice; na obkladu zůstaly dva montážní otvory.",
+    "alternativa": "Sprchový set mohl být mezi pořízením referenčního a kontrolního snímku demontován při údržbě nebo opravě mimo souvislost s pobytem hosta.",
+    "protiargument": "Na pozdějším snímku sprchová hlavice s držákem a hadicí skutečně není, ale čisté dva montážní otvory bez vyštípání obkladu spíše odpovídají demontáži nebo výměně vybavení než poškození. Z dostupných snímků nelze určit, že k odstranění došlo během pobytu hosta.",
+    "stabilita": null,
+    "neporadek": false,
+    "svetloUhel": false,
+    "noveFoto": false,
+    "prosba": null,
+    "odhad": {
+     "min": 1500,
+     "max": 4000
+    },
+    "model": "gpt-5.6-luna",
+    "trvaniMs": 5701,
+    "cenaHalere": 225
+   },
+   "vzkaz": {
+    "ton": "telefon",
+    "nadpis": "Zavolejte nám prosím, než odjedete",
+    "text": "Děkujeme, fotky máme. Na některých snímcích vidím něco, čemu si nejsem jistý, a rád bych to s vámi probral, dokud jste ještě na místě — bývá to během minuty vyřešené. Zavolejte prosím na +420 733 418 260.",
+    "prosby": [],
+    "telefon": "+420 733 418 260",
+    "zonyKVolani": [
+     "Koupelna a sprcha"
+    ],
+    "zonyKDofoceni": [],
+    "patka": "Týká se to místa: Koupelna a sprcha. Klidně to bude odraz nebo úhel fotky — proto voláme, a ne účtujeme. Dokud si to spolu neprojdeme, nic se neúčtuje. Kdyby se vám nedovolalo, napište na ahoj@sedmyles.cz a ozveme se vám sami."
+   },
+   "vysledek": "trefa"
+  }
+ ]
+}

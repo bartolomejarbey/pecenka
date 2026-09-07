@@ -10,6 +10,8 @@ import Shell from "@/components/admin/Shell";
 import { Karta } from "@/components/admin/prvky";
 import FormularFirmy from "./formular";
 import Pobyt from "./pobyt";
+import Ulohy from "./ulohy";
+import { nactiStavSystemu } from "@/lib/admin/system";
 import { nactiInfoOPobytu } from "@/lib/admin/pobyt";
 
 export const metadata: Metadata = { title: "Nastavení", robots: { index: false, follow: false } };
@@ -24,9 +26,11 @@ export const dynamic = "force-dynamic";
  */
 export default async function AdminNastaveni() {
   const kdo = await vyzadujPrihlaseni();
-  const infoOPobytu = await nactiInfoOPobytu();
-
-  const [firma] = await radky<{
+  // Tři nezávislé dotazy. Sériově to byla tři čekání navíc před prvním bajtem.
+  const [infoOPobytu, stavSystemu, firmaRadky] = await Promise.all([
+    nactiInfoOPobytu(),
+    nactiStavSystemu(),
+    radky<{
     legal_name: string;
     ico: string;
     dic: string | null;
@@ -39,12 +43,15 @@ export default async function AdminNastaveni() {
     security_deposit_cents: string | number;
     deposit_share_bp: number;
     invoice_due_days: number;
+    checkout_hotline: string | null;
   }>(sql`
     SELECT legal_name, ico, dic, address, bank_iban, bank_display, vat_payer,
            city_tax_cents, city_tax_ozv_ref, security_deposit_cents,
-           deposit_share_bp, invoice_due_days
+           deposit_share_bp, invoice_due_days, checkout_hotline
       FROM company_settings WHERE id = 1
-  `);
+  `),
+  ]);
+  const [firma] = firmaRadky;
 
   // Zástupné hodnoty ze seedu se do formuláře nepředávají — prázdné pole
   // s nápovědou je srozumitelnější než „DOPLNIT", které vypadá jako údaj.
@@ -63,6 +70,7 @@ export default async function AdminNastaveni() {
     zalohaProcent: String((firma?.deposit_share_bp ?? 5000) / 100),
     kauceKc: String(Number(firma?.security_deposit_cents ?? 0) / 100),
     splatnostDni: String(firma?.invoice_due_days ?? 14),
+    infolinka: firma?.checkout_hotline ?? "",
   };
 
   const nedodelky = [
@@ -102,6 +110,32 @@ export default async function AdminNastaveni() {
           ) : (
             <p className="px-5 py-6 text-[14.5px] text-emerald-300">Všechno je nastavené.</p>
           )}
+        </Karta>
+
+        <Karta nadpis="Stav systému">
+          {stavSystemu.map((r) => (
+            <div key={r.nazev} className="px-5 py-3.5">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <span className="flex items-center gap-2.5 text-[14.5px] text-sage">
+                  <span
+                    className={`h-2 w-2 shrink-0 rounded-full ${
+                      r.stav === "ok" ? "bg-emerald-400" : r.stav === "pozor" ? "bg-ember" : "bg-red-400"
+                    }`}
+                    aria-hidden="true"
+                  />
+                  {r.nazev}
+                </span>
+                <span className="text-[14.5px] text-linen">{r.hodnota}</span>
+              </div>
+              {r.dopad && (
+                <p className="mt-1 pl-[18px] text-[13px] leading-relaxed text-sage/80">{r.dopad}</p>
+              )}
+            </div>
+          ))}
+        </Karta>
+
+        <Karta nadpis="Naplánované úlohy">
+          <Ulohy />
         </Karta>
 
         <Karta nadpis="Fakturační údaje">

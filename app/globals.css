@@ -25,6 +25,8 @@
   --color-vazne: #d97070; /* problém */
 
   --font-display: var(--font-fraunces);
+  /* Kurzíva má vlastní řez a načítá se až s obsahem, ne před ním. */
+  --font-display-kurziva: var(--font-fraunces-kurziva);
   --font-sans: var(--font-hanken);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -69,6 +71,17 @@ select {
   border-radius: 6px;
 }
 
+/*
+ * Nadpis, na který se po přechodu kroku přesouvá fokus.
+ *
+ * Přesun fokusu je kvůli čtečkám — bez něj se odečítač po výměně obsahu
+ * neprobere. Rámeček kolem nadpisu ale mate: uživatel nikam neklikl a vypadá
+ * to jako chyba. Ohlášení zůstává, rámeček ne.
+ */
+[data-fokus-tise]:focus-visible {
+  outline: none;
+}
+
 ::selection {
   background: var(--color-ember);
   color: var(--color-night);
@@ -92,6 +105,7 @@ select {
 }
 
 .accent-italic {
+  font-family: var(--font-display-kurziva);
   font-style: italic;
   font-weight: 380;
   color: var(--color-ember);

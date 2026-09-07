@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { House } from "@/lib/content";
 import Reveal from "@/components/Reveal";
 import { ArrowIcon, Kicker } from "@/components/ui";
+import HouseGalerieMrizka from "./HouseGalerieMrizka";
 
 /* Fotky místa — záměrně ne hero fotka domku (tu už návštěvník viděl).
    Popisky jsou pravdivé k tomu, co je na snímku: interiér a okolí lomu,
@@ -15,21 +15,51 @@ const PLACE_PHOTOS: Record<House["slug"], { src: string; alt: string; caption: s
       caption: "Celá jedna stěna je okno — les si pustíte rovnou dovnitř.",
     },
     {
+      src: "/foto/interier-patro.jpg",
+      alt: "Spací patro pod stropem s postelí pro dva",
+      caption: "Spací patro — postel pro dva pod 3,5m stropem.",
+    },
+    {
+      src: "/foto/interier-koupelna.jpg",
+      alt: "Koupelna se sprchovým koutem a umyvadlem",
+      caption: "Koupelna se sprchou, ručníky a mýdlem v ceně.",
+    },
+    {
       src: "/foto/lom-rano.jpg",
       alt: "Zatopený břidlicový lom za svítání, nad hladinou ranní mlha",
       caption: "Zatopený lom pár kroků od domku, ráno celý v mlze.",
+    },
+    {
+      src: "/foto/ohniste-vecer.jpg",
+      alt: "Ohniště na dřevěné terase za večera",
+      caption: "Ohniště na terase. První náruč dřeva je v ceně.",
     },
   ],
   mech: [
     {
       src: "/foto/interier-kuchyne.jpg",
       alt: "Detail kuchyňské linky v domku — překližka, černé prvky a spací patro nad ní",
-      caption: "Plně vybavená kuchyňka, nad ní spací patro pod 3,5m stropem.",
+      caption: "Plně vybavená kuchyňka, nad ní spací patro.",
+    },
+    {
+      src: "/foto/interier-patro.jpg",
+      alt: "Spací patro pod stropem s postelí pro dva",
+      caption: "Spací patro — postel pro dva pod 3,5m stropem.",
+    },
+    {
+      src: "/foto/interier-koupelna.jpg",
+      alt: "Koupelna se sprchovým koutem a umyvadlem",
+      caption: "Koupelna se sprchou, ručníky a mýdlem v ceně.",
     },
     {
       src: "/foto/koupani-lom.jpg",
       alt: "Dřevěné molo na křišťálově čistém zatopeném lomu, letní den",
       caption: "Křišťálová voda lomu — od terasy je to jen pár kroků.",
+    },
+    {
+      src: "/foto/domky-spojene.jpg",
+      alt: "Oba domky vedle sebe se společnou terasou",
+      caption: "Achát a Mech se dají spojit v jeden celek pro čtyři.",
     },
   ],
 };
@@ -58,39 +88,7 @@ export default function HouseGallery({ house }: { house: House }) {
           </Reveal>
         </div>
 
-        <div className="mt-12 grid gap-6 md:mt-16 md:grid-cols-[1.4fr_1fr] md:gap-8">
-          <Reveal as="div" amount={0.2}>
-            <figure className="group">
-              <div className="photo-frame relative aspect-[4/3] overflow-hidden rounded-[28px]">
-                <Image
-                  src={photos[0].src}
-                  alt={photos[0].alt}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 58vw"
-                  className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.045]"
-                />
-                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-night/60 to-transparent" />
-              </div>
-              <figcaption className="mt-4 text-sm text-sage">{photos[0].caption}</figcaption>
-            </figure>
-          </Reveal>
-
-          <Reveal as="div" i={1} amount={0.2} className="md:mt-14">
-            <figure className="group">
-              <div className="photo-frame relative aspect-[3/4] overflow-hidden rounded-[28px]">
-                <Image
-                  src={photos[1].src}
-                  alt={photos[1].alt}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 40vw"
-                  className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.045]"
-                />
-                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-night/60 to-transparent" />
-              </div>
-              <figcaption className="mt-4 text-sm text-sage">{photos[1].caption}</figcaption>
-            </figure>
-          </Reveal>
-        </div>
+        <HouseGalerieMrizka fotky={photos} />
       </div>
     </section>
   );

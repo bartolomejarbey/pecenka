@@ -12,8 +12,8 @@ import { ulozFirmu } from "@/lib/admin/akce";
  */
 
 const POLE =
-  "w-full rounded-xl border border-linen/15 bg-bark px-4 py-2.5 text-[15px] text-linen " +
-  "placeholder:text-sage/40 focus:border-ember focus:outline-none";
+  "w-full rounded-xl border border-linen/15 bg-bark px-4 py-2.5 text-[16px] text-linen " +
+  "placeholder:text-sage/70 focus:border-ember focus:outline-none";
 
 export type Hodnoty = {
   nazev: string;
@@ -29,6 +29,7 @@ export type Hodnoty = {
   zalohaProcent: string;
   kauceKc: string;
   splatnostDni: string;
+  infolinka: string;
 };
 
 function Pole({
@@ -56,7 +57,8 @@ function Pole({
       <input
         name={jmeno}
         type={typ}
-        inputMode={typ === "text" ? undefined : "decimal"}
+        inputMode={typ === "number" ? "decimal" : typ === "tel" ? "tel" : undefined}
+        autoComplete={typ === "tel" ? "tel" : "off"}
         value={hodnota}
         onChange={(e) => zmen(jmeno, e.target.value)}
         placeholder={drzitel}
@@ -125,6 +127,16 @@ export default function FormularFirmy({ vychozi }: { vychozi: Hodnoty }) {
         zmen={zmen}
         drzitel="1920001453/0800"
         napoveda="Stačí běžný tvar s lomítkem, IBAN si dopočítáme. Z tohohle účtu se skládá QR platba."
+      />
+
+      <Pole
+        jmeno="infolinka"
+        popis="Infolinka pro hosty před odjezdem"
+        hodnota={v.infolinka}
+        zmen={zmen}
+        typ="tel"
+        drzitel="+420 733 418 260"
+        napoveda="Tohle číslo se ukáže hostovi, když systém na odjezdových fotkách uvidí něco, co je potřeba probrat. Volá se na něj hned, dokud je host ještě na místě."
       />
 
       <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-linen/10 bg-bark px-4 py-3">

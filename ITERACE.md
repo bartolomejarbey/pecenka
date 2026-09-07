@@ -509,3 +509,536 @@ Počítadlo pokusů z jedné IP žije v paměti procesu. V nasazení běží ví
 a každá si počítá zvlášť, takže skutečný strop je násobkem instancí. Proti
 nepozornému opakování to stačí, proti odhodlanému robotovi ne — skutečnou
 pojistkou proti dvojímu prodeji je databázové omezení, ne tohle.
+
+## Kolo 13 — stav domku, referenční fotky a naprostá kontrola
+
+Tři oblasti: rychlost a kvalita rozhraní napříč webem, administrace, ve které
+jde udělat všechno, a porovnání stavu domku, které skutečně mluví s hostem.
+
+### Host se po odeslání protokolu dozví, co s tím
+
+Dosud odeslal dvanáct fotek a dostal „děkujeme". Vyhodnocení skončilo
+v administraci a host se o něm dozvěděl nejdřív e-mailem — často až doma,
+tedy ve chvíli, kdy už nemohl srovnat peřinu ani zavolat, když je něco
+rozbité. Přitom právě těch pár minut, kdy ještě stojí v domku, je jediná
+chvíle, kdy se drobnost dá vyřešit bez jediné koruny.
+
+Vyhodnocení běží na pozadí, takže se průvodce ptá na výsledek každé tři
+vteřiny a nejvýš dvě minuty. Pak poděkuje a pustí hosta domů — že nám spadl
+model, není jeho starost.
+
+Vzkaz má čtyři tóny a **žádný z nich nekřičí**:
+
+- **poděkování**, když je všechno v pořádku,
+- **prosba** o srovnání peřiny nebo umytí nádobí — nejvýš tři, nic povinného,
+- **prosba o telefonát** na infolinku, když to vypadá na poškození,
+- **prosba o jednu fotku navíc**, když se snímek nepovedlo porovnat.
+
+Pravidla, podle kterých se vzkaz skládá, jsou **v kódu, ne v promptu**
+(`lib/luna/vzkaz.ts`, 33 testů). Host se nikdy nedozví, že něco rozbil: když
+je podezření, dostane prosbu o telefonát a nic víc. Slova „škoda", „poškození",
+„kauce" a částky ve vzkazu být nemůžou — hlídá to test, ne dobrá vůle.
+Prosbu od modelu navíc čistí `ocistiProsbu`: u čehokoli nad „nepořádek" ji
+zahodí celou, i kdyby ji model vyplnil.
+
+Nepořádek se od škody odděluje dvakrát. Prompt to říká a `run.ts` to vynucuje:
+nález označený `is_guest_mess_not_damage` se sesype na „nepořádek", i kdyby
+model tvrdil opak. Dřív se to pole zapisovalo do databáze a při rozhodování
+ignorovalo — nález „poškození, ale je to nepořádek hosta" tedy založil případ
+škody.
+
+### Deset dvojic „před a po" a co u nich systém řekne
+
+`/admin/test-ai` — deset dvojic vygenerovaných obrazovým modelem. Snímek „po"
+vznikl **úpravou toho referenčního**, ne novou generací: dvě samostatně
+vygenerované fotky se liší v každém pixelu, obrazová brána by hlásila „snímky
+na sebe nesedí" a stránka by dokládala pravý opak toho, co má.
+
+Sada je schválně nevyvážená ve prospěch pastí — šest z deseti je nepořádek,
+přesunutý nábytek nebo jiné světlo. U každé dvojice je vidět i **to, co by
+host uviděl na displeji**; to je jediné, co jde posoudit bez znalosti vnitřků.
+
+**10/10 vyhodnoceno správně, nula planých poplachů, 2,06 Kč za zónu.**
+Stránka je v administraci a s `noindex`: čísla naměřená na deseti
+vygenerovaných dvojicích nejsou důkaz o přesnosti, jsou to kontrolní body,
+které mají odhalit, že se po zásahu do promptu něco pokazilo.
+
+Průchod se skutečným modelem (`scripts/dev/protokol-naostro.mts`) na šesti
+zónách naráz: propálená sedačka i prasklé sklo nalezeny s jistotou 99 %,
+nádobí a neustlaná postel jako prosba, večerní světlo bez nálezu. Šedesát tři
+sekund, jedenáct volání, 22 Kč.
+
+### Referenční fotky jdou nahrát z administrace
+
+Celá Luna porovnává odjezdové fotky proti sadě, kterou uměl založit jen
+vývojářský skript. Po výměně gauče nebo přemalování stěny byl systém slepý
+a majitel s tím nemohl nic dělat.
+
+`/admin/reference` — dvanáct zón na domek, u každé návod, který uvidí i host,
+a tlačítko. Varianta světla se odvodí z jasu, takže se majitel nemusí
+rozhodovat. Po nahrání se nová reference porovná s předchozí a při nízké
+shodě se ozve varování: buď se v domku opravdu něco změnilo, nebo se koupelna
+nahrála do WC — a to otráví každou další inspekci té jednotky.
+
+**Sada se nikdy nepřepisuje, když už podle ní někdo hodnotil.** Vznikne nová
+verze, snímky ostatních zón se přenesou a stará se uzavře. Bez toho by
+rezervace z minulého měsíce ztratila snímek, na kterém stojí nárok.
+
+Zóna bez reference se nově nepočítá jako nález, ale jako dluh na naší straně —
+úkol pro majitele má jiný text i jinou naléhavost. Kdyby ne, po třech
+protokolech s šesti prázdnými zónami by je přestal číst.
+
+### Fotky jde nahrát i bez Supabase
+
+`npm run dev` běží bez jediné proměnné, ale příjem fotek spadl na chybějícím
+klíči k úložišti — celý foto-protokol šlo zkoušet jen proti produkci.
+Přibyla disková varianta se **stejným chováním** včetně podepsaných odkazů
+s krátkou platností (`/api/uloziste/…`). Na Vercelu, kde je souborový systém
+jen pro čtení, se nezapne a administrace to řekne nahlas.
+
+### Co se v příjmu fotek opravilo
+
+- **Průchod cestou.** `zona` a `id` z formuláře se lepily do cesty v úložišti
+  bez kontroly. `zona="../../object/protokol/baseline/achat/v1"` a upsert
+  přepíše referenční snímek fotkou už poškozeného domku. Zóna se teď ověřuje
+  proti checklistu a **název souboru volí server**.
+- **Přepsání důkazu.** Routa nekoukala na stav inspekce, takže po odeslání
+  šlo přepsat fotku, na které stojí případ škody. Cookie hosta žije 14 dní.
+- **Přefocení nefungovalo.** Klientský identifikátor nesl `Date.now()`, takže
+  každý pokus zakládal nový řádek — a `run.ts` bral **nejstarší**. Host
+  přefotil rozmazaný snímek a systém dál hodnotil ten původní.
+- **Fotka se posoudí hned.** Odesílací brána počítala řádky, ne použitelné
+  snímky: dvanáct fotek prstu nebo tmy prošlo stejně jako dvanáct poctivých.
+  Tmavou, rozmazanou nebo záběr, který už máme u jiné zóny, vrátíme, dokud
+  host stojí v místnosti. Fotka v šeru se hlásí jako tmavá, ne jako rozmazaná —
+  jinak by ji marně zkoušel držet pevněji.
+- **Zmenšení v prohlížeči.** Osmimegová fotka se na kraji signálu nahrává
+  minuty, když vůbec. Server ji stejně zmenší na 1092 px. Vedlejší přínos:
+  prohlížeč dekóduje i HEIC z iPhonu a ven jde obyčejný JPEG.
+- **Nepovedený upload nezahodí soubor.** Blob zůstane v paměti a stačí ťuknout
+  na „Zkusit znovu".
+
+### Přesnost vyhodnocení
+
+- **Rozpočet volání přiděluje cena opravy, ne pořadí v checklistu.** Poškozená
+  zóna spotřebuje tři volání; podlaha za 4 000 Kč byla první a prosklená stěna
+  za 25 000 Kč devátá. U rozmláceného domku ta drahá zóna nedostala nic.
+- **Prohozený běh se u `missing` vynechává.** Otázka „co je na prvním a není
+  na druhém" je při prohození logicky opačná, takže chybějící vybavení vyšlo
+  vždycky jako „nestabilní" — nejlépe doložitelný typ škody si tím systém sám
+  znehodnocoval.
+- **Potlačený nález se potlačí i v datech.** Při špatném zarovnání se
+  závažnost maskovala jen v návratové hodnotě, ale administrace čte
+  `luna_findings` — majitel tedy viděl „výrazné poškození" u zóny, kterou
+  pipeline záměrně neuznala.
+- **Opakované vyhodnocení už nevyrábí duplicity.** Cron i ruční spuštění jen
+  vkládaly; dva případy na tutéž zónu znamenaly dvě faktury za jedno prasklé
+  sklo. Drží to unikátní index, ne domluva.
+- **Padající protokol se zkusí třikrát a pak jde k člověku.** Dřív se pouštěl
+  každých patnáct minut donekonečna a pokaždé stál až osmnáct volání modelu.
+- **Volání modelu má časový strop a jedno zopakování.** Jedno zaseknuté
+  spojení zabilo serverless běh uprostřed a protokol zůstal viset.
+
+### Naprostá kontrola v administraci
+
+- **Stav systému** — databáze, úložiště fotek, klíč k modelu, referenční sady,
+  SMTP, podpisy, ochrana portálu, crony, fronta protokolů, fotky po lhůtě.
+  U každého řádku, co to znamená v provozu. `stavUloziste()` měla v komentáři
+  „podklad pro přehled v administraci" a nikde se nevolala.
+- **Naplánované úlohy jdou spustit tlačítkem.** Dosud jen zavoláním adresy
+  s tajemstvím, tedy z terminálu.
+- **Infolinka** je v nastavení firmy, ne v kódu — majitel ji může přesměrovat
+  na správce bez nasazení.
+- **Rozcestník `/admin/vic`.** Spodní lišta měla sedm položek; při 360 px má
+  buňka pětačtyřicet pixelů a popisky se lámou. Pět je strop, zbytek žije na
+  plnohodnotné stránce.
+
+### Fotky se po devadesáti dnech opravdu mažou
+
+`delete_after` se poctivě zapisovalo od začátku a **nikdo ho nikdy nečetl**,
+přestože portál hostovi mazání slibuje. U osobních údajů to není nepořádek,
+ale porušený závazek. Nový cron `/api/cron/retence` obsah smaže a nechá řádek
+se `deleted_at` — musí jít doložit, že fotka existovala a kdy zmizela.
+`legal_hold` má přednost.
+
+### Právní texty dohnaly realitu
+
+Zásady ochrany údajů o fotkách vůbec nemluvily a tvrdily, že se údaje mimo EU
+nepředávají — přitom snímky interiéru chodí k poskytovateli modelu v USA.
+Doplněno: co se zpracovává, na jakém titulu, jak dlouho, kdo se k tomu dostane,
+předání na standardní smluvní doložky a samostatný oddíl o automatickém
+vyhodnocení a čl. 22 GDPR.
+
+Obchodní podmínky slibovaly vratnou kauci 3 000 Kč vracenou do tří dnů —
+systém ale jede v režimu smluvní kauce a nevybírá nic. Text teď popisuje, jak
+to opravdu funguje, a přidává článek o fotoprotokolu: co se s fotkami děje,
+že rozhoduje člověk a že nepořádek se neúčtuje.
+
+### Rychlost
+
+- **Fonty.** `weight: ["300","400","500","600"]` u variabilního Fraunces
+  vyrobil čtyři pevné řezy, takže `font-weight: 480` v hero se zaokrouhlilo —
+  návrh dělal něco jiného, než měl. Kurzíva má vlastní řez bez předběžného
+  načítání: 86 kB, které blokovaly hero fotku, kvůli dekorativnímu detailu.
+- **Podepsané odkazy v dávce.** Dvanáct zón × reference a fotka = dvacet čtyři
+  HTTP volání na Supabase, než se odešle první bajt stránky — hostovi na
+  mobilu v lese.
+- **Přihlášení stálo dva dotazy na každý požadavek** a volá se ze čtyřiceti
+  míst. Teď jeden `UPDATE … RETURNING` v CTE, obalený `cache()`.
+- **Proxy běžela skoro na všechno** včetně `/`, `/sitemap.xml` a všech `/api`,
+  přestože podpis ověřuje u dvou adres. Bezpečnostní hlavičky se přesunuly do
+  `next.config.ts`, kde je nasazuje statická konfigurace, matcher se zúžil.
+  Přibyla **CSP**, která chyběla úplně.
+- **Waterfally** na „Dnes", v nastavení a v portálu do `Promise.all`.
+- **Pošta z rezervace přes `waitUntil`**, ne `void` — serverless běh se po
+  odpovědi může zmrazit a host by nedostal potvrzení s platebními údaji.
+- **Půl megabajtu mrtvých aktiv** pryč, ikony a OG obrázek přegenerované
+  (245 kB → 61 kB, 228 kB → 117 kB).
+- **Ukázkové obrázky mají skutečné rozměry.** Natvrdo zapsané `1024×683` je
+  deformovalo a rezervovalo špatnou výšku.
+
+### Mobil a přístupnost
+
+- Pole ve formulářích mají 16 px — Safari na iOS cokoli menšího zoomuje.
+- Spodní lišta administrace i lišta průvodce respektují bezpečnou zónu
+  (`viewportFit: "cover"` + `env(safe-area-inset-bottom)`). V celém repozitáři
+  do teď nebyl jediný výskyt.
+- Administrace i portál mají `loading.tsx` a `error.tsx`. Do teď byl v celém
+  projektu jeden a chybová stránka žádná — výpadek databáze skončil výchozí
+  stránkou Next bez cesty zpět.
+- „Předchozí" a „Další" v průvodci měly dvacetipixelový cíl. Telefon na
+  obrazovce „Dnes" osmnáctipixelový — a je to hlavní akce hlavní obrazovky.
+- Chybějící povinné zóny jsou klikatelné, ne jen vypsané. Dřív se host dozvěděl
+  „ještě tři zóny" a neměl kam kliknout.
+- Placeholdery měly kontrast 2,33 : 1, obsazený den v kalendáři 2,54 : 1 —
+  a je to konverzní stránka.
+- Mobilní menu drží fokus. Hlásilo se jako `aria-modal`, ale Tab pokračoval do
+  stránky pod překryvem.
+- Průvodce po přechodu kroku roluje nahoru a přesouvá fokus na nadpis;
+  automatický přechod už nepřepíše krok, na který host mezitím přešel sám.
+- Náhledy z prohlížeče se uklízejí — dvanáct osmimegových obrázků v paměti
+  Safari znamená zavřenou kartu v půlce protokolu.
+
+### Nástroje
+
+`scripts/dev/ai-sada-obrazky.mts` generuje dvojice, `ai-sada-vyhodnot.mts` je
+prožene celým řetězem a uloží podklad pro stránku. Do mezipaměti jde jen to,
+co stálo peníze — pravidla se přepočítají pokaždé, jinak by stránka ukazovala
+systém, jaký býval.
+
+Skripty na screenshoty hledaly Chromium natvrdo v `mac-x64`; na Applu s ARM
+padaly na ENOENT, takže se QA prostě přestalo pouštět.
+
+**171 testů prochází**, z toho 33 nad vzkazem hostovi a 16 nad celým
+protokolem — od nahrání reference přes příjem fotek a vyhodnocení až po
+smazání po lhůtě.
+
+## Kolo 13b — dobrání zbytku edge cases
+
+Po prvním kole zůstal otevřený seznam. Tohle je jeho zbytek — a jeden nález,
+který vypadl až při zkoušce naostro.
+
+### Tutéž škodu šlo vyfakturovat dvakrát
+`vyuctujSkodu` si `uz_vyuctovano` **spočítalo a nikde nepoužilo**. Tlačítko
+skryl jen zastaralý serverový render, takže dvojklik nebo dvě otevřené záložky
+znamenaly dvě faktury hostovi za jednu prasklou tabuli.
+
+### Překlep o řád projde až na fakturu
+„70000" místo „7000" nic nezastavilo. Nad 30 000 Kč se teď částka musí objevit
+i v odůvodnění, které majitel píše vlastními slovy. Kontrola je ve vlastním
+modulu bez databáze a bez přihlášení (`lib/luna/kontrola.ts`, 7 testů) — je to
+jediné místo, kde se z podezření stává nárok na peníze.
+
+### Zpětná vazba k modelu se konečně zapisuje
+`luna_feedback` existovala od začátku a nikdo do ní nikdy nezapsal. „Bez nároku"
+u nálezu `damage_major` je učebnicový falešný poplach — a bez záznamu se nedá
+poznat, jestli se systém po změně promptu zlepšil, nebo zhoršil. Zapisuje se
+při rozhodnutí i při uzavření protokolu bez nároku.
+
+### Relace hosta se ověřovala jen při přihlášení
+Cookie žije čtrnáct dní a stačilo, že sedí podpis. Vypršelý přístup, zamčený
+účet ani **zrušená rezervace** hosta z portálu nevyhodily — storno tedy
+neznamenalo nic a host se dál díval na adresu domku. Kontroluje se teď při
+každém požadavku a storno navíc zavírá inspekci, zamítá čekající případy
+škody a ruší přístup do portálu.
+
+### Přihlášení do portálu nemělo strop na adresu
+Počítadlo hlídalo jeden variabilní symbol, ale nic nebránilo zkoušet tisíc
+symbolů po jednom pokusu. A protože se scrypt počítá i pro neexistující VS
+(aby odpověď trvala stejně dlouho), stačilo pár set souběžných požadavků.
+
+### Protokol šlo vyplnit tři měsíce před příjezdem
+Host mohl otevřít a odeslat protokol den po zaplacení zálohy. Vznikla inspekce,
+spustil se model a mohly vzniknout případy škody k pobytu, který se ještě
+nekonal. Protokol se otevírá den před příjezdem a kontrola je i v routě —
+je to veřejné API.
+
+### Fotka vyfocená dopředu
+`exif_taken_at` se poctivě ukládalo a nikdo ho nečetl. Host mohl vyfotit
+v pondělí a ve středu protrhnout matraci. Snímek starší než 24 hodin teď
+nepropadne sám, ale jde k člověku — neobviňujeme, jen to nemůže projít mlčky.
+
+### Přístupový kód nebyl to, co o něm tvrdil komentář
+`portalovyKod` stál na FNV-1a s 32bitovým stavem a deterministické rotaci.
+Slib „bez klíče se to spočítat nedá" neplatil: krátké tajemství šlo offline
+uhodnout. Teď HMAC-SHA256, stejná délka i abeceda. Bez `PORTAL_SECRET` se
+naostro vyrobí náhodné tajemství — přihlášení nefunguje, ale nikdo se dovnitř
+nedostane.
+
+### „Celý les" měl rozbitý protokol
+Prodejná jednotka „Celý les" je složená z Acháta a Mechu. Vznikla jedna
+inspekce se `unit_slug = 'cely-les'`, ke které žádná referenční sada
+neexistuje — všech dvanáct zón tedy šlo k ručnímu posouzení a host fotil
+dvanáct zón pro **dva** domky; ten druhý zůstal nezdokumentovaný.
+
+Protokol se teď zakládá **na fyzický domek**: dvě inspekce, dvacet čtyři zón
+ve dvou blocích, každý proti své referenci. Host o tom neví — odesílá jeden
+protokol a dostane jeden vzkaz. Když je u jednoho domku důvod zavolat, platí
+to pro celý pobyt; pravidlo „jedna žádost naráz" nezná hranice domku.
+
+### Sezónnost venkovních zón
+Referenční snímek terasy je z léta, hostův z prosince. Rozdíl mezi zeleným
+a zasněženým lesem za oknem zabírá velkou plochu a brána se kvůli němu otevře.
+Prompt (verze `luna-5.6-cs-3`) teď sezónu jmenuje mezi distraktory a u
+venkovních zón výslovně říká, že se poškození hledá na konstrukci, ne v tom,
+co je za ní.
+
+### Prázdný protokol se tvářil jako „vše v pořádku"
+Vypadlo to při zkoušce naostro: vyhodnocení nad inspekcí bez jediné fotky
+skončilo jako `auto_clear` se shrnutím „všechny zóny odpovídají stavu při
+předání". Odesílací brána sice povinné zóny vyžaduje, ale vyhodnocení se pouští
+ze tří míst. Doklad, který nedokládá nic, je horší než žádný — teď to jde
+k člověku.
+
+### Drobnosti
+- Kešované tokeny se u OpenAI počítaly dvakrát; jsou uvnitř `prompt_tokens`,
+  ne vedle nich. Cena vyhodnocení se tím nadhodnocovala.
+- Export neasynchronní hodnoty z modulu `"use server"` se v překladu změní na
+  odkaz na serverovou akci. `ULOHY.map` na klientu spadlo na „map is not
+  a function" — typová kontrola to nechytí a build taky ne. Seznam úloh i
+  kontrola rozhodnutí proto bydlí ve vlastních modulech.
+- Skripty na screenshoty hledaly Chromium natvrdo v `mac-x64`.
+
+**186 testů prochází.** Zkouška naostro na šesti zónách: dvě poškození nalezena
+s jistotou 99 % → telefonát hostovi, tři zóny nepořádku → vlídná prosba,
+večerní světlo → nic. 66 sekund, 15,51 Kč, dva případy ke schválení majitelem.
+
+## Kolo 14 — dva světy přestavěné
+
+Systém uvnitř fungoval, ale obě obrazovky, které někdo doopravdy otevře, byly
+databázový výpis převlečený do karet. Stejný rámeček, stejná velikost, stejná
+váha pro všechno — a pořadí podle toho, jak to leží ve schématu.
+
+### Portál hosta: obrazovka odpovídá na otázku, kterou má host právě teď
+
+První věcí na displeji bylo **číslo rezervace a variabilní symbol**. Člověk,
+který stojí v deset večer u závory na kraji lesa, nepotřebuje účetní číslo.
+Potřebuje vědět, kudy a jak se dostane dovnitř. Za tři dny ráno potřebuje něco
+úplně jiného.
+
+Portál se proto neptá „co o téhle rezervaci víme", ale **kde v pobytu ten
+člověk je** (`lib/portal/prehled.ts`). Podle toho se mění, co je nahoře:
+
+| Fáze | Nahoře a velké |
+| --- | --- |
+| před příjezdem | kde to je + navigovat |
+| den příjezdu | kód od schránky, wifi |
+| během pobytu | wifi, topení, telefon |
+| odjezd | foto-protokol |
+| po pobytu | vzkaz |
+
+- **Kód od schránky se vytáhne z volného textu** a ukáže se velký a na ťuknutí
+  se zkopíruje. Majitel píše pokyny vlastními slovy; číslo z nich jde vytáhnout
+  a je to jediná věc, kterou host opisuje — často jednou rukou a se svítilnou
+  ve druhé. Totéž wifi heslo.
+- **Vstupní pokyny se odemykají den před příjezdem.** Kód poslaný tři měsíce
+  dopředu se ztratí v e-mailu a host se stejně zeptá telefonem.
+- Číslo rezervace a variabilní symbol jsou **dole**, kam patří.
+- Karta znamená „tohle je důležité". Když je kartou všechno, neznamená to nic —
+  zbytek jsou tiché řádky bez rámečku.
+- Telefon se ukazuje po trojicích. Do databáze chodí v E.164 a shluk devíti
+  číslic se očima nezkontroluje.
+
+### Administrace „Dnes": den jako časová osa, ne čtyři tabulky
+
+Byly to čtyři stejné karty — Odjíždí, Přijíždí, Zůstává, Vyžaduje pozornost —
+a v klidný den tři z nich hlásily „nikdo". Osmdesát procent obrazovky
+nezobrazovalo nic a jediný užitečný údaj (příští příjezd) byl šedý text uvnitř
+prázdného stavu.
+
+- Nahoře **jedna věta**: „Dnes jeden odjezd." Slovy, ne číslicemi — je to věta,
+  ne tabulka. Když odjezd a příjezd padnou na týž domek, věta to řekne rovnou:
+  „Mezi tím se musí stihnout úklid."
+- Pak **časová osa** s časem jako kotvou a jednou hlavní akcí na řádku.
+  Tou akcí je skoro vždycky zavolat, tak je přes celou šířku a palcem
+  dosažitelná — i s číslem, protože majitel ho stejně chce vidět.
+- **Pruh sedmi dní.** V klidný den byla obrazovka prázdná a majitel stejně
+  přepnul do kalendáře, aby zjistil, kdy se něco stane.
+- **Peníze jedním číslem**, ne tabulkou. Podrobnosti jsou o ťuknutí dál.
+- Urgentní úkoly jsou nahoře. Když nic nehoří, není tam nic.
+
+### Co se přitom našlo
+- `process.exit(0)` hned po zápisu utne PGlite v půlce flushe. Napoprvé to
+  vypadá, že se změna neuložila, **napodruhé se zápis do téhož adresáře
+  zasekne** — a hledá se to dlouho, protože chyba nevznikne tam, kde se
+  projeví. Přibylo `zavriDb()`.
+- Migrace 0002 zakládala řádky `stay_info` v době, kdy ještě žádné jednotky
+  neexistovaly, takže žádné nevznikly. Administrace to naštěstí zapisuje
+  přes `INSERT … ON CONFLICT`, takže se to nikdy neprojevilo.
+
+## Kolo 14b — dokončení pobytu jako věc, kterou jde najít
+
+Host se zeptal, kde je dokončení pobytu. Odpověď zněla: nikde. Portál o odjezdu
+po celý pobyt **mlčel** a poslední ráno na hosta vyskočilo tlačítko „Začít
+fotit" — bez kontextu, bez toho, aby věděl, kolik toho po něm chceme a co bude
+následovat. To není dokončení pobytu, to je přepadení.
+
+### Odjezd má vlastní adresu a vlastní jméno
+
+`/pobyt/odjezd` — **Dokončení pobytu**. Tři očíslované kroky pod sebou, ať je
+na první pohled vidět, z čeho se to skládá:
+
+1. **Vyfotit domek** — jediná část, která něco blokuje. Se stavem „hotovo 3 z 9".
+2. **Klíč zpátky do schránky**
+3. **Okna, topení, odpadky**
+
+Dva a tři jsou **připomínky, ne podmínky**. Klíč se vrací až ve dveřích a nutit
+hosta odškrtnout „vráceno", když ho ještě drží v ruce, znamená jediné: odškrtne
+si to a zapomene. Odeslání drží jen fotky.
+
+Slovo „protokol" se v portálu neobjeví. Je to naše slovo, ne hostovo.
+
+### Průvodce už nic neodesílá
+
+Odesílal uprostřed focení, takže se host o zbytku odjezdu vůbec nedozvěděl.
+Teď jen fotí a vrací se na „Dokončení pobytu", kde je to pohromadě. Tlačítko
+zpátky se navíc objeví, **jakmile jsou všechna povinná místa hotová** — host
+nemusí prolistovat až na dvanáctou obrazovku.
+
+### Co bude na konci, host vidí od začátku
+
+Karta „Až budete odjíždět" je v přehledu po celý pobyt: tři body, čas odjezdu
+a odkaz. Kdo o tom ví od prvního večera, nechá si na to ráno deset minut.
+V den odjezdu se z téže karty stane hlavní věc na obrazovce.
+
+### Adresy, na které lidi sáhnou sami
+`/host`, `/hoste`, `/klient`, `/muj-pobyt`, `/moje-rezervace` a `/host/:cesta*`
+míří na portál, `/prihlaseni` do administrace. Kanonická adresa zůstává
+`/pobyt` — tak se portál jmenuje i v e-mailu s přístupem. Přesměrování je
+dočasné (307), protože trvalé si prohlížeče pamatují napořád.
+
+## Kolo 15 — aplikace pro hosta, ne stránka
+
+Majitel: „Nevypadá to vůbec jako aplikace pro klienty." Měl pravdu. Byla to
+webová stránka — logo nahoře, „Odhlásit", dlouhé rolování, dole nic — a host
+ji otevírá na telefonu v autě, u závory, v posteli. Čeká aplikaci.
+
+### Čtyři záložky, čtyři otázky
+`components/pobyt/Aplikace.tsx` — pevná lišta dole, palcem dosažitelná,
+s bezpečnou zónou iPhonu:
+
+| Záložka | Otázka |
+| --- | --- |
+| **Pobyt** | Co je teď? |
+| **Domek** | Jak funguje domek? Kód, wifi, topení, adresa. |
+| **Odjezd** | Jak odjet? Tři kroky, jedno tlačítko. |
+| **Pomoc** | Komu zavolat a co dělat, když něco nejde. |
+
+Pátá by už byla menu. Přihlášení a focení domku jsou mimo obal: přihlášení
+nemá kam přepínat, focení je celoobrazovkový tok, ze kterého se nemá odbíhat.
+
+### Pobyt začíná fotkou a jménem
+Za pobyt se platí patnáct tisíc a host dostal černou stránku s textem „Dobrý
+den". Ani jedna fotka, ani jméno. Teď: fotka domku přes půl obrazovky, oslovení
+**pátým pádem podle denní doby** („Dobrý večer, Evo") a jedna věta o tom, kde
+v pobytu člověk je. Pod tím jediná věc, která je teď důležitá, a tlačítko
+zavolat. Obrazovka se nemá rolovat.
+
+Vokativ je v `lib/format.ts` s testy na běžná jména včetně pohyblivého e
+(Pavel → Pavle, Zdeněk → Zdeňku). Co nesedí, zůstane v prvním pádu — pořád
+lepší než zkomolenina.
+
+### Vstup jedním klepnutím
+Host dostal e-mail s variabilním symbolem a kódem a musel je opsat do
+formuláře — na telefonu, mezi dvěma aplikacemi. Tlačítko v e-mailu teď vede na
+`/pobyt/vstup?vs=…&kod=…`, které přihlásí a přesměruje. Odkaz nese totéž, co
+e-mail o pár řádků níž, takže nic nového neprozrazuje; omezení pokusů
+a zamykání platí stejně. Formulář zůstává pro přeposlaný e-mail a starý odkaz.
+
+### Přidat na plochu = aplikace
+Vlastní manifest `/pobyt/manifest.webmanifest` se `start_url: /pobyt`. S tím
+webovým by ikona na ploše otevírala úvodní stránku s rezervačním formulářem.
+`appleWebApp` v metadatech schová lištu Safari.
+
+### Pomoc
+Telefon velký a hned nahoře. Pod ním šest situací, které se stávají, s jednou
+větou co udělat — a schválně obecně: konkrétní věci o domku píše majitel
+v nastavení a host je má v záložce Domek. Podmínky a soukromí úplně dole,
+protože tam patří.
+
+**207 testů prochází.**
+
+## Kolo 16 — audit veřejného webu: prodává?
+
+Web vypadá dobře — hero, typografie, kapitoly. Audit se proto neptal „je to
+hezké", ale „prodává to". Odpověď: hezky, ale s dírami tam, kde se rozhoduje.
+
+### Termín hned v hero
+Každý web, který prodává noci, má datum nahoře. Tenhle měl jen tlačítko
+„Rezervovat pobyt", za kterým teprve začínal čtyřkrokový průvodce — a první
+krok byl výběr domku, ne termínu. Host, který přijde s otázkou „je volno
+o víkendu 20. září?", ji chce položit hned.
+
+Obyčejný formulář s GET: bez JavaScriptu odešle a průvodce si termín přečte
+z adresy. Nativní `<input type="date">` na telefonu otevře systémový kalendář.
+
+### Průvodce umí začít termínem
+`/rezervace?prijezd=…&odjezd=…` — karty domků rovnou říkají **„Volno · 2 noci
+· 6 980 Kč"** nebo „V tomhle termínu obsazeno". Host, který přišel
+s termínem, se neptá „který domek se mi líbí", ale „který je volný".
+S domkem i termínem (`&domek=achat`) skočí průvodce rovnou na hosty.
+Termín z adresy se ověřuje: minulost, odjezd před příjezdem nebo nesmysl
+znamenají „bez termínu", ne chybu.
+
+### Tlačítko Rezervovat na telefonu
+Na mobilu byla jediná cesta k rezervaci hamburger nebo konec stránky. Hlavní
+akce webu byla schovaná přesně na zařízení, ze kterého přijde většina
+návštěv. Teď je vedle hamburgeru.
+
+### Lišta s cenou na detailu domku
+Detail je sedm obrazovek a tlačítko bylo až u kalendáře v šesté. Lišta
+„od 2 890 Kč / noc · Rezervovat Achát" se objeví po odrolování hero a zmizí
+u patičky. Věc, kterou má každý web prodávající noci.
+
+### Kalkulačka na ceníku
+Ceník říkal „2 890 ve všední den, 3 490 o víkendu, +400 v sezóně, −10 % nad
+týden" a nechal hosta to složit v hlavě. Kalkulačka počítá **toutéž funkcí
+jako průvodce a server** z téhož ceníku, ukáže cenu i dostupnost obou domků
+a pustí dál s vyplněným termínem.
+
+### Fotky na celou obrazovku
+Galerie byla mřížka statických obrázků — na telefonu dva sloupce po 180
+pixelech a žádný způsob, jak si fotku prohlédnout. Host, který se rozhoduje
+podle interiéru, přibližoval prsty a přiblížil celou stránku. Lightbox bez
+knihovny: nativní `<dialog>` a vodorovný pás se snapem, listování prstem
+zadarmo. Detail domku má místo dvou fotek pět (kuchyň, koupelna, postel)
+a všechny jdou zvětšit.
+
+### Kratší mobilní úvod
+Úvodní stránka měla na telefonu 28 obrazovek. Šest karet „co tu najdete" a
+čtyři roční období jsou teď vodorovný pás se snapem — zvyk z každé aplikace,
+a pořád je vidět, že je karet víc. 11 223 → 9 423 px.
+
+### Lišta cookies pryč
+Web používá jen technicky nezbytné cookies a ty souhlas nevyžadují (§ 89
+ZEK, GDPR). Lišta oznamovala „používáme jen nezbytné cookies", zabírala na
+telefonu třetinu rezervační stránky, nechávala klepnout „Rozumím" kvůli ničemu
+— a zakrývala novou rezervační lištu. Informace zůstává na /cookies.
+
+### Kauce sladěná s podmínkami
+Ceník, souhrn rezervace i PRICING.notes slibovaly „vratnou kauci vracíme do
+tří dnů" — podmínky už týden říkají, že se kauce nevybírá. Text říká totéž
+všude.
+
+Měřeno: LCP 32–420 ms, CLS 0 (kontakt 0,028), nula dlouhých úloh, nula chyb
+v konzoli na všech 13 stránkách v obou rozlišeních. **207 testů prochází.**

@@ -13,7 +13,7 @@ import { otevriTermin, zavriTermin, zmenCenu } from "@/lib/admin/akce";
 
 const POLE =
   "w-full rounded-xl border border-linen/15 bg-bark px-3.5 py-2.5 text-[15px] text-linen " +
-  "placeholder:text-sage/40 focus:border-ember focus:outline-none";
+  "placeholder:text-sage/70 focus:border-ember focus:outline-none";
 
 const DOMKY = [
   { slug: "achat", nazev: "Achát" },
@@ -82,11 +82,14 @@ export default function Upravy({ zavreno }: { zavreno: Zavreno[] }) {
           <button
             key={z.klic}
             type="button"
+            // Rozdíl mezi vybraným a nevybraným byl jen barevný — čtečka
+            // o něm nevěděla vůbec.
+            aria-pressed={karta === z.klic}
             onClick={() => {
               setKarta(z.klic);
               setHlaska(null);
             }}
-            className={`rounded-xl px-4 py-2 text-[14px] transition-colors ${
+            className={`flex min-h-11 items-center rounded-xl px-4 text-[14.5px] transition-colors ${
               karta === z.klic
                 ? "bg-ember text-night font-semibold"
                 : "border border-linen/15 text-sage hover:text-linen"

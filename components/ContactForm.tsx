@@ -7,7 +7,7 @@ import { Button } from "@/components/ui";
 type Status = "idle" | "sending" | "sent" | "error";
 
 const inputCls =
-  "w-full rounded-2xl border border-linen/15 bg-bark px-5 py-3.5 text-[15px] text-linen placeholder:text-sage/50 outline-none transition-colors duration-300 focus:border-ember";
+  "w-full rounded-2xl border border-linen/15 bg-bark px-5 py-3.5 text-[16px] text-linen placeholder:text-sage/70 outline-none transition-colors duration-300 focus:border-ember";
 const labelCls = "mb-2 block text-sm text-sage";
 
 /** Kontaktní formulář — POST /api/kontakt, honeypot „web". */

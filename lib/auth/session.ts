@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createHash, randomBytes } from "node:crypto";
+import { cache } from "react";
 import { cookies, headers } from "next/headers";
 import { sql } from "drizzle-orm";
 import { radky } from "@/lib/db/client";
@@ -52,39 +53,46 @@ export async function zalozRelaci(uzivatelId: string): Promise<void> {
   });
 }
 
-/** Kdo je přihlášený. `null`, když nikdo — volající rozhodne, co s tím. */
-export async function ktoJePrihlasen(): Promise<Prihlaseny | null> {
+/**
+ * Kdo je přihlášený. `null`, když nikdo — volající rozhodne, co s tím.
+ *
+ * Volá se ze čtyřiceti míst: z každé stránky administrace, z každé serverové
+ * akce, z každé routy. Bez `cache()` se to při jednom vykreslení stránky
+ * provede několikrát a pokaždé to znamenalo **dva** dotazy do databáze —
+ * čtení a zápis lhůty. Teď je to jeden dotaz na požadavek.
+ *
+ * Čtení a posunutí lhůty se spojilo do jednoho příkazu: `UPDATE … RETURNING`
+ * uvnitř CTE. Ušetří to round-trip, který se platí před vším ostatním.
+ */
+export const ktoJePrihlasen = cache(async function ktoJePrihlasen(): Promise<Prihlaseny | null> {
   const token = (await cookies()).get(COOKIE)?.value;
   if (!token) return null;
 
   const [radek] = await radky<{
-    session_id: string;
     id: string;
     email: string;
     name: string;
     role: Prihlaseny["role"];
   }>(sql`
-    SELECT s.id AS session_id, u.id, u.email, u.name, u.role
-    FROM admin_sessions s JOIN admin_users u ON u.id = s.admin_user_id
-    WHERE s.token_hash = ${otisk(token)}
-      AND s.revoked_at IS NULL
-      AND s.idle_expires_at > now()
-      AND s.absolute_expires_at > now()
-      AND u.is_active
+    WITH relace AS (
+      UPDATE admin_sessions
+         SET last_seen_at = now(),
+             idle_expires_at = LEAST(now() + interval '${sql.raw(String(NECINNOST_H))} hours',
+                                     absolute_expires_at)
+       WHERE token_hash = ${otisk(token)}
+         AND revoked_at IS NULL
+         AND idle_expires_at > now()
+         AND absolute_expires_at > now()
+      RETURNING admin_user_id
+    )
+    SELECT u.id, u.email, u.name, u.role
+      FROM relace r JOIN admin_users u ON u.id = r.admin_user_id
+     WHERE u.is_active
   `);
   if (!radek) return null;
 
-  // Posunutí nečinnostní lhůty. Zapisuje se při každém požadavku — u jednoho
-  // uživatele je to zanedbatelné a je to jednodušší než tabulka s heartbeatem.
-  await radky(sql`
-    UPDATE admin_sessions
-    SET last_seen_at = now(),
-        idle_expires_at = LEAST(now() + interval '${sql.raw(String(NECINNOST_H))} hours', absolute_expires_at)
-    WHERE id = ${radek.session_id}::uuid
-  `);
-
   return { id: radek.id, email: radek.email, jmeno: radek.name, role: radek.role };
-}
+});
 
 export async function odhlas(): Promise<void> {
   const jar = await cookies();

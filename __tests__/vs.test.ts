@@ -71,4 +71,22 @@ describe("portálový kód", () => {
   it("různé rezervace mají různý kód", () => {
     expect(portalovyKod("2608000424", T)).not.toBe(portalovyKod("2608000432", T));
   });
+
+  it("kódy se mezi rezervacemi nesrážejí", () => {
+    // Původní verze stála na 32bitovém stavu, který se mezi znaky degradoval.
+    // Tisíc po sobě jdoucích symbolů je nejmenší sada, na které by to bylo
+    // vidět.
+    const kody = new Set(
+      Array.from({ length: 1000 }, (_, i) => portalovyKod(`26080004${String(i).padStart(2, "0")}`, T, 8)),
+    );
+    expect(kody.size).toBe(1000);
+  });
+
+  it("kód nese plnou entropii své délky", () => {
+    // 8 znaků z 32písmenné abecedy = 40 bitů. Když se první bajty otisku
+    // nepoužijí naplno, projeví se to sníženou rozmanitostí znaků.
+    const znaky = new Set<string>();
+    for (let i = 0; i < 500; i++) znaky.add(portalovyKod(`260800${String(i).padStart(4, "0")}`, T, 8)[0]);
+    expect(znaky.size).toBeGreaterThan(25);
+  });
 });
