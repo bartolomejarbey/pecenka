@@ -25,9 +25,9 @@ const PLACE_PHOTOS: Record<House["slug"], { src: string; alt: string; caption: s
       caption: "Koupelna se sprchou, ručníky a mýdlem v ceně.",
     },
     {
-      src: "/foto/lom-rano.jpg",
-      alt: "Zatopený břidlicový lom za svítání, nad hladinou ranní mlha",
-      caption: "Zatopený lom pár kroků od domku, ráno celý v mlze.",
+      src: "/foto/lom-breh.jpg",
+      alt: "Břeh lomu Jílové u Držkova, břidlicová stěna a smrky nad klidnou hladinou",
+      caption: "Břeh lomu pár kroků od domku — voda jako zrcadlo.",
     },
     {
       src: "/foto/ohniste-vecer.jpg",
@@ -52,8 +52,8 @@ const PLACE_PHOTOS: Record<House["slug"], { src: string; alt: string; caption: s
       caption: "Koupelna se sprchou, ručníky a mýdlem v ceně.",
     },
     {
-      src: "/foto/koupani-lom.jpg",
-      alt: "Dřevěné molo na křišťálově čistém zatopeném lomu, letní den",
+      src: "/foto/lom-jilove.jpg",
+      alt: "Lom Jílové u Držkova: hladina zrcadlí oblohu, kolem břízy a břidlicová stěna",
       caption: "Křišťálová voda lomu — od terasy je to jen pár kroků.",
     },
     {

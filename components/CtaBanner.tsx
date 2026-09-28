@@ -16,7 +16,7 @@ export default function CtaBanner({
     <section className="relative overflow-hidden bg-night">
       <div className="photo-frame absolute inset-0">
         <Image
-          src="/foto/lom-rano.jpg"
+          src="/foto/lom-breh.jpg"
           alt=""
           fill
           sizes="100vw"

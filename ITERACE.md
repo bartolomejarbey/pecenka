@@ -1168,4 +1168,45 @@ právě běží.
 `__tests__/okoli.test.ts` hlídá data: jedinečná id, souřadnice do 50 km od
 lomu, kategorie ze seznamu, délky popisů, doba jízdy vs. vzdálenost, filtry.
 `__tests__/sezona.test.ts` hlídá hranice sezón včetně pražského času.
-**267 testů prochází**, build i typová kontrola čisté.
+**255 testů prochází**, build i typová kontrola čisté.
+
+## Kolo 19 — Okolí znovu, fotky doopravdy
+
+Zpětná vazba byla ostrá a oprávněná: stránka Okolí byla nudná — jeden úzký
+sloupec textových karet, dvanáct tisíc pixelů dolů, vlevo prázdno, mapa
+z OpenStreetMap jako z úřední vyhlášky. Příčina prázdného sloupce byla
+technická: `sticky` mapa uvnitř sekce s `overflow-hidden` se nikdy neodlepí.
+
+### Mapa
+Satelit Esri s vrstvou názvů míst jako výchozí podklad — lom je na něm vidět
+jako tmavá kapka mezi stromy, hory jsou hory. Turistická mapa je OpenTopoMap
+(vrstevnice, značené cesty); s klíčem `NEXT_PUBLIC_MAPY_API_KEY` ji nahradí
+outdoor mapa Mapy.com. Přepínač podkladu, legenda, filtry a přepínač
+léto/zima jsou nad mapou v tmavé sekci; mapa jde přes celou šířku. Klepnutí
+na značku otevře bublinu s fotkou a na desktopu plovoucí kartu s podrobnostmi.
+Na /lokalita je táž mapa v satelitu na zoomu 16 — lom je vidět z výšky.
+
+### Fotky
+Tři skutečné fotky lomu z referencí majitele (dron shora, zatažený břeh,
+letní pohled s obcí) nahradily generované snímky lomu v galerii, u domků
+a v CTA; názvy souborů v `reference/location` neodpovídaly obsahu, opraveno
+při převodu. Fotka od majitele je v hlavním hero úvodu.
+
+33 fotek míst v okolí z Wikimedia Commons (`lib/okoli-foto.ts`, generováno
+skriptem z API Commons: autor, licence, odkaz na originál). Licence CC BY(-SA)
+žádají uvést autora — dělá to popisek přes roh každé fotky a seznam autorů
+na konci stránky. Kde Commons nic pořádného nemá (Plavy, bobové dráhy), je
+místo fotky ikona kategorie.
+
+### Stránka Okolí
+Tři vybraná místa pro sezónu jako velké karty s fotkou, pak všechna místa
+v mřížce po kategoriích (tři sloupce na desktopu, jeden na telefonu),
+každé s fotkou, badgem sezóny a vzdáleností. Sekce „Šest věcí" na úvodu
+dostala fotky (lom, domek, tři místa z Commons). Pryč „linkovaný" podklad
+světlých sekcí.
+
+### Nález z QA
+Karta zážitku byla celá odkaz a popisek autora uvnitř byl taky odkaz —
+odkaz v odkazu prohlížeč rozloží jinak než server a React hlásil chybu
+hydratace #418. Karta už odkaz není, odkaz je jen titulek roztažený přes
+kartu pseudoprvkem; popisek autora leží nad ním.

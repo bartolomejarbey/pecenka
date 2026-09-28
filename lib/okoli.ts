@@ -14,6 +14,7 @@
  */
 
 import { LOCATION } from "./content";
+import { FOTO_MIST, type FotoMista } from "./okoli-foto";
 
 export type Kategorie = "voda" | "hory" | "skaly" | "vylety" | "vyhledy" | "pod-strechou";
 export type Sezonnost = "leto" | "zima" | "celorocne";
@@ -58,6 +59,8 @@ export type Misto = {
   hledat?: string;
   /** Lom sám — na mapě má vlastní značku. */
   doma?: boolean;
+  /** Tři vybraná místa pro sezónu na začátku seznamu. */
+  top?: ("leto" | "zima")[];
 };
 
 export const MISTA: Misto[] = [
@@ -79,6 +82,7 @@ export const MISTA: Misto[] = [
   },
   {
     id: "zluta-plovarna",
+    top: ["leto"],
     nazev: "Žlutá plovárna",
     misto: "Malá Skála",
     kategorie: "voda",
@@ -123,6 +127,7 @@ export const MISTA: Misto[] = [
   },
   {
     id: "ferrata-vodni-brana",
+    top: ["leto"],
     nazev: "Via ferrata Vodní brána",
     misto: "Semily",
     kategorie: "skaly",
@@ -181,6 +186,7 @@ export const MISTA: Misto[] = [
   },
   {
     id: "kozakov",
+    top: ["leto"],
     nazev: "Kozákov",
     misto: "Semily",
     kategorie: "vyhledy",
@@ -398,6 +404,7 @@ export const MISTA: Misto[] = [
   },
   {
     id: "bedrichov",
+    top: ["zima"],
     nazev: "Bedřichov – Jizerská magistrála",
     misto: "Bedřichov",
     kategorie: "hory",
@@ -413,6 +420,7 @@ export const MISTA: Misto[] = [
   },
   {
     id: "ski-spicak",
+    top: ["zima"],
     nazev: "Skiareál Tanvaldský Špičák",
     misto: "Albrechtice v Jizerských horách",
     kategorie: "hory",
@@ -480,6 +488,7 @@ export const MISTA: Misto[] = [
   },
   {
     id: "ski-zasada",
+    top: ["zima"],
     nazev: "Ski centrum Zásada",
     misto: "Zásada",
     kategorie: "hory",
@@ -597,6 +606,29 @@ export function filtrujMista(mista: Misto[], sezona: "leto" | "zima", filtr: Fil
     .filter((m) => m.sezona === "celorocne" || m.sezona === sezona)
     .filter((m) => (filtr === null ? true : filtr === "deti" ? m.deti === true : m.kategorie === filtr))
     .sort((a, b) => a.autem - b.autem);
+}
+
+/** Tři vybraná místa pro sezónu (mají `top`), v pořadí podle doby jízdy. */
+export function vybraneProSezonu(mista: Misto[], sezona: "leto" | "zima"): Misto[] {
+  return mista
+    .filter((m) => m.top?.includes(sezona))
+    .sort((a, b) => a.autem - b.autem)
+    .slice(0, 3);
+}
+
+/** Vlastní fotka lomu — bez licence; ostatní místa mají fotku z Commons. */
+const FOTO_LOMU: FotoMista = {
+  src: "/foto/lom-jilove.jpg",
+  alt: "Lom Jílové u Držkova: tmavá hladina zrcadlí oblohu s mraky, kolem břízy a smrky, vpravo břidlicová stěna",
+  autor: "Sedmý les",
+  licence: "vlastní",
+  zdroj: "/lokalita",
+};
+
+/** Fotka místa, pokud nějakou máme. */
+export function fotoMista(id: string): FotoMista | null {
+  if (id === "lom") return FOTO_LOMU;
+  return FOTO_MIST[id] ?? null;
 }
 
 /** Popis místa pro danou polohu přepínače. */

@@ -57,8 +57,9 @@ const nextConfig: NextConfig = {
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
-      // Dlaždice OpenStreetMap pro mapu lomu a okolí — jediný cizí obrázkový zdroj.
-      "img-src 'self' data: blob: https://*.supabase.co https://tile.openstreetmap.org https://*.tile.openstreetmap.org",
+      // Mapové dlaždice pro mapu lomu a okolí: satelit a popisky Esri, OpenTopoMap,
+      // volitelně Mapy.com (s klíčem). Jediné cizí obrázkové zdroje na webu.
+      "img-src 'self' data: blob: https://*.supabase.co https://server.arcgisonline.com https://tile.opentopomap.org https://*.tile.opentopomap.org https://api.mapy.com",
       "font-src 'self' data:",
       "connect-src 'self' https://*.supabase.co",
       "frame-ancestors 'none'",

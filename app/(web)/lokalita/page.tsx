@@ -9,6 +9,7 @@ import KopirujGps from "@/components/lokalita/KopirujGps";
 import { Button, Kicker } from "@/components/ui";
 import { pageMeta, breadcrumbLd } from "@/lib/seo";
 import { LOCATION } from "@/lib/content";
+import { fotoMista } from "@/lib/okoli";
 
 export const metadata = pageMeta({
   title: "Lokalita",
@@ -139,21 +140,21 @@ export default function LokalitaPage() {
       </section>
 
       {/* ===== Kapitola II · Lom (obloha) ===== */}
-      <section className="obloha strata relative overflow-hidden py-24 text-night md:py-32">
+      <section className="obloha relative overflow-hidden py-24 text-night md:py-32">
         <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 px-5 md:grid-cols-2 md:gap-16 md:px-8">
           <Reveal className="md:order-2">
             <figure className="group">
               <div className="relative aspect-[4/3] overflow-hidden rounded-[34px] border border-night/10">
                 <Image
-                  src="/foto/lom-jilove.jpg"
-                  alt="Břidlicová stěna lomu Jílové u Držkova nad tmavou hladinou, na ní odraz mraků"
+                  src="/foto/lom-dron.jpg"
+                  alt="Lom Jílové u Držkova z dronu: tmavá hladina ve tvaru kapky, kolem břidlicové stěny a les"
                   fill
                   sizes="(max-width: 768px) 100vw, 596px"
                   className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
                 />
               </div>
               <figcaption className="font-display mt-4 text-lg italic text-night/55 md:mt-5">
-                „Voda tak čistá, že mu místní říkají České Chorvatsko.“
+                „Shora: 60 × 35 metrů vody, kolem břidlice a les.“
               </figcaption>
             </figure>
           </Reveal>
@@ -222,6 +223,32 @@ export default function LokalitaPage() {
             <h2 className="font-display mt-6 max-w-2xl text-4xl text-linen md:text-6xl">
               Jak <span className="accent-italic">k nám.</span>
             </h2>
+          </Reveal>
+
+          <Reveal i={2} className="mt-12 md:mt-16">
+            <figure className="group">
+              <div className="photo-frame relative aspect-[21/9] overflow-hidden rounded-[34px] border border-linen/8">
+                <Image
+                  src={fotoMista("obec")!.src}
+                  alt={fotoMista("obec")!.alt}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 1216px"
+                  className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+                />
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-night/60 to-transparent" />
+              </div>
+              <figcaption className="font-display mt-4 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 text-lg italic text-sage md:mt-5">
+                <span>„Jílové u Držkova od jihu, ze silnice od Jirkova — lom je hned pod svahem.“</span>
+                <a
+                  href={fotoMista("obec")!.zdroj}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block py-1 font-sans text-[12px] not-italic text-sage/70 hover:text-ember"
+                >
+                  Foto {fotoMista("obec")!.autor}, {fotoMista("obec")!.licence}
+                </a>
+              </figcaption>
+            </figure>
           </Reveal>
 
           <div className="mt-12 grid gap-10 md:mt-16 md:grid-cols-2 md:gap-x-8 md:gap-y-12 lg:grid-cols-4">

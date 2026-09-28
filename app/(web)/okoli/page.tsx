@@ -86,8 +86,8 @@ export default function OkoliPage() {
         title="Co dělat kolem"
         accent="lomu."
         lead="Léto a zima mají každé svou mapu: koupání, lodě, ferrata a skalní města, nebo sjezdovky do půl hodiny a běžky za kopcem. Mapa se přepne sama podle kalendáře — a vy ji přepnete, kdy chcete."
-        src="/foto/lom-jilove.jpg"
-        alt="Lom Jílové u Držkova: tmavá hladina zrcadlí modrou oblohu s mraky, kolem břízy a smrky, vpravo břidlicová stěna"
+        src="/foto/lom-leto-obec.jpg"
+        alt="Lom Jílové u Držkova v létě: hladina mezi břízami, za ní střechy obce a hřebeny Jizerských hor"
       >
         <div className="flex flex-wrap gap-2.5 text-[13.5px] text-linen/85">
           <span className="rounded-full border border-linen/20 bg-night/55 px-4 py-2">
@@ -102,29 +102,13 @@ export default function OkoliPage() {
         </div>
       </FotoHero>
 
-      {/* ===== Kapitola I · Mapa (obloha) ===== */}
-      <section className="obloha strata relative overflow-hidden py-16 text-night md:py-24">
-        <div className="relative z-10 mx-auto max-w-7xl px-5 md:px-8">
-          <Reveal>
-            <Kicker tone="light">Kapitola I · Mapa</Kicker>
-          </Reveal>
-          <Reveal i={1}>
-            <h2 className="font-display mt-6 max-w-3xl text-4xl md:text-6xl">
-              Sedmý les je uprostřed.{" "}
-              <span className="font-display italic text-ember-deep">Všechno ostatní kolem.</span>
-            </h2>
-          </Reveal>
-          <div className="mt-10 md:mt-14">
-            <MapaOkoli mista={MISTA} vychoziSezona={sezona} />
-          </div>
-        </div>
-      </section>
+      <MapaOkoli mista={MISTA} vychoziSezona={sezona} />
 
-      {/* ===== Kapitola II · Tři plány ===== */}
+      {/* ===== Kapitola IV · Tři plány ===== */}
       <section className="grain contours relative overflow-hidden bg-night py-20 md:py-26">
         <div className="relative z-10 mx-auto max-w-7xl px-5 md:px-8">
           <Reveal>
-            <Kicker>Kapitola II · Tři plány</Kicker>
+            <Kicker>Kapitola IV · Tři plány</Kicker>
           </Reveal>
           <Reveal i={1}>
             <h2 className="font-display mt-6 max-w-2xl text-4xl text-linen md:text-6xl">

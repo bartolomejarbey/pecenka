@@ -462,27 +462,22 @@ div[id] {
     linear-gradient(180deg, #d9e4e8 0%, var(--color-mist) 38%, var(--color-mist) 100%);
 }
 
-/* Vrstvy břidlice — vodorovné, přerušované linky jako stěna lomu. */
-.strata::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.07;
-  background-repeat: repeat;
-  background-size: 480px 160px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='160' viewBox='0 0 480 160' fill='none'%3E%3Cg stroke='%234b453f' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='M0 18h176M214 20h266M0 50h92M128 52h270M0 84h298M338 82h142M0 116h58M98 118h164M300 116h180M0 148h420M446 150h34'/%3E%3C/g%3E%3C/svg%3E");
-}
-
 /* ===== Mapa (Leaflet) ===== */
 .mapa-lom .leaflet-container {
-  background: var(--color-mist-dim);
+  background: var(--color-night);
   font-family: var(--font-sans);
   font-size: 13px;
 }
-/* Dlaždice OpenStreetMap jsou pestré; trochu je utlumíme, ať sedí k webu. */
-.mapa-lom .leaflet-tile {
-  filter: saturate(0.62) contrast(1.02);
+/* Turistický podklad je pestrý; utlumíme ho, ať sedí k webu. Satelit necháme
+   být — jen lehce přitáhneme kontrast, aby lom vystoupil z lesa. */
+.mapa-lom .dlazdice-topo {
+  filter: saturate(0.7) contrast(1.02);
+}
+.mapa-lom .dlazdice-satelit {
+  filter: saturate(0.85) contrast(1.08) brightness(0.95);
+}
+.mapa-lom .dlazdice-popisky {
+  opacity: 0.9;
 }
 .mapa-lom .leaflet-bar {
   border: 0;
@@ -537,6 +532,14 @@ div[id] {
   margin-top: 2px;
   color: var(--color-sage);
 }
+.bublina-foto {
+  display: block;
+  width: calc(100% + 30px);
+  margin: -11px -15px 10px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 14px 14px 0 0;
+}
 
 /* Značky — kolečko v barvě sezóny, lom větší a se svatozáří. */
 .znacka {
@@ -548,16 +551,16 @@ div[id] {
   width: 100%;
   height: 100%;
   border-radius: 9999px;
-  border: 2.5px solid var(--color-cloud);
+  border: 3px solid var(--color-cloud);
   background: var(--color-shale);
-  box-shadow: 0 4px 12px -2px rgba(10, 20, 22, 0.6);
+  box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.75);
   transition: transform 0.25s var(--ease-out-expo);
 }
 .znacka-leto > span {
-  background: var(--color-birch-deep);
+  background: var(--color-birch);
 }
 .znacka-zima > span {
-  background: var(--color-azure-deep);
+  background: var(--color-azure-soft);
 }
 .znacka-celorocne > span {
   background: var(--color-ember);

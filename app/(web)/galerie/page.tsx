@@ -12,14 +12,14 @@ export const metadata = pageMeta({
   description:
     "Lom Jílové u Držkova, černé domky ve zlatém večeru, interiéry a první sníh. Fotky ze Sedmého lesa.",
   path: "/galerie",
-  ogImage: "/foto/hero-lom-domky.jpg",
+  ogImage: "/foto/lom-dron.jpg",
 });
 
 const PHOTOS: FotkaGalerie[] = [
   {
-    src: "/foto/hero-lom-domky.jpg",
-    alt: "Dva černé kubické domky na dřevěné terase u zatopeného lomu za zlaté hodiny",
-    caption: "„Dva domky nad lomem, zlatá hodina.“",
+    src: "/foto/lom-dron.jpg",
+    alt: "Lom Jílové u Držkova z dronu: tmavá hladina ve tvaru kapky mezi břidlicovými stěnami a lesem",
+    caption: "„Lom shora: 60 × 35 metrů vody, kolem břidlice a les.“",
     aspect: "aspect-[16/9]",
     span: "md:col-span-2",
     sizes: "(max-width: 768px) 100vw, 1216px",
@@ -47,6 +47,13 @@ const PHOTOS: FotkaGalerie[] = [
     sizes: "(max-width: 768px) 100vw, 596px",
   },
   {
+    src: "/foto/lom-breh.jpg",
+    alt: "Břeh lomu Jílové u Držkova pod zataženou oblohou, břidlicová stěna a smrky nad hladinou",
+    caption: "„Břeh po dešti. Voda jako zrcadlo.“",
+    aspect: "aspect-[4/3]",
+    sizes: "(max-width: 768px) 100vw, 596px",
+  },
+  {
     src: "/foto/interier-kuchyne.jpg",
     alt: "Detail plně vybavené kuchyňské linky v tiny housu",
     caption: "„Malá kuchyně, velká snídaně.“",
@@ -70,12 +77,20 @@ const PHOTOS: FotkaGalerie[] = [
     sizes: "(max-width: 768px) 100vw, 596px",
   },
   {
-    src: "/foto/lom-letecky.jpg",
-    alt: "Letecký pohled na domky u tmavé hladiny zatopeného lomu",
-    caption: "„Lom z ptačí perspektivy.“",
+    src: "/foto/lom-leto-obec.jpg",
+    alt: "Lom Jílové u Držkova v létě, za ním střechy obce a hřebeny Jizerských hor",
+    caption: "„Lom, obec a hory za ní.“",
     aspect: "aspect-[4/3]",
     offset: "md:mt-16",
     sizes: "(max-width: 768px) 100vw, 596px",
+  },
+  {
+    src: "/foto/hero-lom-domky.jpg",
+    alt: "Vizualizace dvou černých kubických domků na terase nad lomem za zlaté hodiny",
+    caption: "„Vizualizace: domky nad lomem, zlatá hodina.“",
+    aspect: "aspect-[16/9]",
+    span: "md:col-span-2",
+    sizes: "(max-width: 768px) 100vw, 1216px",
   },
 ];
 
@@ -92,7 +107,7 @@ export default function GaleriePage() {
         kicker="Galerie"
         title="Místo, které se"
         accent="nedá vyfotit."
-        lead="Ale zkoušíme to. Mlha nad lomem, první sníh, světlo z okna — tady je pár momentů ze Sedmého lesa."
+        lead="Ale zkoušíme to. Lom z dronu i od břehu, světlo z okna, první sníh — tady je pár momentů ze Sedmého lesa. Snímky domků jsou zatím vizualizace; skutečné přibudou po dostavbě."
       />
 
       {/* ===== Editorial galerie ===== */}

@@ -27,16 +27,16 @@ export default function Hero() {
   return (
     <section className="grain relative flex min-h-svh flex-col justify-end overflow-hidden bg-night">
       <Image
-        src="/foto/hero-lom-domky.jpg"
-        alt="Dva černé kubické tiny housy na dřevěné terase u zatopeného břidlicového lomu za zlatého večera"
+        src="/foto/lom-jilove.jpg"
+        alt="Lom Jílové u Držkova: tmavá hladina zrcadlí oblohu s mraky, kolem břízy a smrky, vpravo břidlicová stěna"
         fill
         priority
         fetchPriority="high"
         sizes="100vw"
         className="object-cover"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-night via-night/40 to-night/25" />
-      <div className="absolute inset-0 bg-gradient-to-r from-night/65 via-night/10 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-night via-night/45 to-night/15" />
+      <div className="absolute inset-0 bg-gradient-to-r from-night/70 via-night/15 to-transparent" />
 
       {/* Světlušky — jen na větších displejích, na mobilu by padaly do textu */}
       <div className="absolute inset-0 hidden md:block" aria-hidden="true">

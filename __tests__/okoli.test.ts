@@ -99,3 +99,37 @@ describe("výpočty", () => {
     expect(popisProSezonu(lom, "leto")).toBe(lom.popis);
   });
 });
+
+describe("fotky míst", () => {
+  it("každá fotka existuje na disku a má autora i licenci", async () => {
+    const { FOTO_MIST } = await import("@/lib/okoli-foto");
+    const { existsSync, statSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    for (const [id, f] of Object.entries(FOTO_MIST)) {
+      const cesta = join(process.cwd(), "public", f.src);
+      expect(existsSync(cesta), `${id}: chybí ${f.src}`).toBe(true);
+      expect(statSync(cesta).size, id).toBeGreaterThan(10_000);
+      expect(f.autor.length, id).toBeGreaterThan(1);
+      expect(f.licence, id).toMatch(/CC|Public domain|free use/);
+      expect(f.zdroj, id).toMatch(/^https:\/\/commons\.wikimedia\.org\//);
+      expect(f.alt.length, id).toBeGreaterThan(8);
+    }
+  });
+
+  it("fotky patří k existujícím místům (kromě pohledu na obec)", async () => {
+    const { FOTO_MIST } = await import("@/lib/okoli-foto");
+    const ids = new Set(MISTA.map((m) => m.id));
+    for (const id of Object.keys(FOTO_MIST)) {
+      if (id === "obec") continue;
+      expect(ids.has(id), id).toBe(true);
+    }
+  });
+
+  it("lom má vlastní fotku a tři vybraná místa existují pro obě sezóny", async () => {
+    const { fotoMista, vybraneProSezonu } = await import("@/lib/okoli");
+    expect(fotoMista("lom")?.licence).toBe("vlastní");
+    expect(vybraneProSezonu(MISTA, "leto")).toHaveLength(3);
+    expect(vybraneProSezonu(MISTA, "zima")).toHaveLength(3);
+    for (const m of vybraneProSezonu(MISTA, "zima")) expect(["zima", "celorocne"]).toContain(m.sezona);
+  });
+});

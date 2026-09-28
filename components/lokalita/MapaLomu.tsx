@@ -16,9 +16,10 @@ export default function MapaLomu() {
         },
       ]}
       stred={{ lat: LOCATION.lat, lng: LOCATION.lng }}
-      zoom={14}
+      zoom={16}
+      vrstva="satelit"
       vybrany="lom"
-      className="h-[380px] md:h-[480px]"
+      className="h-[380px] rounded-[28px] border border-linen/10 md:h-[480px]"
       popisek="Mapa s polohou lomu Jílové u Držkova"
     />
   );

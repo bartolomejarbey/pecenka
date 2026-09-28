@@ -231,30 +231,61 @@ export const ADDONS: Addon[] = [
 
 /* ===== Zážitky / co tu je ===== */
 
-export const EXPERIENCES = [
+export type Experience = {
+  title: string;
+  desc: string;
+  photo: string;
+  photoAlt: string;
+  /** Odkaz na stránku, kde je o tom víc. */
+  href?: string;
+  /** Fotka z Wikimedia Commons — autor a licence se ukážou přes roh. */
+  credit?: { autor: string; licence: string; zdroj: string };
+};
+
+export const EXPERIENCES: Experience[] = [
   {
     title: "Lom Jílové u Držkova",
     desc: "Bývalý břidlicový lom pár kroků od domků — hladina 60 × 35 metrů, šest metrů hloubky a voda tak čistá, že mu místní říkají České Chorvatsko. V létě plavání a skoky ze skály, v zimě otužování.",
+    photo: "/foto/lom-dron.jpg",
+    photoAlt: "Lom Jílové u Držkova z dronu: tmavá hladina ve tvaru kapky mezi břidlicovými stěnami a lesem",
+    href: "/lokalita",
   },
   {
     title: "Ticho a tmavá obloha",
     desc: "Žádná hlavní silnice, žádný ruch. V noci skoro nulový světelný smog — za jasna je z terasy vidět Mléčná dráha pouhým okem.",
+    photo: "/foto/domek-vecer.jpg",
+    photoAlt: "Černý domek za soumraku, jediné rozsvícené okno mezi stromy",
   },
   {
     title: "Český ráj za rohem",
     desc: "Skalní města, vyhlídky a hrady. Frýdštejn, Suché skály i Maloskalsko máte do dvaceti minut autem.",
+    photo: "/foto/okoli/hruboskalsko.jpg",
+    photoAlt: "Pískovcové věže Hruboskalska od vyhlídky U Lvíčka",
+    href: "/okoli",
+    credit: { autor: "ŠJů", licence: "CC BY-SA 3.0", zdroj: "https://commons.wikimedia.org/wiki/File:Rozhled_z_vyhl%C3%ADdky_U_Lv%C3%AD%C4%8Dka_(13).jpg" },
   },
   {
     title: "Kozákov a acháty",
     desc: "Vyhaslá sopka a nejvyšší vrch Českého ráje s rozhlednou. Po loukách kolem se dodnes hledají acháty, ametysty a křišťály.",
+    photo: "/foto/okoli/kozakov.jpg",
+    photoAlt: "Rozhledna a Riegrova chata na Kozákově",
+    href: "/okoli",
+    credit: { autor: "Hadonos", licence: "CC BY-SA 3.0", zdroj: "https://commons.wikimedia.org/wiki/File:Koz%C3%A1kov_-_rozhledna_02.jpg" },
   },
   {
     title: "Sklářský Železný Brod",
     desc: "Pět kilometrů odsud leží skleněné městečko — hutě, ateliéry a muzeum skla. Ideální cíl, když přijde déšť.",
+    photo: "/foto/okoli/zelezny-brod.jpg",
+    photoAlt: "Roubená chalupa na Trávníkách v Železném Brodě",
+    href: "/okoli",
+    credit: { autor: "Eva Moravcová", licence: "CC BY-SA 3.0", zdroj: "https://commons.wikimedia.org/wiki/File:M%C4%9Bstsk%C3%BD_d%C5%AFm,_%C4%8Derven%C3%A1_rouben%C3%A1_chalupa,_Tr%C3%A1vn%C3%ADky,_Franti%C5%A1ka_Balatky_129,_%C5%BDelezn%C3%BD_Brod.jpg" },
   },
   {
     title: "Brzy: sauna a sud",
     desc: "Na břeh lomu chystáme finskou saunu a koupací sud. Otevřeme je příští sezónu — prohřát se a skočit do studené vody bude pak otázkou tří kroků.",
+    photo: "/foto/sauna-sud.jpg",
+    photoAlt: "Vizualizace plánované sauny a koupacího sudu na břehu lomu za soumraku",
+    href: "/domky",
   },
 ];
 
