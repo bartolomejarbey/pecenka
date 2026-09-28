@@ -73,7 +73,7 @@ export default function Pobyt({ domky }: { domky: InfoOPobytu[] }) {
           className={`mt-1.5 ${POLE}`}
         />
         <span className="mt-1.5 block text-[12.5px] text-sage/70">
-          Na webu není schválně — host ji uvidí až po zaplacení zálohy.
+          Na webu je jen poloha lomu; přesnou adresu domku host uvidí až po zaplacení zálohy.
         </span>
       </label>
 

@@ -71,7 +71,7 @@ export default async function PlatbaPage({ params, searchParams }: Props) {
         accent={zaplaceno ? "Díky!" : propadlo ? "" : "zálohu."}
         lead={
           zaplaceno
-            ? "Zálohu máme. Pár dní před příjezdem se ozveme se souřadnicemi a kódem od schránky s klíčem."
+            ? "Zálohu máme. Den před příjezdem se ozveme s videem cesty a kódem od schránky s klíčem."
             : propadlo
               ? "Termín se vrátil do nabídky. Pokud pořád chcete přijet, zkuste rezervaci znovu — nebo nám napište."
               : `${r.unit_name} · ${formatCzDate(new Date(r.checkin))} – ${formatCzDate(new Date(r.checkout))}`

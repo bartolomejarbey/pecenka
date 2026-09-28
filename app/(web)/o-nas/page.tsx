@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import CtaBanner from "@/components/CtaBanner";
 import Reveal from "@/components/Reveal";
@@ -124,8 +125,8 @@ export default function ONasPage() {
             <figure className="group">
               <div className="photo-frame relative aspect-[4/3] overflow-hidden rounded-[34px] border border-night/10">
                 <Image
-                  src="/foto/koupani-lom.jpg"
-                  alt="Koupání v křišťálově čisté vodě zatopeného břidlicového lomu pod skalní stěnou"
+                  src="/foto/lom-jilove.jpg"
+                  alt="Lom Jílové u Držkova: tmavá hladina zrcadlí oblohu s mraky, kolem břízy a smrky, vpravo břidlicová stěna"
                   fill
                   sizes="(max-width: 768px) 100vw, 596px"
                   className="object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
@@ -148,16 +149,21 @@ export default function ONasPage() {
             </Reveal>
             <Reveal i={2}>
               <p className="mt-7 max-w-md text-[16px] leading-relaxed text-night/60">
-                Domky stojí na samotě u zatopeného břidlicového lomu nad Jílovým u Držkova, na
-                okraji Českého ráje v Libereckém kraji. Kdysi se tu lámala břidlice — dnes je z
-                jámy jezírko s tak čistou vodou, že mu místní neřeknou jinak než České Chorvatsko.
+                Domky stojí u zatopeného břidlicového lomu na jižním okraji Jílového u Držkova,
+                v Libereckém kraji na pomezí Českého ráje a Jizerských hor. Kdysi se tu lámala
+                břidlice — dnes je z jámy jezírko 60 × 35 metrů s tak čistou vodou, že mu místní
+                neřeknou jinak než České Chorvatsko.
               </p>
             </Reveal>
             <Reveal i={3}>
               <p className="mt-5 max-w-md text-[16px] leading-relaxed text-night/60">
                 Skalní města, vyhlídky a hrady Českého ráje začínají hned za kopcem, sklářský
-                Železný Brod je pět kilometrů odsud. Přesnou polohu ale prozradíme až s potvrzenou
-                rezervací — soukromí hostů i kouzlo místa chráníme i takhle.
+                Železný Brod je pět kilometrů odsud. Na mapě lom najdete jako Lom Jílové u Držkova,
+                GPS 50.6692N, 15.2903E — cestu, vzdálenosti i mapu okolí máme na stránce{" "}
+                <Link href="/lokalita" className="text-ember-deep underline underline-offset-2">
+                  Lokalita
+                </Link>
+                .
               </p>
             </Reveal>
           </div>

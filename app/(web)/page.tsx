@@ -17,6 +17,9 @@ export const metadata = pageMeta({
   path: "/",
 });
 
+/** Pás ročních období ukazuje, které právě běží — stránka se přegenerovává každou hodinu. */
+export const revalidate = 3600;
+
 export default function HomePage() {
   return (
     <main>

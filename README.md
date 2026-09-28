@@ -1,6 +1,6 @@
 # sedmyles.cz
 
-Web pro pronájem dvou tiny housů u zatopeného lomu. Next.js 16 + Tailwind v4,
+Web pro pronájem dvou tiny housů u zatopeného lomu Jílové u Držkova. Next.js 16 + Tailwind v4,
 bez animačních knihoven. Kreativní zadání viz [ZADANI.md](./ZADANI.md),
 architektura rezervačního a fakturačního systému viz [SYSTEM.md](./SYSTEM.md),
 postup prací viz [ITERACE.md](./ITERACE.md).
@@ -32,6 +32,7 @@ node scripts/dev/seed-ukazka.mjs   # pár rezervací na hraní
 
 - `lib/content.ts` — **veškerý obsah webu** (texty, ceny, domky, FAQ, recenze). Editovat tady.
 - `lib/booking/` — cenotvorba a dostupnost.
+- `lib/okoli.ts` — místa v okolí lomu pro mapu (léto/zima, GPS, popisy); `lib/sezona.ts` — roční doba podle data.
 - `lib/luna/` — porovnání stavu domku (obrazová brána, prompty, vzkaz hostovi).
 - `lib/portal/` — portál hosta: přístup, protokol, příjem fotek.
 - `components/` — sdílené komponenty (Nav, Footer, Reveal, ui…).
@@ -86,7 +87,7 @@ stejně jako naostro — celý protokol jde zkoušet lokálně.
    CONTACT_TO=ahoj@sedmyles.cz
    ```
    Bez SMTP se poptávky jen logují do konzole (web funguje dál).
-5. **Lokalita** — až bude přesná poloha, doplnit do `lib/content.ts` (`SITE.region`, `LOCATION`).
+5. **Lokalita** — hotovo: web uvádí Lom Jílové u Držkova s GPS, mapou a okolím (`LOCATION` v `lib/content.ts`, `lib/okoli.ts`). Přesnou adresu domku pro hosty vyplňte v `/admin/nastaveni`.
 6. **Referenční fotky** — nafotit oba domky po zónách v `/admin/reference`.
    Dokud tam nic není, nemá systém odjezdové fotky s čím porovnat.
 7. **Infolinka** v `/admin/nastaveni` je zatím zástupné číslo.

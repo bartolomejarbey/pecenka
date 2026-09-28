@@ -2,19 +2,30 @@
 
 @theme {
   /* ===== SEDMÝ LES — design tokens =====
-     Les za noci, břidlice, mlha a teplé světlo z okna. */
-  --color-night: #0c110f; /* nejhlubší pozadí — les po setmění */
-  --color-bark: #131a16; /* základní tmavá plocha */
-  --color-pine: #1c2620; /* zvednuté plochy, karty */
-  --color-pine-edge: #2a3830; /* okraje, dělicí linky na tmavé */
-  --color-moss: #4a5e51; /* tlumené linky, ikony */
-  --color-sage: #9db3a2; /* tlumený text na tmavé */
-  --color-linen: #f3efe5; /* text na tmavé, světlý povrch */
-  --color-mist: #ebe7db; /* světlé sekce — mlha nad lomem */
-  --color-mist-dim: #ddd8c8; /* světlá sekce, alternativní tón */
+     Paleta podle lomu Jílové u Držkova: tmavá hladina, ve které se zrcadlí
+     nebe, břidlicová stěna, břízy a smrky nad vodou, mraky. Teplé světlo
+     z okna (ember) zůstává jediným teplým akcentem — všechno ostatní je
+     chladné jako voda v lomu. */
+  --color-night: #0a1416; /* nejhlubší pozadí — hladina lomu za soumraku */
+  --color-bark: #101f22; /* základní tmavá plocha — hlubší voda */
+  --color-pine: #172b2f; /* zvednuté plochy, karty — odraz stromů v hladině */
+  --color-pine-edge: #25403f; /* okraje, dělicí linky na tmavé */
+  --color-moss: #4b6a65; /* tlumené linky, ikony */
+  --color-sage: #9fbab3; /* tlumený text na tmavé — mlha nad vodou */
+  --color-linen: #f1f4f2; /* text na tmavé, světlý povrch */
+  --color-mist: #e3eaec; /* světlé sekce — obloha nad lomem */
+  --color-mist-dim: #d3dde0; /* světlá sekce, alternativní tón */
+  --color-cloud: #f6f9fa; /* nejsvětlejší plocha — mrak */
   --color-ember: #d9914e; /* akcent — světlo z okna za soumraku */
   --color-ember-soft: #e8b07a; /* hover akcentu */
-  --color-ember-deep: #96581f; /* akcent na světlém podkladu (AA kontrast na mist) */
+  --color-ember-deep: #8d5019; /* akcent na světlém podkladu (AA kontrast na mist) */
+  --color-azure: #4f93d8; /* obloha v hladině — zimní značky, odkazy na světlé */
+  --color-azure-soft: #a9cbee; /* světlejší obloha */
+  --color-azure-deep: #245f9e; /* obloha jako text na světlém (AA) */
+  --color-birch: #a6b95e; /* březové listí — letní značky */
+  --color-birch-deep: #58691f; /* březová jako text na světlém (AA) */
+  --color-shale: #7c7368; /* břidlice — linky a texty na světlém */
+  --color-shale-deep: #4b453f; /* břidlice ve stínu */
 
   /* Stavové barvy — oddělené od akcentu schválně. Ember znamená „sem se
      dívej", ne „tohle je v pořádku"; kdyby dělal obojí, přestane fungovat
@@ -153,7 +164,7 @@ body::after {
   pointer-events: none;
   opacity: 0.05;
   background-repeat: repeat;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='560' viewBox='0 0 560 560' fill='none'%3E%3Cg stroke='%239db3a2' stroke-width='1'%3E%3Cpath d='M60 480c40-90 10-160 80-210s170-20 210-90 30-130 120-150'/%3E%3Cpath d='M20 520c50-110 0-190 85-250s195-25 240-110 35-145 135-170'/%3E%3Cpath d='M100 440c30-70 20-130 75-170s145-15 180-75 25-115 105-130'/%3E%3Cpath d='M140 400c22-52 25-100 70-132s120-12 150-62 20-95 88-108'/%3E%3Cpath d='M180 360c15-35 28-72 62-95s95-10 120-50 16-75 70-86'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='560' viewBox='0 0 560 560' fill='none'%3E%3Cg stroke='%239fbab3' stroke-width='1'%3E%3Cpath d='M60 480c40-90 10-160 80-210s170-20 210-90 30-130 120-150'/%3E%3Cpath d='M20 520c50-110 0-190 85-250s195-25 240-110 35-145 135-170'/%3E%3Cpath d='M100 440c30-70 20-130 75-170s145-15 180-75 25-115 105-130'/%3E%3Cpath d='M140 400c22-52 25-100 70-132s120-12 150-62 20-95 88-108'/%3E%3Cpath d='M180 360c15-35 28-72 62-95s95-10 120-50 16-75 70-86'/%3E%3C/g%3E%3C/svg%3E");
   background-size: 560px 560px;
 }
 
@@ -437,4 +448,130 @@ div[id] {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ===== Lom — motivy podle fotky lomu ===== */
+
+/* Světlá sekce jako obloha nad lomem: pár mraků a mírné ztmavení k obzoru. */
+.obloha {
+  position: relative;
+  background-color: var(--color-mist);
+  background-image:
+    radial-gradient(60% 45% at 18% 0%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 70%),
+    radial-gradient(45% 35% at 78% 12%, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0) 70%),
+    linear-gradient(180deg, #d9e4e8 0%, var(--color-mist) 38%, var(--color-mist) 100%);
+}
+
+/* Vrstvy břidlice — vodorovné, přerušované linky jako stěna lomu. */
+.strata::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  background-repeat: repeat;
+  background-size: 480px 160px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='480' height='160' viewBox='0 0 480 160' fill='none'%3E%3Cg stroke='%234b453f' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='M0 18h176M214 20h266M0 50h92M128 52h270M0 84h298M338 82h142M0 116h58M98 118h164M300 116h180M0 148h420M446 150h34'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ===== Mapa (Leaflet) ===== */
+.mapa-lom .leaflet-container {
+  background: var(--color-mist-dim);
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+/* Dlaždice OpenStreetMap jsou pestré; trochu je utlumíme, ať sedí k webu. */
+.mapa-lom .leaflet-tile {
+  filter: saturate(0.62) contrast(1.02);
+}
+.mapa-lom .leaflet-bar {
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 26px -14px rgba(10, 20, 22, 0.7);
+}
+.mapa-lom .leaflet-control-zoom a {
+  background: var(--color-night);
+  color: var(--color-linen);
+  border-color: rgba(255, 255, 255, 0.08);
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+}
+.mapa-lom .leaflet-control-zoom a:hover {
+  background: var(--color-pine);
+  color: var(--color-ember);
+}
+.mapa-lom .leaflet-control-attribution {
+  background: rgba(246, 249, 250, 0.85);
+  color: var(--color-shale-deep);
+  font-size: 10.5px;
+  padding: 2px 8px;
+}
+.mapa-lom .leaflet-control-attribution a {
+  color: var(--color-shale-deep);
+}
+.mapa-lom .leaflet-popup-content-wrapper {
+  background: var(--color-night);
+  color: var(--color-linen);
+  border-radius: 14px;
+  box-shadow: 0 18px 44px -18px rgba(10, 20, 22, 0.85);
+}
+.mapa-lom .leaflet-popup-content {
+  margin: 11px 15px;
+  line-height: 1.4;
+  font-size: 13.5px;
+}
+.mapa-lom .leaflet-popup-tip {
+  background: var(--color-night);
+}
+.bublina-nazev {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.bublina-pod {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-sage);
+}
+
+/* Značky — kolečko v barvě sezóny, lom větší a se svatozáří. */
+.znacka {
+  background: transparent;
+  border: 0;
+}
+.znacka > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  border: 2.5px solid var(--color-cloud);
+  background: var(--color-shale);
+  box-shadow: 0 4px 12px -2px rgba(10, 20, 22, 0.6);
+  transition: transform 0.25s var(--ease-out-expo);
+}
+.znacka-leto > span {
+  background: var(--color-birch-deep);
+}
+.znacka-zima > span {
+  background: var(--color-azure-deep);
+}
+.znacka-celorocne > span {
+  background: var(--color-ember);
+}
+.znacka-doma > span {
+  background: var(--color-ember);
+  box-shadow:
+    0 0 0 8px rgba(217, 145, 78, 0.28),
+    0 4px 12px -2px rgba(10, 20, 22, 0.6);
+}
+.znacka-aktivni > span {
+  transform: scale(1.3);
+}
+.znacka:focus-visible > span {
+  outline: 2px solid var(--color-ember);
+  outline-offset: 2px;
 }

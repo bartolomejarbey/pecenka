@@ -46,12 +46,11 @@ export default function Practical() {
           <Reveal i={2} className="h-full">
             <aside className="flex h-full flex-col rounded-[28px] border border-linen/8 bg-pine p-8 transition-colors duration-300 hover:border-ember/30 md:p-10">
               <Kicker>Kde to je</Kicker>
-              <p
-                className="font-display mt-7 text-2xl font-light italic text-linen"
-                style={{ lineHeight: 1.35 }}
-              >
-                „{LOCATION.secretNote}“
+              <p className="font-display mt-7 text-2xl text-linen md:text-3xl">{LOCATION.name}</p>
+              <p className="mt-2 text-[15px] leading-relaxed text-sage">
+                {LOCATION.village}, {LOCATION.district} · {LOCATION.region}
               </p>
+              <p className="font-display mt-3 text-lg text-linen/85">GPS {LOCATION.gpsDecimal}</p>
               <div className="mt-9 border-t border-linen/10">
                 {distances.map((d) => (
                   <div
@@ -63,12 +62,19 @@ export default function Practical() {
                   </div>
                 ))}
               </div>
-              <div className="mt-auto pt-10">
+              <div className="mt-auto flex flex-wrap gap-x-7 gap-y-2 pt-10">
                 <Link
                   href="/lokalita"
                   className="group inline-flex items-center gap-2 py-1 text-[15px] font-semibold text-ember transition-colors duration-300 hover:text-ember-soft"
                 >
-                  Kde nás najdete
+                  Mapa a cesta
+                  <ArrowIcon className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
+                <Link
+                  href="/okoli"
+                  className="group inline-flex items-center gap-2 py-1 text-[15px] font-semibold text-ember transition-colors duration-300 hover:text-ember-soft"
+                >
+                  Okolí: léto i zima
                   <ArrowIcon className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
               </div>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SITE, NAV_LINKS, LEGAL_LINKS, HOUSES } from "@/lib/content";
+import { SITE, NAV_LINKS, LEGAL_LINKS, HOUSES, LOCATION } from "@/lib/content";
 import { telOdkaz } from "@/lib/format";
 import { Logo } from "./ui";
 
@@ -13,7 +13,7 @@ export default function Footer() {
               <Logo />
             </Link>
             <p className="mt-5 max-w-xs text-[15px] leading-relaxed text-sage">
-              Dva tiny housy u zatopeného lomu. {SITE.claim}
+              Dva tiny housy u lomu Jílové u Držkova. {SITE.claim}
             </p>
           </div>
 
@@ -95,9 +95,11 @@ export default function Footer() {
                 </a>
               </li>
               <li className="pt-1 text-[13px] text-sage/80">
-                {SITE.region} · přesnou polohu
-                <br />
-                posíláme s rezervací
+                <Link href="/lokalita" className="inline-block py-1 transition-colors hover:text-ember">
+                  {LOCATION.name}
+                  <br />
+                  GPS {LOCATION.gpsDecimal}
+                </Link>
               </li>
             </ul>
           </div>

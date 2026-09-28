@@ -10,7 +10,7 @@ import { SITE } from "@/lib/content";
 export const metadata = pageMeta({
   title: "Galerie",
   description:
-    "Mlha nad lomem, černé domky ve zlatém večeru, interiéry a první sníh. Fotky ze Sedmého lesa u Jílového u Držkova.",
+    "Lom Jílové u Držkova, černé domky ve zlatém večeru, interiéry a první sníh. Fotky ze Sedmého lesa.",
   path: "/galerie",
   ogImage: "/foto/hero-lom-domky.jpg",
 });
@@ -40,9 +40,9 @@ const PHOTOS: FotkaGalerie[] = [
     sizes: "(max-width: 768px) 100vw, 596px",
   },
   {
-    src: "/foto/koupani-lom.jpg",
-    alt: "Dřevěné molo na křišťálově čistém zatopeném lomu v létě",
-    caption: "„České Chorvatsko, jen pro vás.“",
+    src: "/foto/lom-jilove.jpg",
+    alt: "Lom Jílové u Držkova: tmavá hladina zrcadlí oblohu s mraky, kolem břízy a smrky, vpravo břidlicová stěna",
+    caption: "„Lom Jílové u Držkova — České Chorvatsko.“",
     aspect: "aspect-[4/3]",
     sizes: "(max-width: 768px) 100vw, 596px",
   },

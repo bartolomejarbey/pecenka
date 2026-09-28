@@ -52,7 +52,7 @@ export default function Hero() {
       {/* Obsah — dole vlevo */}
       <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-9 pt-44 md:px-8">
         <div className="rise-in">
-          <Kicker>Pronájem dvou tiny housů u zatopeného lomu</Kicker>
+          <Kicker>Tiny housy u lomu Jílové u Držkova · Liberecký kraj</Kicker>
         </div>
 
         <h1
@@ -68,8 +68,9 @@ export default function Hero() {
           className="rise-in mt-7 max-w-md text-[17px] leading-relaxed text-linen/85"
           style={{ "--rise-i": 2 } as React.CSSProperties}
         >
-          Dva černé domky na samotě u zatopeného lomu. Ticho, které uslyšíte.
-          Tma, ve které jsou konečně vidět hvězdy.
+          Dva černé domky u zatopeného lomu v Jílovém u Držkova, kterému
+          místní říkají České Chorvatsko. Ticho, které uslyšíte. Tma, ve
+          které jsou konečně vidět hvězdy.
         </p>
 
         {/*

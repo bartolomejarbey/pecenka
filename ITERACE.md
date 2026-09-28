@@ -1106,3 +1106,66 @@ stalo — chyba se projeví až později hláškou „Aborted()".
 z `loading.tsx`, jinak zachytí prázdno.
 
 **227 testů prochází.**
+
+## Kolo 18 — Lom už není tajemství
+
+Zadání: web přestane lokalitu tajit. Všude uvede celý lom — jméno, obec, GPS —
+přidá mapu aktivit v okolí pro léto i zimu s automatickým přepínáním a design
+se posune k tomu, jak lom doopravdy vypadá.
+
+### Poloha je veřejná
+Lom Jílové u Držkova, jižní okraj obce, GPS 50.6692N, 15.2903E (vstup k vodě
+podle potápěčského atlasu, N 50°40,152′ E 15°17,415′). Fakta z místních
+průvodců: hladina 60 × 35 m, hloubka kolem 6 m, břidlice, parkování 50 m
+od vody, v létě stánek, místní jméno České Chorvatsko. Všechno sedí v jednom
+objektu `LOCATION` v `lib/content.ts` — jméno, okres, kraj, obě podoby GPS,
+odkazy do Map, vzdálenosti, cesta ve čtyřech krocích a šest karet okolí.
+
+Zmizelo: „Mapa, která mlčí", „tady někde", „souřadnice posíláme s rezervací"
+(lokalita, kontakt, patička, FAQ, O nás, úvod, platba, jak to funguje).
+Host dál dostává den před příjezdem video s cestou a kód od schránky —
+adresa domku zůstává v portálu, na webu je poloha lomu. Poznámka
+v administraci u „Přesná adresa" to říká.
+
+JSON-LD má skutečné souřadnice, `hasMap`, TouristAttraction se jmenuje jako
+lom. Metadata, manifest a klíčová slova mluví o lomu Jílové u Držkova.
+
+### Mapa okolí — /okoli
+`lib/okoli.ts`: 36 míst s GPS, kategorií, sezónou (léto / zima / celoročně),
+dobou jízdy a popisem; celoroční místa mají zvláštní zimní popis (lom pro
+otužilce, Mumlava v ledu, Bedřichov na běžkách). Sjezdovky od Zásady (10 min)
+po Rokytnici, běžky, ferrata Vodní brána, půjčovna lodí na Malé Skále, skalní
+města, hrady, rozhledny, jeskyně, sklo, pivovar, bobové dráhy.
+
+Přepínač léto/zima: výchozí polohu určí datum v pražském čase
+(`lib/sezona.ts`, zima = prosinec až březen), stránka se přegenerovává každou
+hodinu a v prohlížeči se datum zkontroluje ještě jednou. Kdo přepne ručně,
+tomu kalendář už nemluví do toho. Filtry podle kategorie a „s dětmi", seznam
+řazený podle doby jízdy, vzdušná vzdálenost spočítaná ze souřadnic.
+
+Mapa je Leaflet s dlaždicemi OpenStreetMap, načítá se až v prohlížeči
+(`components/okoli/LeafletMapa.tsx`); značky jsou CSS, ne obrázky. Kolečko
+zoomuje až po klepnutí do mapy. CSP dostala `tile.openstreetmap.org` do
+`img-src`. Bez JS zůstává seznam míst obyčejné HTML. Na /lokalita je táž
+mapa s jedinou značkou a otevřenou bublinou.
+
+Odkazy do Map jdou přes vyhledání názvu (mapy.com, kam mapy.cz přesměrovává),
+ne přes souřadnice — trefí správný vchod, i když je značka o kus vedle.
+
+### Design podle lomu
+Paleta z fotky: tmavá hladina místo lesní noci (`night #0a1416`, celý tmavý
+žebříček do modrozelena), světlé sekce jako obloha (`mist #e3eaec`, třída
+`.obloha` s mraky), nové tóny `azure` (obloha, zima), `birch` (břízy, léto),
+`shale` (břidlice) a `cloud`. Ember zůstává jediným teplým akcentem.
+`ember-deep` ztmavl na #8d5019, aby na chladnější světlé ploše držel AA.
+Motiv `.strata` — přerušované vodorovné linky jako vrstvy břidlice.
+`FotoHero` — hlavička s fotkou přes celou šířku pro lokalitu a okolí.
+Skutečná fotka lomu (`public/foto/lom-jilove.jpg`) nahradila generované
+koupání v galerii a v O nás; pás ročních období na úvodu označuje to, které
+právě běží.
+
+### Testy
+`__tests__/okoli.test.ts` hlídá data: jedinečná id, souřadnice do 50 km od
+lomu, kategorie ze seznamu, délky popisů, doba jízdy vs. vzdálenost, filtry.
+`__tests__/sezona.test.ts` hlídá hranice sezón včetně pražského času.
+**267 testů prochází**, build i typová kontrola čisté.

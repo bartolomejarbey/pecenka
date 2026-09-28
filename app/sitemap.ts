@@ -16,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/domky/mech",
     "/rezervace",
     "/lokalita",
+    "/okoli",
     "/galerie",
     "/cenik",
     "/o-nas",

@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import Reveal from "@/components/Reveal";
 import { Kicker } from "@/components/ui";
 import { SEASONS } from "@/lib/content";
+import { rocniObdobiKDatu } from "@/lib/sezona";
 
 type IconProps = { className?: string };
 
@@ -79,8 +80,9 @@ function SnowflakeIcon({ className = "h-6 w-6" }: IconProps) {
 
 const ICONS: ComponentType<IconProps>[] = [SproutIcon, SunIcon, LeafIcon, SnowflakeIcon];
 
-/** Kapitola · Roční období — celoroční nálada lesa ve čtyřech kartách. */
+/** Kapitola · Roční období — celoroční nálada lesa ve čtyřech kartách; ta právě běžící je označená. */
 export default function SeasonStrip() {
+  const ted = rocniObdobiKDatu();
   return (
     <section className="grain relative overflow-hidden bg-night py-20 md:py-26">
       <div className="relative z-10 mx-auto max-w-7xl px-5 md:px-8">
@@ -97,8 +99,19 @@ export default function SeasonStrip() {
             const Icon = ICONS[i];
             return (
               <Reveal key={season.name} i={i} className="h-full w-[76vw] shrink-0 snap-center md:w-auto md:shrink">
-                <article className="flex h-full flex-col rounded-[28px] border border-linen/8 bg-pine p-7 transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-ember/30 md:p-8">
-                  <Icon className="h-6 w-6 text-ember" />
+                <article
+                  className={`flex h-full flex-col rounded-[28px] border bg-pine p-7 transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-ember/30 md:p-8 ${
+                    i === ted ? "border-ember/45" : "border-linen/8"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <Icon className="h-6 w-6 text-ember" />
+                    {i === ted && (
+                      <span className="rounded-full border border-ember/40 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-ember">
+                        Právě teď
+                      </span>
+                    )}
+                  </div>
                   <h3 className="font-display mt-6 text-xl text-linen">{season.name}</h3>
                   <p className="mt-3 text-[15px] leading-relaxed text-sage">{season.desc}</p>
                 </article>

@@ -1,7 +1,7 @@
 import RevealObserver from "@/components/RevealObserver";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import { SITE, FAQ_ITEMS } from "@/lib/content";
+import { SITE, FAQ_ITEMS, LOCATION } from "@/lib/content";
 
 /**
  * Rozvržení veřejného webu — navigace, patička, lišta cookies a JSON-LD.
@@ -32,14 +32,15 @@ const jsonLd = {
       image: `${SITE.url}/og.jpg`,
       sameAs: [SITE.instagram],
       description:
-        "Pronájem dvou designových tiny housů na samotě u zatopeného břidlicového lomu nad Jílovým u Držkova, na okraji Českého ráje. Celoroční provoz, velkoformátové prosklení, koupání v lomu.",
+        "Pronájem dvou designových tiny housů u zatopeného břidlicového lomu Jílové u Držkova v Libereckém kraji, na pomezí Českého ráje a Jizerských hor. Celoroční provoz, velkoformátové prosklení, koupání v lomu.",
       priceRange: "2 890 Kč – 3 890 Kč / noc",
       currenciesAccepted: "CZK",
       numberOfRooms: 2,
       petsAllowed: true,
       checkinTime: "15:00",
       checkoutTime: "11:00",
-      areaServed: ["Český ráj", "Liberecký kraj", "Praha"],
+      hasMap: LOCATION.mapyUrl,
+      areaServed: ["Český ráj", "Jizerské hory", "Liberecký kraj", "Praha"],
       makesOffer: {
         "@type": "AggregateOffer",
         priceCurrency: "CZK",
@@ -53,7 +54,7 @@ const jsonLd = {
         addressRegion: "Liberecký kraj",
         addressCountry: "CZ",
       },
-      geo: { "@type": "GeoCoordinates", latitude: 50.671, longitude: 15.295 },
+      geo: { "@type": "GeoCoordinates", latitude: LOCATION.lat, longitude: LOCATION.lng },
       amenityFeature: [
         { "@type": "LocationFeatureSpecification", name: "Velkoformátové prosklení" },
         { "@type": "LocationFeatureSpecification", name: "Klimatizace a tepelné čerpadlo" },
@@ -72,10 +73,12 @@ const jsonLd = {
     },
     {
       "@type": "TouristAttraction",
-      name: "Zatopený břidlicový lom u Jílového u Držkova",
+      name: LOCATION.name,
+      alternateName: LOCATION.nickname,
       description:
-        "Bývalý břidlicový lom s křišťálově čistou vodou na okraji Českého ráje — koupání, skoky ze skály a otužování. Místní mu říkají České Chorvatsko.",
-      geo: { "@type": "GeoCoordinates", latitude: 50.671, longitude: 15.295 },
+        "Bývalý břidlicový lom na jižním okraji Jílového u Držkova: hladina 60 × 35 m, hloubka kolem 6 m, křišťálová voda. Koupání, potápění a otužování. Místní mu říkají České Chorvatsko.",
+      hasMap: LOCATION.mapyUrl,
+      geo: { "@type": "GeoCoordinates", latitude: LOCATION.lat, longitude: LOCATION.lng },
       isAccessibleForFree: true,
       touristType: ["koupání", "otužování", "příroda"],
     },

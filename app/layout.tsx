@@ -36,7 +36,7 @@ const hanken = Hanken_Grotesk({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#0c110f",
+  themeColor: "#0a1416",
   colorScheme: "dark",
   // Bez tohohle nemá `env(safe-area-inset-*)` co vracet a spodní lišta
   // administrace leží na iPhonu pod domovským indikátorem.
@@ -46,11 +46,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: "Sedmý les — dva tiny housy u zatopeného lomu",
+    default: "Sedmý les — tiny housy u lomu Jílové u Držkova",
     template: "%s — Sedmý les",
   },
   description:
-    "Dva černé tiny housy na samotě u zatopeného břidlicového lomu nad Jílovým u Držkova, na okraji Českého ráje. Ticho, les a nebe plné hvězd. Saunu a koupací sud teprve připravujeme. Za sedmero horami, hodinu a půl od Prahy.",
+    "Dva černé tiny housy u zatopeného břidlicového lomu Jílové u Držkova (Liberecký kraj, GPS 50.6692N, 15.2903E), na pomezí Českého ráje a Jizerských hor. Ticho, les a nebe plné hvězd. Hodinu a půl od Prahy.",
   applicationName: "Sedmý les",
   authors: [{ name: "Sedmý les" }],
   alternates: { canonical: "/" },
@@ -60,6 +60,9 @@ export const metadata: Metadata = {
     "ubytování Jílové u Držkova",
     "tiny house Liberecký kraj",
     "ubytování u lomu",
+    "lom Jílové u Držkova",
+    "České Chorvatsko koupání",
+    "ubytování Železný Brod okolí",
     "glamping",
     "chata na samotě",
     "víkendový pobyt v přírodě",
@@ -70,16 +73,16 @@ export const metadata: Metadata = {
     locale: "cs_CZ",
     url: SITE.url,
     siteName: "Sedmý les",
-    title: "Sedmý les — dva tiny housy u zatopeného lomu",
+    title: "Sedmý les — tiny housy u lomu Jílové u Držkova",
     description:
-      "Ticho, les a nebe plné hvězd. Dva černé tiny housy na samotě u zatopeného břidlicového lomu na okraji Českého ráje.",
+      "Ticho, les a nebe plné hvězd. Dva černé tiny housy u lomu Jílové u Držkova, na pomezí Českého ráje a Jizerských hor.",
     images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "Sedmý les — tiny housy u zatopeného lomu" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Sedmý les — dva tiny housy u zatopeného lomu",
+    title: "Sedmý les — tiny housy u lomu Jílové u Držkova",
     description:
-      "Ticho, les a nebe plné hvězd. Dva černé tiny housy na samotě u zatopeného lomu na okraji Českého ráje.",
+      "Ticho, les a nebe plné hvězd. Dva černé tiny housy u lomu Jílové u Držkova, na pomezí Českého ráje a Jizerských hor.",
     images: ["/og.jpg"],
   },
   robots: {

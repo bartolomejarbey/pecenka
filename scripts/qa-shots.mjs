@@ -55,6 +55,7 @@ const PAGES = [
   ["mech", "/domky/mech"],
   ["rezervace", "/rezervace"],
   ["lokalita", "/lokalita"],
+  ["okoli", "/okoli"],
   ["cenik", "/cenik"],
   ["galerie", "/galerie"],
   ["faq", "/faq"],

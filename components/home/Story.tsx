@@ -4,7 +4,7 @@ import { Kicker } from "@/components/ui";
 
 const STATS: { value: number | string; suffix?: string; label: string }[] = [
   { value: 0, label: "sousedů v dohledu" },
-  { value: 4, suffix: " km", label: "lesní stezka kolem lomu" },
+  { value: 6, suffix: " m", label: "hloubka lomu pod terasou" },
   { value: "∞", label: "hvězd nad terasou" },
 ];
 
@@ -29,10 +29,11 @@ export default function Story() {
 
             <div className="mt-12 grid max-w-3xl gap-8 md:grid-cols-2">
               <Reveal i={2} as="p" className="text-[15.5px] leading-relaxed text-sage">
-                Sedmý les je samota u zatopeného břidlicového lomu nad Jílovým
-                u Držkova, na okraji Českého ráje. Dva domky, hladina mezi
-                skalami a kolem dokola jen les. Žádní sousedé, žádná silnice,
-                žádné světlo kromě toho vašeho.
+                Sedmý les je samota u zatopeného břidlicového lomu na okraji
+                Jílového u Držkova, na pomezí Českého ráje a Jizerských hor.
+                Dva domky, hladina mezi skalami a kolem dokola les. Místní
+                lomu říkají České Chorvatsko — a až uvidíte tu vodu,
+                pochopíte proč.
               </Reveal>
               <Reveal i={3} as="p" className="text-[15.5px] leading-relaxed text-sage">
                 Postavili jsme to tu pro jediné: abyste mohli na pár nocí

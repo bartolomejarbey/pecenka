@@ -4,8 +4,11 @@
  *
  * REALITA: dva černé kubické tiny housy (každý 15 m² = 10 m² přízemí + 5 m²
  * spací patro, výška 3,5 m), které lze pronajmout zvlášť nebo architektonicky
- * spojit v jeden celek 30 m². Stojí na samotě u zatopeného břidlicového lomu
- * v Jílovém u Držkova (Liberecký kraj, okraj Českého ráje).
+ * spojit v jeden celek 30 m². Stojí u zatopeného břidlicového lomu na jižním
+ * okraji Jílového u Držkova (Liberecký kraj, okres Jablonec nad Nisou, pomezí
+ * Českého ráje a Jizerských hor). Lom: hladina 60 × 35 m, hloubka ≈ 6 m,
+ * GPS 50.6692N, 15.2903E — místní mu říkají České Chorvatsko. Poloha lomu je
+ * na webu veřejně (viz LOCATION); přesnou adresu domku dostává host v portálu.
  *
  * POZN.: Sauna a koupací sud se teprve PŘIPRAVUJÍ — všude o nich píšeme
  * v budoucím čase. Recenze, telefon a IČO jsou ilustrační placeholdery
@@ -230,8 +233,8 @@ export const ADDONS: Addon[] = [
 
 export const EXPERIENCES = [
   {
-    title: "Zatopený lom",
-    desc: "Bývalý břidlicový lom přímo u domků, dnes jezírko s tak čistou vodou, že mu místní říkají České Chorvatsko. V létě na plavání a skoky ze skály, v zimě pro otužilce.",
+    title: "Lom Jílové u Držkova",
+    desc: "Bývalý břidlicový lom pár kroků od domků — hladina 60 × 35 metrů, šest metrů hloubky a voda tak čistá, že mu místní říkají České Chorvatsko. V létě plavání a skoky ze skály, v zimě otužování.",
   },
   {
     title: "Ticho a tmavá obloha",
@@ -260,7 +263,7 @@ export const EXPERIENCES = [
 export const FAQ_ITEMS = [
   {
     q: "Kde přesně Sedmý les je?",
-    a: "Na samotě u zatopeného lomu nad Jílovým u Držkova, na okraji Českého ráje v Libereckém kraji. Přesné souřadnice posíláme s potvrzenou rezervací — soukromí hostů chráníme i takhle. Z Prahy to máte zhruba hodinu a půl, z Liberce a Jablonce přibližně půl hodiny.",
+    a: "U zatopeného břidlicového lomu na jižním okraji Jílového u Držkova — Liberecký kraj, okres Jablonec nad Nisou, na pomezí Českého ráje a Jizerských hor. Na mapě hledejte Lom Jílové u Držkova, GPS 50.6692N, 15.2903E; místní mu říkají České Chorvatsko. Z Prahy to máte zhruba hodinu a půl, z Liberce a Jablonce přibližně půl hodiny. Mapu, cestu a tipy na okolí najdete na stránce Lokalita.",
   },
   {
     q: "Jak je to s domky — kolik jich je a pro kolik lidí?",
@@ -276,7 +279,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "Jak probíhá check-in?",
-    a: "Bezkontaktně. Den před příjezdem vám pošleme souřadnice, video s cestou a kód od schránky s klíčem. Přijet můžete kdykoli mezi 15:00 a 20:00, po domluvě i později.",
+    a: "Bezkontaktně. Den před příjezdem vám pošleme video s cestou od silnice až ke dveřím a kód od schránky s klíčem. Přijet můžete kdykoli mezi 15:00 a 20:00, po domluvě i později.",
   },
   {
     q: "Zvládneme to autem? A v zimě?",
@@ -300,7 +303,7 @@ export const FAQ_ITEMS = [
   },
   {
     q: "Co se dá v okolí dělat?",
-    a: "Spousta. Český ráj se skalními městy, hrady Frýdštejn a Návarov, Suché skály, Maloskalsko, vyhlídková sopka Kozákov s acháty, Bozkovské dolomitové jeskyně a sklářský Železný Brod kousek odsud. A když prší, je nejhezčí zůstat u okna.",
+    a: "Spousta — a máme na to mapu, která se přepíná podle ročního období. V létě koupání v lomu, lodě na Jizeře z Malé Skály, ferrata Vodní brána, skalní města a hrady Českého ráje, rozhledna na Kozákově. V zimě sjezdovka v Zásadě deset minut odsud, Tanvaldský Špičák, Rejdice nebo Harrachov a běžky v Bedřichově. Bozkovské jeskyně a sklářský Železný Brod jsou pro každé počasí. A když prší opravdu, je nejhezčí zůstat u okna.",
   },
   {
     q: "Jak funguje rezervace a platba?",
@@ -314,41 +317,91 @@ export const FAQ_ITEMS = [
 
 /* ===== Lokalita ===== */
 
+/**
+ * Lom Jílové u Držkova — poloha, fakta a cesta.
+ *
+ * Souřadnice jsou vstup k vodě na jižním okraji obce (N 50°40,152′ E 15°17,415′
+ * podle potápěčského atlasu), ne dveře domku: přesnou adresu a video s cestou
+ * dostane host den před příjezdem přes portál. Fakta o lomu jsou z místních
+ * průvodců (Regiontourist, Poznatsvět) — hloubka a rozměry jsou přibližné.
+ */
 export const LOCATION = {
+  name: "Lom Jílové u Držkova",
+  nickname: "České Chorvatsko",
+  village: "Jílové u Držkova",
+  district: "okres Jablonec nad Nisou",
   region: "Liberecký kraj",
-  secretNote:
-    "Přesnou polohu prozradíme až s potvrzenou rezervací. Sedmý les se nehledá — Sedmý les se najde.",
+  landscape: "pomezí Českého ráje a Jizerských hor",
+  lat: 50.6692,
+  lng: 15.2903,
+  gps: "50°40′09″ N, 15°17′25″ E",
+  gpsDecimal: "50.6692N, 15.2903E",
+  elevation: 520,
+  intro:
+    "Domky stojí u zatopeného břidlicového lomu na jižním okraji Jílového u Držkova — Liberecký kraj, okres Jablonec nad Nisou, na pomezí Českého ráje a Jizerských hor. Sto metrů od silnice na Jirkov, parkování padesát metrů od vody, a přesto kolem dokola jen les, skála a hladina, ve které se zrcadlí nebe.",
+  facts: [
+    { label: "Hloubka", value: "≈ 6 m" },
+    { label: "Hladina", value: "60 × 35 m" },
+    { label: "Hornina", value: "břidlice" },
+    { label: "Nadmořská výška", value: "≈ 520 m" },
+    { label: "Parkování", value: "50 m od vody" },
+    { label: "Občerstvení", value: "v létě stánek" },
+  ],
+  mapyUrl:
+    "https://mapy.com/turisticka?source=coor&id=15.2903,50.6692&x=15.2903&y=50.6692&z=16",
+  googleUrl: "https://www.google.com/maps/search/?api=1&query=50.6692,15.2903",
+  navigateUrl: "https://www.google.com/maps/dir/?api=1&destination=50.6692,15.2903",
   distances: [
-    { place: "Praha", time: "≈ 1 h 30 min autem", minutes: 90 },
-    { place: "Liberec", time: "≈ 30 min autem", minutes: 30 },
-    { place: "Jablonec nad Nisou", time: "≈ 25 min autem", minutes: 25 },
-    { place: "Železný Brod", time: "≈ 10 min (5 km)", minutes: 10 },
-    { place: "Vlak: Železný Brod", time: "5 km, vyzvedneme vás", minutes: 10 },
+    { place: "Praha", time: "≈ 1 h 30 min autem (100 km)", minutes: 90 },
+    { place: "Liberec", time: "≈ 35 min autem", minutes: 35 },
+    { place: "Jablonec nad Nisou", time: "≈ 30 min autem", minutes: 30 },
+    { place: "Turnov", time: "≈ 25 min autem", minutes: 25 },
+    { place: "Semily", time: "≈ 18 min autem", minutes: 18 },
+    { place: "Železný Brod", time: "≈ 8 min (5 km)", minutes: 8 },
+    { place: "Vlak: Železný Brod", time: "5 km, vyzvedneme vás", minutes: 8 },
+  ],
+  route: [
+    {
+      title: "Autem z Prahy",
+      desc: "Po D10 na Turnov, dál po silnici I/10 přes Železný Brod do Držkova. V Držkově odbočíte na Jílové; lom je na jižním okraji obce u silnice na Jirkov. Zhruba 100 km, hodina a půl.",
+    },
+    {
+      title: "Z Liberce a Jablonce",
+      desc: "Přes Jablonec nad Nisou a Zásadu, nebo přes Tanvald a po I/10 do Držkova. Z Liberce kolem 35 minut, z Jablonce 30. V zimě cestu udržujeme; stačí běžné zimní pneumatiky.",
+    },
+    {
+      title: "Vlakem a autobusem",
+      desc: "Rychlíkem z Prahy do Železného Brodu (přes Turnov, asi dvě hodiny), z Liberce půl hodiny. Dál autobusem do Jílového u Držkova — nebo dejte vědět a vyzvedneme vás na nádraží.",
+    },
+    {
+      title: "Poslední metry",
+      desc: "Den před příjezdem pošleme video s cestou od silnice až ke dveřím a kód od schránky s klíčem. U lomu padá signál, mapu si otevřete ještě v Držkově. Auto necháte pár kroků od dveří.",
+    },
   ],
   around: [
     {
-      title: "Zatopený lom",
-      desc: "Pár kroků od domků. Bývalý břidlicový lom s křišťálovou vodou — koupání, skoky ze skály, v zimě otužování.",
+      title: "Lom pod terasou",
+      desc: "Bývalý břidlicový lom s křišťálovou vodou, 60 × 35 metrů a šest metrů hloubky. Koupání a skoky ze skály v létě, otužování v zimě.",
     },
     {
       title: "Český ráj",
       desc: "Nejstarší chráněná krajina u nás a geopark UNESCO. Skalní města, vyhlídky a hrady začínají hned za kopcem.",
     },
     {
-      title: "Frýdštejn a Suché skály",
-      desc: "Zřícenina hradu s kulatou věží a dramatický skalní hřeben nad Jizerou. Maloskalsko do dvaceti minut.",
+      title: "Jizera a Maloskalsko",
+      desc: "Lodě z Malé Skály do Dolánek, Suché skály, Pantheon a Frýdštejn — všechno do dvaceti minut autem.",
     },
     {
       title: "Kozákov",
       desc: "Vyhaslá sopka, nejvyšší vrch Českého ráje s rozhlednou. Acháty a ametysty se tu hledají dodnes.",
     },
     {
-      title: "Železný Brod",
-      desc: "Skleněné městečko pět kilometrů odsud — sklářské ateliéry, hutě a muzeum skla.",
+      title: "Jizerské hory a Krkonoše",
+      desc: "Nejbližší sjezdovka je v Zásadě deset minut odsud; Tanvaldský Špičák, Rejdice a Harrachov do čtyřiceti minut. Běžky v Bedřichově a na Jizerce.",
     },
     {
-      title: "Bozkovské jeskyně",
-      desc: "Největší jeskynní systém severních Čech s podzemním jezírkem, kousek po silnici.",
+      title: "Bozkovské jeskyně a sklo",
+      desc: "Největší podzemní jezero v Čechách patnáct minut odsud, sklářský Železný Brod pět kilometrů — pro dny, kdy prší.",
     },
   ],
 };
@@ -391,6 +444,7 @@ export const VOUCHER = {
 export const NAV_LINKS = [
   { href: "/domky", label: "Domky" },
   { href: "/lokalita", label: "Lokalita" },
+  { href: "/okoli", label: "Okolí" },
   { href: "/galerie", label: "Galerie" },
   { href: "/cenik", label: "Ceník" },
   { href: "/o-nas", label: "O nás" },

@@ -1,16 +1,17 @@
+import Link from "next/link";
 import PageHero from "@/components/PageHero";
 import CtaBanner from "@/components/CtaBanner";
 import ContactForm from "@/components/ContactForm";
 import Reveal from "@/components/Reveal";
 import JsonLd from "@/components/JsonLd";
-import { PRICING, SITE } from "@/lib/content";
+import { LOCATION, PRICING, SITE } from "@/lib/content";
 import { telOdkaz } from "@/lib/format";
 import { breadcrumbLd, pageMeta } from "@/lib/seo";
 
 export const metadata = pageMeta({
   title: "Kontakt",
   description:
-    "Napište nebo zavolejte do Sedmého lesa. Na e-maily reagujeme do pár hodin. Souřadnice posíláme s potvrzenou rezervací.",
+    "Napište nebo zavolejte do Sedmého lesa. Na e-maily reagujeme do pár hodin. Najdete nás u lomu Jílové u Držkova, GPS 50.6692N, 15.2903E.",
   path: "/kontakt",
 });
 
@@ -81,9 +82,17 @@ export default function KontaktPage() {
 
                 <ContactRow label="Kde nás najdete">
                   <p className="text-[15.5px] leading-relaxed text-linen">
-                    {SITE.region} — na samotě u zatopeného lomu.
+                    {LOCATION.name} — {LOCATION.village}, {LOCATION.region}.
                   </p>
-                  <p className="mt-1 text-sm text-sage">Souřadnice posíláme s rezervací.</p>
+                  <p className="mt-1 text-sm text-sage">
+                    GPS {LOCATION.gpsDecimal} ·{" "}
+                    <Link
+                      href="/lokalita"
+                      className="text-ember underline underline-offset-2 transition-colors hover:text-ember-soft"
+                    >
+                      mapa a cesta
+                    </Link>
+                  </p>
                 </ContactRow>
 
                 <ContactRow label="Příjezd a odjezd">
